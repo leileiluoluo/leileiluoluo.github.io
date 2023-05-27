@@ -27,7 +27,7 @@ docker run -dp 3000:3000 getting-started
 </code></pre></div><p>然后，使用<code>docker tag</code>命令将<code>getting-started</code>镜像重命名：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker tag getting-started olzhy/getting-started
 </code></pre></div><p>最后，使用<code>docker push</code>命令将镜像推送至 Docker Hub：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker push olzhy/getting-started
 </code></pre></div><p>这样，任何人即可以在安装了 Docker 的机器上使用我们刚刚推送的镜像了：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -dp 3000:3000 olzhy/getting-started
-</code></pre></div><h3 id=33-数据库持久化>3.3 数据库持久化</h3><p>目前的这个「待办列表」示例应用程序重启后，数据会丢失。这是因为未对数据库进行持久化，下面看一下如何持久化数据库。</p><p>卷提供了将容器的特定文件系统路径连接到主机的功能。</p><p>「待办列表」示例应用程序使用的是 SQLite 数据库，其数据存储在文件<code>/etc/todos/todo.db</code>中。</p><p>下面，使用<code>docker volume create</code>命令创建一个卷：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker volume create todo-db
+</code></pre></div><h3 id=33-数据库持久化>3.3 数据库持久化</h3><p>目前的这个「待办列表」示例应用程序重启后，数据会丢失。这是因为未对数据库进行持久化，下面看一下如何持久化数据库。</p><p>卷（Volume）提供了将容器的特定文件系统路径映射到主机的功能。</p><p>「待办列表」示例应用程序使用的是 SQLite 数据库，其数据存储在文件<code>/etc/todos/todo.db</code>中。</p><p>下面，使用<code>docker volume create</code>命令创建一个卷：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker volume create todo-db
 </code></pre></div><p>然后，指定挂载的卷，并启动容器：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -dp 3000:3000 --mount type<span style=color:#f92672>=</span>volume,src<span style=color:#f92672>=</span>todo-db,target<span style=color:#f92672>=</span>/etc/todos getting-started
 </code></pre></div><p>启动完成后，增加一些数据。这时，停止并移除上述容器后，再次使用如上命令启动新的容器时，仍可以看到之前添加的数据。</p><p>最后，使用<code>docker volume inspect</code>命令看一下数据到底存到了哪里：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker volume inspect todo-db
 
@@ -42,5 +42,47 @@ docker run -dp 3000:3000 getting-started
         <span style=color:#e6db74>&#34;Scope&#34;</span>: <span style=color:#e6db74>&#34;local&#34;</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>]</span>
-</code></pre></div><p>挂载点（Mountpoint）显示了数据在主机的具体位置。</p><blockquote><p>参考资料</p><p>[1] <a href=https://docs.docker.com/get-started/>Get started | Docker Documentation - docs.docker.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/>#云原生</a>
+</code></pre></div><p>挂载点（Mountpoint）显示了数据在主机的具体位置。</p><p>除了使用卷外，还可以使用绑定挂载（Bind Mounts）来将主机的任一文件或文件夹挂载到容器。</p><p>使用方式与卷类似，下面是使用 Bind Mounts 挂载方式运行容器的命令：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -dp 3000:3000 --mount type<span style=color:#f92672>=</span>bind,src<span style=color:#f92672>=</span>/tmp/todos,target<span style=color:#f92672>=</span>/etc/todos getting-started
+
+<span style=color:#75715e># 亦可以直接简化为 -v 方式</span>
+docker run -dp 3000:3000 -v /tmp/todos:/etc/todos getting-started
+</code></pre></div><h3 id=34-多容器交互>3.4 多容器交互</h3><p>下面，新建一个 MySQL 数据库容器，然后尝试用「待办列表」容器连接这个数据库。</p><p>两个容器需要使用网络进行通信，首先需要创建网络：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker network create todo-app
+</code></pre></div><p>接着，运行 MySQL 容器：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># 可以看到，挂载的时候，未创建卷 todo-mysql-data，这个时候 Docker 会自动帮我们创建</span>
+docker run -d <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>     --network todo-app --network-alias mysql <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>     -v todo-mysql-data:/var/lib/mysql <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>     -e MYSQL_ROOT_PASSWORD<span style=color:#f92672>=</span>secret <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>     -e MYSQL_DATABASE<span style=color:#f92672>=</span>todos <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>     mysql:8.0
+</code></pre></div><p>使用如下命令进入容器，尝试连接数据库并执行数据库命令：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker exec -it &lt;mysql-container-id&gt; mysql -u root -p
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>mysql&gt; SHOW DATABASES;
+
++--------------------+
+ | Database           |
+ +--------------------+
+ | information_schema |
+ | mysql              |
+ | performance_schema |
+ | sys                |
+ | todos              |
+ +--------------------+
+ <span style=color:#ae81ff>5</span> rows in set <span style=color:#f92672>(</span>0.00 sec<span style=color:#f92672>)</span>
+</code></pre></div><p>可以看到，数据库<code>todos</code>已被创建。</p><p>下面，进入<code>getting-started/app</code>文件夹，使用如下命令来启动「待办列表」容器：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -dp 3000:3000 <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   -w /app -v <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>pwd<span style=color:#66d9ef>)</span><span style=color:#e6db74>:/app&#34;</span> <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   --network todo-app <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   -e MYSQL_HOST<span style=color:#f92672>=</span>mysql <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   -e MYSQL_USER<span style=color:#f92672>=</span>root <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   -e MYSQL_PASSWORD<span style=color:#f92672>=</span>secret <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   -e MYSQL_DB<span style=color:#f92672>=</span>todos <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   node:18-alpine <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>   sh -c <span style=color:#e6db74>&#34;yarn install &amp;&amp; yarn run dev&#34;</span>
+</code></pre></div><p>访问应用程序，并增加一些条目。</p><p>这时，查看数据库时，发现表里边已经写入了数据：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker exec -it &lt;mysql-container-id&gt; mysql -p todos
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>mysql&gt; <span style=color:#66d9ef>select</span> * from todo_items;
+ +--------------------------------------+--------------------+-----------+
+ | id                                   | name               | completed |
+ +--------------------------------------+--------------------+-----------+
+ | c906ff08-60e6-44e6-8f49-ed56a0853e85 | Do amazing things! |         <span style=color:#ae81ff>0</span> |
+ | 2912a79e-8486-4bc3-a4c5-460793a575ab | Be awesome!        |         <span style=color:#ae81ff>0</span> |
+ +--------------------------------------+--------------------+-----------+
+</code></pre></div><blockquote><p>参考资料</p><p>[1] <a href=https://docs.docker.com/get-started/>Get started | Docker Documentation - docs.docker.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/>#云原生</a>
 <a href=/tags/docker/>#Docker</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/what-is-a-container.html>一文了解什么是容器</a></li><li><a href=/posts/podman-getting-started.html>容器引擎 Podman 初探</a></li><li><a href=/posts/kubernetes-introduction.html>Kubernetes 概览</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
