@@ -109,7 +109,7 @@ docker run -d <span style=color:#ae81ff>\
 
 <span style=color:#f92672>volumes</span>:
   <span style=color:#f92672>todo-mysql-data</span>:
-</code></pre></div><p>可以看到，配置非常的简单明了。</p><p>接着，使用如下命令启动容器：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker compose up -d
+</code></pre></div><p>可以看到，该 Compose 文件配置了应用程序和 MySQL 两个服务，配置参数非常的简单明了。</p><p>接着，使用如下命令启动容器：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker compose up -d
 </code></pre></div><p>使用如下命令查看日志：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker compose logs -f
 </code></pre></div><p>测试完成后，可使用如下命令移除容器：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># 若要将 Volume 一并移除，需要加 --volumes 标记</span>
 docker compose down
