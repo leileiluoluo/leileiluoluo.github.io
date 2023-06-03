@@ -28,7 +28,8 @@
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>这就是使用 Spring Boot 搭建一个「Hello World！」Web 服务的全部代码。</p><p>下面解释一下用到的几个注解：</p><ul><li><code>@RestController</code>告诉 Spring 当前类提供了一个 Web 访问端点；</li><li><code>@GetMapping("/hello")</code>告诉 Spring 使用<code>hello()</code>方法来响应发送至<code>http://localhost:8080/hello</code>的请求；</li><li><code>@RequestParam</code>告诉 Spring 可在请求中为<code>name</code>参数传值（不传的话使用默认值<code>World</code>）。</li></ul><h2 id=3-进行测试>3 进行测试</h2><p>下面，使用 Maven 构建并运行程序。</p><p>打开命令行，进入程序根目录，然后使用如下 Maven 命令运行程序：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>mvn clean &amp; package
+</code></pre></div><p>这就是使用 Spring Boot 搭建一个「Hello World！」Web 服务的全部代码。</p><p>下面解释一下用到的几个注解：</p><ul><li><code>@RestController</code>告诉 Spring 当前类提供了一个 Web 访问端点；</li><li><code>@GetMapping("/hello")</code>告诉 Spring 使用<code>hello()</code>方法来响应发送至<code>http://localhost:8080/hello</code>的请求；</li><li><code>@RequestParam</code>告诉 Spring 可在请求中为<code>name</code>参数传值（不传的话使用默认值<code>World</code>）。</li></ul><h2 id=3-进行测试>3 进行测试</h2><p>下面，使用 Maven 构建并运行程序。</p><p>打开命令行，进入程序根目录，然后使用如下 Maven 命令打包及运行程序：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>mvn clean package
+mvn spring-boot:run --quiet
 </code></pre></div><p>程序启动完成后，使用如下 CURL 命令进行测试：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl http://localhost:8080/hello
 
 Hello World!
