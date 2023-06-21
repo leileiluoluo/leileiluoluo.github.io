@@ -213,8 +213,7 @@ Thread-0#4
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>该示例代码只是对前面的示例代码稍稍作了一点修改，只是启动时将 Daemon 设置为了 true。可以看到运行该程序将不会打印任何内容，这是因为<code>main</code>线程退出时，Daemon 线程也跟着退出了，没有得到执行。</p><h4 id=setname>setName()</h4><p><code>Thread</code>的实例方法，用于给线程设置一个名称。</p><p>如下为使用<code>Thread.setName()</code>的一个示例程序：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java>
-<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HelloThreadWithName</span> <span style=color:#66d9ef>implements</span> Runnable <span style=color:#f92672>{</span>
+</code></pre></div><p>该示例代码只是对前面的示例代码稍稍作了一点修改，只是启动时将 Daemon 设置为了 true。可以看到运行该程序将不会打印任何内容，这是因为<code>main</code>线程退出时，Daemon 线程也跟着退出了，没有得到执行。</p><h4 id=setname>setName()</h4><p><code>Thread</code>的实例方法，用于给线程设置一个名称。</p><p>如下为使用<code>Thread.setName()</code>的一个示例程序：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HelloThreadWithName</span> <span style=color:#66d9ef>implements</span> Runnable <span style=color:#f92672>{</span>
 
     <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span><span style=color:#f92672>(</span>String<span style=color:#f92672>[]</span> args<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
         <span style=color:#75715e>// 启动线程
