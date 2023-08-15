@@ -12,7 +12,8 @@
         <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;老年&#34;</span><span style=color:#f92672>;</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>ageGroup</span>(age: Int): String {
+</code></pre></div><p>上面这段 Java 代码，是对年龄段进行分组。</p><p>如果使用 Kotlin 来改写的话，会是下面这个样子：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 不建议的写法
+</span><span style=color:#75715e></span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>ageGroup</span>(age: Int): String {
     <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>if</span> (age <span style=color:#66d9ef>in</span> <span style=color:#ae81ff>0.</span>.&lt;<span style=color:#ae81ff>18</span>) {
         <span style=color:#e6db74>&#34;未成年&#34;</span>
     } <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (age &lt; <span style=color:#ae81ff>45</span>) {
@@ -23,7 +24,8 @@
         <span style=color:#e6db74>&#34;老年&#34;</span>
     }
 }
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>ageGroup</span>(age: Int): String = <span style=color:#66d9ef>when</span> {
+</code></pre></div><p>但如上方式是不推荐的，有两点改进建议，就是：能使用表达式就不要使用函数块；能使用<code>when</code>就不要使用<code>if</code>。</p><p>所以，如上 Kotlin 代码改写为表达式结合<code>when</code>语句的写法如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 建议的写法
+</span><span style=color:#75715e></span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>ageGroup</span>(age: Int): String = <span style=color:#66d9ef>when</span> {
     age <span style=color:#66d9ef>in</span> <span style=color:#ae81ff>0.</span>.&lt;<span style=color:#ae81ff>18</span> <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;未成年&#34;</span>
     age &lt; <span style=color:#ae81ff>45</span> <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;青年&#34;</span>
     age &lt; <span style=color:#ae81ff>60</span> <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;中年&#34;</span>
