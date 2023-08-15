@@ -31,7 +31,7 @@
     age &lt; <span style=color:#ae81ff>60</span> <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;中年&#34;</span>
     <span style=color:#66d9ef>else</span> <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;老年&#34;</span>
 }
-</code></pre></div><h3 id=23-使用扩展函数充当工具包的场景>2.3 使用扩展函数充当工具包的场景</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> java.text.SimpleDateFormat<span style=color:#f92672>;</span>
+</code></pre></div><h3 id=23-使用扩展函数充当工具包的场景>2.3 使用扩展函数充当工具包的场景</h3><p>先看一段 Java 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> java.text.SimpleDateFormat<span style=color:#f92672>;</span>
 <span style=color:#f92672>import</span> java.util.Date<span style=color:#f92672>;</span>
 
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DatesUtil</span> <span style=color:#f92672>{</span>
@@ -45,7 +45,7 @@
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 不推荐的写法
+</code></pre></div><p>上面这段代码是 Java 中比较常用的静态工具方法的写法。</p><p>如果把它直接转化为 Kotlin 的写法，代码是下面这个样子：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 不推荐的写法
 </span><span style=color:#75715e></span><span style=color:#66d9ef>import</span> java.text.SimpleDateFormat
 <span style=color:#66d9ef>import</span> java.util.*
 
@@ -59,7 +59,7 @@
 <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
     println(DateUtil.formatDate(Date()))
 }
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 推荐的写法
+</code></pre></div><p>对于这种工具包的场景，上面这种从 Java 延续过来的写法在 Kotlin 中是不推荐的，Kotlin 更推荐使用扩展函数来实现这类功能，这样显得代码更具有可读性。</p><p>使用扩展函数充当工具包的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 推荐的写法
 </span><span style=color:#75715e></span><span style=color:#66d9ef>import</span> java.text.SimpleDateFormat
 <span style=color:#66d9ef>import</span> java.util.*
 
