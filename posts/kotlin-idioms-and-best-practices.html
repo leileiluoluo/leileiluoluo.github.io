@@ -158,14 +158,16 @@ order<span style=color:#f92672>?.</span>let {
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>EmailService</span> <span style=color:#f92672>{</span>
     <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>send</span><span style=color:#f92672>(</span>Email email<span style=color:#f92672>);</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><h3 id=29-做字段映射时尝试使用单表达式函数>2.9 做字段映射时尝试使用单表达式函数</h3><p>先看一段 Kotlin 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 不推荐的写法
+</code></pre></div><h3 id=29-做字段映射时尝试使用单表达式函数>2.9 做字段映射时尝试使用单表达式函数</h3><p>先看一段 Kotlin 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> name: String, <span style=color:#66d9ef>val</span> age: Int, <span style=color:#66d9ef>val</span> gender: String)
+
+<span style=color:#75715e>// 不推荐的写法
 </span><span style=color:#75715e></span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>parseMapToUser</span>(userMap: Map&lt;String, Any&gt;): User {
     <span style=color:#66d9ef>return</span> User(
             name = userMap[<span style=color:#e6db74>&#34;name&#34;</span>] <span style=color:#66d9ef>as</span> String,
             age = userMap[<span style=color:#e6db74>&#34;age&#34;</span>] <span style=color:#66d9ef>as</span> Int,
             gender = userMap[<span style=color:#e6db74>&#34;gender&#34;</span>] <span style=color:#66d9ef>as</span> String)
 }
-</code></pre></div><p>这段代码在提取 Map 中的字段信息，从而组装成具体的对象。仅做字段映射和对象转换时，如上的这种写法是不推荐的。</p><p>使用单表达式来改写如上写法会显得更精简且更具有可读性。</p><p>代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 推荐的写法
+</code></pre></div><p>这段代码在提取 Map 中的字段信息，从而组装成具体的对象。若一个函数仅做诸如此类字段映射和对象转换时，如上的这种写法是不推荐的。</p><p>使用单表达式来改写如上写法会显得更精简且更具有可读性。</p><p>代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 推荐的写法
 </span><span style=color:#75715e></span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>parseMapToUser</span>(userMap: Map&lt;String, Any&gt;) = User(
         name = userMap[<span style=color:#e6db74>&#34;name&#34;</span>] <span style=color:#66d9ef>as</span> String,
         age = userMap[<span style=color:#e6db74>&#34;age&#34;</span>] <span style=color:#66d9ef>as</span> Int,
