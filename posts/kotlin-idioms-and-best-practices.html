@@ -151,9 +151,7 @@ order<span style=color:#f92672>?.</span>let {
 <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>EmailService</span> {
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>send</span>(email: Email)
 }
-</code></pre></div><p>Java 11 中也借鉴了 Kotlin 的<code>data class</code>也引入了<code>record</code>关键字来定义不可变数据类。</p><p>如上代码对应 Java 中的写法如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> record <span style=color:#a6e22e>Email</span><span style=color:#f92672>(</span>String to<span style=color:#f92672>,</span> String subject<span style=color:#f92672>,</span> String content<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
-
-<span style=color:#f92672>}</span>
+</code></pre></div><p>Java 14 中也借鉴了 Kotlin 的<code>data class</code>也引入了<code>record</code>关键字来定义不可变数据类。</p><p>如上代码对应 Java 中的写法如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> record <span style=color:#a6e22e>Email</span><span style=color:#f92672>(</span>String to<span style=color:#f92672>,</span> String subject<span style=color:#f92672>,</span> String content<span style=color:#f92672>)</span> <span style=color:#f92672>{}</span>
 
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>EmailService</span> <span style=color:#f92672>{</span>
     <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>send</span><span style=color:#f92672>(</span>Email email<span style=color:#f92672>);</span>
