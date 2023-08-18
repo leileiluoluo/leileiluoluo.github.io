@@ -277,7 +277,7 @@ order<span style=color:#f92672>?.</span>let {
         <span style=color:#75715e>// ...
 </span><span style=color:#75715e></span>    }
 }
-</code></pre></div><p>如上代码中，<code>MouseAdapter</code>是 Java awt 中的一个抽象类，<code>DefaultListener</code>实现了其中的两个方法。</p><h3 id=212-在需要的场景使用解构>2.12 在需要的场景使用解构</h3><p>Java 中不支持一个方法返回多个值，也不支持多个值在变量的携带，这在实际使用中非常的不方便，多于一个值的返回就得考虑新建一个类。</p><p>Kotlin 虽然也没有多值返回这个功能，但 Kotlin 支持解构以及内置二值（<code>Pair</code>）和三值（<code>Triple</code>）数据类，也可以达到多值返回和使用的效果。</p><p>看一段 Kotlin 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getStudents</span>(): List&lt;Pair&lt;String, Int&gt;&gt; =
+</code></pre></div><p>如上代码中，<code>MouseAdapter</code>是 Java awt 中的一个抽象类，<code>DefaultListener</code>实现了其中的两个方法。</p><h3 id=212-在需要的时候使用解构>2.12 在需要的时候使用解构</h3><p>Java 中不支持一个方法返回多个值，也不支持多个值在变量的携带，这在实际使用中非常的不方便，多于一个值的返回就得考虑新建一个类。</p><p>Kotlin 虽然也没有多值返回这个功能，但 Kotlin 支持解构以及内置二值（<code>Pair</code>）和三值（<code>Triple</code>）数据类，也可以达到多值返回和使用的效果。</p><p>看一段 Kotlin 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getStudents</span>(): List&lt;Pair&lt;String, Int&gt;&gt; =
         listOf(Pair(<span style=color:#e6db74>&#34;Larry&#34;</span>, <span style=color:#ae81ff>28</span>), Pair(<span style=color:#e6db74>&#34;Lucy&#34;</span>, <span style=color:#ae81ff>26</span>))
 
 <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
