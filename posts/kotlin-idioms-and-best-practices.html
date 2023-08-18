@@ -298,4 +298,56 @@ order<span style=color:#f92672>?.</span>let {
         println(<span style=color:#e6db74>&#34;</span><span style=color:#e6db74>$name</span><span style=color:#e6db74>, </span><span style=color:#e6db74>$age</span><span style=color:#e6db74>, </span><span style=color:#e6db74>$gender</span><span style=color:#e6db74>, </span><span style=color:#e6db74>$grade</span><span style=color:#e6db74>&#34;</span>)
     }
 }
+</code></pre></div><h3 id=213-巧用密封类取代异常的使用场景>2.13 巧用密封类取代异常的使用场景</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long,
+                <span style=color:#66d9ef>val</span> avatarUrl: String,
+                <span style=color:#66d9ef>val</span> name: String,
+                <span style=color:#66d9ef>val</span> email: String)
+
+<span style=color:#a6e22e>@Throws</span>(UserException<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>)
+<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>requestUser</span>(id: Long): User = <span style=color:#66d9ef>try</span> {
+    restTemplate.getForObject&lt;User&gt;(<span style=color:#e6db74>&#34;http://api.some-domain.com/api/users/</span><span style=color:#e6db74>$id</span><span style=color:#e6db74>&#34;</span>)
+} <span style=color:#66d9ef>catch</span> (ex: IOException) {
+    <span style=color:#66d9ef>throw</span> UserException(
+            message = <span style=color:#e6db74>&#34;request_failed&#34;</span>,
+            cause = ex
+    )
+} <span style=color:#66d9ef>catch</span> (ex: RestClientException) {
+    <span style=color:#66d9ef>throw</span> UserException(
+            message = <span style=color:#e6db74>&#34;request_failed&#34;</span>,
+            cause = ex
+    )
+}
+
+<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
+    <span style=color:#66d9ef>val</span> avatarUrl = <span style=color:#66d9ef>try</span> {
+        requestUser(id).avatarUrl
+    } <span style=color:#66d9ef>catch</span> (ex: UserException) {
+        <span style=color:#e6db74>&#34;https://www.some-domain.com/images/default-avatar.png&#34;</span>
+    }
+}
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long,
+                <span style=color:#66d9ef>val</span> avatarUrl: String,
+                <span style=color:#66d9ef>val</span> name: String,
+                <span style=color:#66d9ef>val</span> email: String)
+
+<span style=color:#66d9ef>sealed</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserResponse</span> {
+    <span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Success</span>(<span style=color:#66d9ef>val</span> user: User) : UserResponse()
+    <span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Error</span>(<span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>val</span> description: String) : UserResponse()
+}
+
+<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>requestUser</span>(id: Long): UserResponse = <span style=color:#66d9ef>try</span> {
+    <span style=color:#66d9ef>val</span> user = restTemplate.getForObject&lt;User&gt;(<span style=color:#e6db74>&#34;http://api.some-domain.com/api/users/</span><span style=color:#e6db74>$id</span><span style=color:#e6db74>&#34;</span>)
+    UserResponse.Success(user = user)
+} <span style=color:#66d9ef>catch</span> (ex: IOException) {
+    UserResponse.Error(<span style=color:#e6db74>&#34;parse_failed&#34;</span>, <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${ex.message}</span><span style=color:#e6db74>&#34;</span>)
+} <span style=color:#66d9ef>catch</span> (ex: RestClientException) {
+    UserResponse.Error(<span style=color:#e6db74>&#34;request_failed&#34;</span>, <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${ex.message}</span><span style=color:#e6db74>&#34;</span>)
+}
+
+<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
+    <span style=color:#66d9ef>val</span> avatarUrl = <span style=color:#66d9ef>when</span> (<span style=color:#66d9ef>val</span> userResp = requestUser(<span style=color:#ae81ff>1</span>)) {
+        <span style=color:#66d9ef>is</span> UserResponse.Success <span style=color:#f92672>-&gt;</span> userResp.user.avatarUrl
+        <span style=color:#66d9ef>is</span> UserResponse.Error <span style=color:#f92672>-&gt;</span> <span style=color:#e6db74>&#34;https://www.some-domain.com/images/default-avatar.png&#34;</span>
+    }
+}
 </code></pre></div><blockquote><p>参考资料</p><p>[1] <a href=https://kotlinlang.org/docs/idioms.html>Idioms | Kotlin Documentation - kotlinlang.org</a></p><p>[2] <a href=https://phauer.com/2017/idiomatic-kotlin-best-practices/>Idiomatic Kotlin Best Practices | Philipp Hauer&rsquo;s Blog - phauer.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a></div></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
