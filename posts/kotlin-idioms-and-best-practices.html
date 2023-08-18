@@ -306,10 +306,10 @@ order<span style=color:#f92672>?.</span>let {
 
 <span style=color:#a6e22e>@Throws</span>(UserException<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>)
 <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>requestUser</span>(id: Long): User = <span style=color:#66d9ef>try</span> {
-    restTemplate.getForObject&lt;User&gt;(<span style=color:#e6db74>&#34;http://api.some-domain.com/api/users/</span><span style=color:#e6db74>$id</span><span style=color:#e6db74>&#34;</span>)
+    restTemplate.getForObject&lt;User&gt;(<span style=color:#e6db74>&#34;https://api.some-domain.com/api/users/</span><span style=color:#e6db74>$id</span><span style=color:#e6db74>&#34;</span>)
 } <span style=color:#66d9ef>catch</span> (ex: IOException) {
     <span style=color:#66d9ef>throw</span> UserException(
-            message = <span style=color:#e6db74>&#34;request_failed&#34;</span>,
+            message = <span style=color:#e6db74>&#34;parse_failed&#34;</span>,
             cause = ex
     )
 } <span style=color:#66d9ef>catch</span> (ex: RestClientException) {
@@ -339,7 +339,7 @@ order<span style=color:#f92672>?.</span>let {
 }
 
 <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>requestUser</span>(id: Long): UserResponse = <span style=color:#66d9ef>try</span> {
-    <span style=color:#66d9ef>val</span> user = restTemplate.getForObject&lt;User&gt;(<span style=color:#e6db74>&#34;http://api.some-domain.com/api/users/</span><span style=color:#e6db74>$id</span><span style=color:#e6db74>&#34;</span>)
+    <span style=color:#66d9ef>val</span> user = restTemplate.getForObject&lt;User&gt;(<span style=color:#e6db74>&#34;https://api.some-domain.com/api/users/</span><span style=color:#e6db74>$id</span><span style=color:#e6db74>&#34;</span>)
     UserResponse.Success(user = user)
 } <span style=color:#66d9ef>catch</span> (ex: IOException) {
     UserResponse.Error(<span style=color:#e6db74>&#34;parse_failed&#34;</span>, <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${ex.message}</span><span style=color:#e6db74>&#34;</span>)
