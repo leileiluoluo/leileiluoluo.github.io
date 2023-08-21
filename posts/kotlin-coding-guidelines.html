@@ -1,4 +1,96 @@
 <!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>对比 Java 学习 Kotlin 的开发规约 - 磊磊落落</title><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Kotlin,开发规约,对比,Java"><meta name=description content="本文以对比 Java 的方式学习了 Kotlin 中的一些开发规约。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.81.0"><link rel=stylesheet href=https://olzhy.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://olzhy.github.io/css/themify-icons.css><link rel=stylesheet href=https://olzhy.github.io/css/larry-custom.css><link rel=stylesheet href=https://olzhy.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://olzhy.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://olzhy.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var a=document.createElement("script"),b;a.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",b=document.getElementsByTagName("script")[0],b.parentNode.insertBefore(a,b)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://olzhy.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://olzhy.github.io/></a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://olzhy.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>对比 Java 学习 Kotlin 的开发规约</h1><div class="mb-3 post-meta">2023年08月21日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>本文将会以对比 Java 的方式来学习 Kotlin 中的一些开发规约。</p><h3 id=1-if-else-嵌套不要超过-3-层>1 if-else 嵌套不要超过 3 层</h3><p>Kotlin 中建议<code>if-else</code>嵌套不要超过 3 层。</p><p>Java 中也有类似的规定，如：</p><p>阿里巴巴 Java 开发手册黄山版就规定：如果非使用<code>if()...else if()...else...</code>方式表达逻辑，避免后续代码维护困难，请勿超过 3 层；超过 3 层的<code>if-else</code>的逻辑判断代码可以使用卫语句等方式实现。</p><blockquote><p>参考资料</p><p>[1] <a href=https://github.com/alibaba/p3c>阿里巴巴 Java 开发手册黄山版 | Alibab P3C - github.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>本文将会以对比 Java 的方式来学习 Kotlin 中的一些开发规约。</p><h3 id=1-if-else-嵌套不要超过-3-层>1 if-else 嵌套不要超过 3 层</h3><p>Kotlin 中建议<code>if-else</code>嵌套不要超过 3 层。</p><p>Java 中也有类似的规定，如：</p><p>阿里巴巴 Java 开发手册就规定：如果非使用<code>if()...else if()...else...</code>方式表达逻辑，避免后续代码维护困难，请勿超过 3 层；超过 3 层的<code>if-else</code>的逻辑判断代码可以使用卫语句等方式实现。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// 根据订单 ID 查询商品总价
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> Long <span style=color:#a6e22e>getPriceTotalByOrderId</span><span style=color:#f92672>(</span>Long orderId<span style=color:#f92672>)</span> <span style=color:#66d9ef>throws</span> BusinessException <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>long</span> priceTotal <span style=color:#f92672>=</span> 0L<span style=color:#f92672>;</span>
+
+    <span style=color:#75715e>// 查询订单
+</span><span style=color:#75715e></span>    Order order <span style=color:#f92672>=</span> orderService<span style=color:#f92672>.</span><span style=color:#a6e22e>getOrderById</span><span style=color:#f92672>(</span>orderId<span style=color:#f92672>);</span>
+    <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span><span style=color:#66d9ef>null</span> <span style=color:#f92672>!=</span> order<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#75715e>// 查询订单中的商品
+</span><span style=color:#75715e></span>        List<span style=color:#f92672>&lt;</span>Product<span style=color:#f92672>&gt;</span> products <span style=color:#f92672>=</span> order<span style=color:#f92672>.</span><span style=color:#a6e22e>getProducts</span><span style=color:#f92672>();</span>
+        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(!</span>products<span style=color:#f92672>.</span><span style=color:#a6e22e>isEmpty</span><span style=color:#f92672>())</span> <span style=color:#f92672>{</span>
+            <span style=color:#75715e>// 计算商品总价
+</span><span style=color:#75715e></span>            <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>Product product <span style=color:#f92672>:</span> products<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+                <span style=color:#66d9ef>if</span> <span style=color:#f92672>(!</span>product<span style=color:#f92672>.</span><span style=color:#a6e22e>isGift</span><span style=color:#f92672>())</span> <span style=color:#f92672>{</span> <span style=color:#75715e>// 非赠品才计入总价
+</span><span style=color:#75715e></span>                    priceTotal <span style=color:#f92672>+=</span> product<span style=color:#f92672>.</span><span style=color:#a6e22e>getPrice</span><span style=color:#f92672>();</span>
+                <span style=color:#f92672>}</span>
+            <span style=color:#f92672>}</span>
+            <span style=color:#66d9ef>return</span> priceTotal<span style=color:#f92672>;</span>
+        <span style=color:#f92672>}</span> <span style=color:#66d9ef>else</span> <span style=color:#f92672>{</span>
+            <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> BusinessException<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;该订单未包含任何商品&#34;</span><span style=color:#f92672>);</span>
+        <span style=color:#f92672>}</span>
+    <span style=color:#f92672>}</span> <span style=color:#66d9ef>else</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> BusinessException<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;未找到相应的订单&#34;</span><span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#66d9ef>return</span> priceTotal<span style=color:#f92672>;</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// 根据订单 ID 查询商品总价
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> Long <span style=color:#a6e22e>getPriceTotalByOrderId</span><span style=color:#f92672>(</span>Long orderId<span style=color:#f92672>)</span> <span style=color:#66d9ef>throws</span> BusinessException <span style=color:#f92672>{</span>
+    <span style=color:#66d9ef>long</span> priceTotal <span style=color:#f92672>=</span> 0L<span style=color:#f92672>;</span>
+
+    <span style=color:#75715e>// 查询订单
+</span><span style=color:#75715e></span>    Order order <span style=color:#f92672>=</span> orderService<span style=color:#f92672>.</span><span style=color:#a6e22e>getOrderById</span><span style=color:#f92672>(</span>orderId<span style=color:#f92672>);</span>
+    <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span><span style=color:#66d9ef>null</span> <span style=color:#f92672>==</span> order<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> BusinessException<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;未找到相应的订单&#34;</span><span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#75715e>// 查询订单中的商品
+</span><span style=color:#75715e></span>    List<span style=color:#f92672>&lt;</span>Product<span style=color:#f92672>&gt;</span> products <span style=color:#f92672>=</span> order<span style=color:#f92672>.</span><span style=color:#a6e22e>getProducts</span><span style=color:#f92672>();</span>
+    <span style=color:#66d9ef>if</span> <span style=color:#f92672>(</span>products<span style=color:#f92672>.</span><span style=color:#a6e22e>isEmpty</span><span style=color:#f92672>())</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> BusinessException<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;该订单未包含任何商品&#34;</span><span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#75715e>// 计算商品总价
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>for</span> <span style=color:#f92672>(</span>Product product <span style=color:#f92672>:</span> products<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>if</span> <span style=color:#f92672>(!</span>product<span style=color:#f92672>.</span><span style=color:#a6e22e>isGift</span><span style=color:#f92672>())</span> <span style=color:#f92672>{</span> <span style=color:#75715e>// 非赠品才计入总价
+</span><span style=color:#75715e></span>            priceTotal <span style=color:#f92672>+=</span> product<span style=color:#f92672>.</span><span style=color:#a6e22e>getPrice</span><span style=color:#f92672>();</span>
+        <span style=color:#f92672>}</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#66d9ef>return</span> priceTotal<span style=color:#f92672>;</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 根据订单 ID 查询商品总价
+</span><span style=color:#75715e></span><span style=color:#a6e22e>@Throws</span>(BusinessException<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>)
+<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getPriceTotalByOrderId</span>(orderId: Long): Long {
+    <span style=color:#66d9ef>var</span> priceTotal = <span style=color:#ae81ff>0L</span>
+
+    <span style=color:#75715e>// 查询订单
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> order: Order? = DefaultOrderService().getOrderById(orderId)
+    <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>null</span> <span style=color:#f92672>!=</span> order) {
+        <span style=color:#75715e>// 查询订单中的商品
+</span><span style=color:#75715e></span>        <span style=color:#66d9ef>val</span> products: List&lt;Product&gt; = order.products
+        <span style=color:#66d9ef>if</span> (products.isNotEmpty()) {
+            <span style=color:#75715e>// 计算商品总价
+</span><span style=color:#75715e></span>            <span style=color:#66d9ef>for</span> (product <span style=color:#66d9ef>in</span> products) {
+                <span style=color:#66d9ef>if</span> (!product.isGift()) { <span style=color:#75715e>// 非赠品才计入总价
+</span><span style=color:#75715e></span>                    priceTotal <span style=color:#f92672>+=</span> product.price
+                }
+            }
+            priceTotal
+        } <span style=color:#66d9ef>else</span> {
+            <span style=color:#66d9ef>throw</span> BusinessException(<span style=color:#e6db74>&#34;该订单未包含任何商品&#34;</span>)
+        }
+    } <span style=color:#66d9ef>else</span> {
+        <span style=color:#66d9ef>throw</span> BusinessException(<span style=color:#e6db74>&#34;未找到相应的订单&#34;</span>)
+    }
+}
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 根据订单 ID 查询商品总价
+</span><span style=color:#75715e></span><span style=color:#a6e22e>@Throws</span>(BusinessException<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>)
+<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getPriceTotalByOrderId</span>(orderId: Long): Long {
+    <span style=color:#75715e>// 查询订单
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> order: Order = DefaultOrderService().getOrderById(orderId) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>throw</span> BusinessException(<span style=color:#e6db74>&#34;未找到相应的订单&#34;</span>)
+
+    <span style=color:#75715e>// 查询订单中的商品
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> products: List&lt;Product&gt; = order.products
+    <span style=color:#66d9ef>if</span> (products.isEmpty()) {
+        <span style=color:#66d9ef>throw</span> BusinessException(<span style=color:#e6db74>&#34;该订单未包含任何商品&#34;</span>)
+    }
+
+    <span style=color:#75715e>// 计算商品总价
+</span><span style=color:#75715e></span>    <span style=color:#66d9ef>return</span> products.filter { !<span style=color:#66d9ef>it</span>.isGift() }
+            .sumOf { product: Product <span style=color:#f92672>-&gt;</span> product.price }
+}
+</code></pre></div><blockquote><p>参考资料</p><p>[1] <a href=https://github.com/alibaba/p3c>阿里巴巴 Java 开发手册黄山版 | Alibab P3C - github.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
