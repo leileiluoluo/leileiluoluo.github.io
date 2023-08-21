@@ -92,7 +92,8 @@
 </span><span style=color:#75715e></span>    <span style=color:#66d9ef>return</span> products.filterNot { <span style=color:#66d9ef>it</span>.isGift() }
             .sumOf { <span style=color:#66d9ef>it</span>.price }
 }
-</code></pre></div><h3 id=2-不要在生产环境使用-systemoutprintln-打印日志>2 不要在生产环境使用 System.out.println() 打印日志</h3><p>如《阿里巴巴 Java 开发手册 · 黄山版》第三部分异常日志的日志规约部分就讲：生产环境禁止使用 System.out、System.err 或 e.printStackTrace() 打印日志或异常堆栈。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserServiceImpl</span> <span style=color:#66d9ef>implements</span> UserService <span style=color:#f92672>{</span>
+</code></pre></div><h3 id=2-不要在生产环境使用-systemoutprintln-打印日志>2 不要在生产环境使用 System.out.println() 打印日志</h3><p>应避免在生产环境直接使用<code>System.out.println()</code>等标准输出打印日志，而应使用日志包来完成。</p><p>如《阿里巴巴 Java 开发手册 · 黄山版》第三部分异常日志的日志规约部分就讲：生产环境禁止使用<code>System.out</code>、<code>System.err</code>或<code>e.printStackTrace()</code>打印日志或异常堆栈。</p><p>如下为使用 Slf4j 打印日志的 Java 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// 推荐的写法
+</span><span style=color:#75715e></span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserServiceImpl</span> <span style=color:#66d9ef>implements</span> UserService <span style=color:#f92672>{</span>
     <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> Logger logger <span style=color:#f92672>=</span> LoggerFactory<span style=color:#f92672>.</span><span style=color:#a6e22e>getLogger</span><span style=color:#f92672>(</span>UserServiceImpl<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
 
     <span style=color:#a6e22e>@Override</span>
@@ -104,7 +105,8 @@
         <span style=color:#f92672>}</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserServiceImpl</span> : UserService {
+</code></pre></div><p>如下为使用 Slf4j 打印日志的 Kotlin 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// 推荐的写法
+</span><span style=color:#75715e></span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserServiceImpl</span> : UserService {
     <span style=color:#66d9ef>companion</span> <span style=color:#66d9ef>object</span> {
         <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> logger = LoggerFactory.getLogger(UserServiceImpl<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>.java)
     }
