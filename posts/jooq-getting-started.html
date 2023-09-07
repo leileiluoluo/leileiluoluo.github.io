@@ -1,11 +1,12 @@
-<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>Java 数据库操作工具包 jOOQ 初探 - 磊磊落落</title><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,数据库操作,工具包,jOOQ,初探"><meta name=description content="Java 数据库操作工具包 jOOQ 初探。包括三个部分：准备数据库和测试数据、使用 jOOQ 生成 POJO 类，以及 jOOQ 与 Spring Boot 的集成。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.81.0"><link rel=stylesheet href=https://olzhy.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://olzhy.github.io/css/themify-icons.css><link rel=stylesheet href=https://olzhy.github.io/css/larry-custom.css><link rel=stylesheet href=https://olzhy.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://olzhy.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://olzhy.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var a=document.createElement("script"),b;a.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",b=document.getElementsByTagName("script")[0],b.parentNode.insertBefore(a,b)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://olzhy.github.io/>磊磊落落</a>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>Java 数据库操作工具包 jOOQ 初探 - 磊磊落落</title><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,数据库操作,工具包,jOOQ,初探"><meta name=description content="Java 数据库操作工具包 jOOQ 初探。包括四个部分：准备数据库和测试数据、jOOQ Java 代码生成、jOOQ 初步使用，以及 jOOQ 与 Spring Boot 的集成。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.81.0"><link rel=stylesheet href=https://olzhy.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://olzhy.github.io/css/themify-icons.css><link rel=stylesheet href=https://olzhy.github.io/css/larry-custom.css><link rel=stylesheet href=https://olzhy.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://olzhy.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://olzhy.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var a=document.createElement("script"),b;a.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",b=document.getElementsByTagName("script")[0],b.parentNode.insertBefore(a,b)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://olzhy.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://olzhy.github.io/></a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://olzhy.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Java 数据库操作工具包 jOOQ 初探</h1><div class="mb-3 post-meta">2023年09月05日
 <a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>jOOQ 是一个轻量级的 Java ORM（对象关系映射）框架，可用来构建复杂的 SQL 查询。jOOQ 可以根据数据库表自动生成对应的 Java 类，且字段类型与数据库一一对应，减少了 SQL 注入的风险。</p><p>本文即是对 jOOQ 的初探，包括四个部分：准备数据库和测试数据、jOOQ Java 代码生成、jOOQ 初步使用，以及 jOOQ 与 Spring Boot 的集成。</p><p>开始各个部分前，列出本文涉及的各软件版本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>Java: 20（BellSoft LibericaJDK）
 Maven：3.9.2
 MySQL：8.1.0
 jOOQ：3.18.6
-</code></pre></div><h2 id=1-准备数据库表和测试数据>1 准备数据库、表和测试数据</h2><p>探索 jOOQ 的使用之前，需要有一个数据库和几张表。学生课程系统就是一个不错的业务场景，既接近实际又涉及连表等复杂查询，很适合用来作演示学习。</p><p>本文为学生课程系统创建了一个 school 数据库，并在其下创建了四张表 student（学生表）、teacher（老师表）、course（课程表）和 score（成绩表）。</p><p>如下为完整的建库、建表和数据插入语句：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 创建数据库 school
+Spring Boot: 3.1.3
+</code></pre></div><h2 id=1-准备数据库表和测试数据>1 准备数据库、表和测试数据</h2><p>探索 jOOQ 的使用之前，需要有一个数据库和几张表。学生课程系统就是一个不错的业务场景，既接近实际又涉及连表等复杂查询，很适合用来作演示学习。</p><p>本文为学生课程系统创建了一个 school 数据库，并在其下创建了三张表 student（学生表）、course（课程表）和 score（成绩表）。</p><p>如下为完整的建库、建表和数据插入语句：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- 创建数据库 school
 </span><span style=color:#75715e></span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>DATABASE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> school;
 <span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>DATABASE</span> school <span style=color:#66d9ef>DEFAULT</span> CHARSET utf8 <span style=color:#66d9ef>COLLATE</span> utf8_general_ci;
 
@@ -19,47 +20,28 @@ jOOQ：3.18.6
 </span><span style=color:#75715e></span>  name VARCHAR(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,         <span style=color:#75715e>-- 姓名
 </span><span style=color:#75715e></span>  gender ENUM(<span style=color:#e6db74>&#39;男&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,  <span style=color:#75715e>-- 性别
 </span><span style=color:#75715e></span>  birthday DATETIME,                 <span style=color:#75715e>-- 出生日期
-</span><span style=color:#75715e></span>  <span style=color:#66d9ef>class</span> INT <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,                <span style=color:#75715e>-- 班级
 </span><span style=color:#75715e></span>  <span style=color:#66d9ef>CONSTRAINT</span> <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span> (<span style=color:#66d9ef>no</span>)        <span style=color:#75715e>-- 编号为主键
 </span><span style=color:#75715e></span>);
 
 <span style=color:#75715e>-- 为学生表插入数据
 </span><span style=color:#75715e></span><span style=color:#66d9ef>INSERT</span> <span style=color:#66d9ef>INTO</span> student <span style=color:#66d9ef>VALUES</span>
-  (<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;闫浩然&#39;</span>, <span style=color:#e6db74>&#39;男&#39;</span>, <span style=color:#e6db74>&#39;1999-09-01&#39;</span>, <span style=color:#ae81ff>1</span>),
-  (<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;肖雪&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>, <span style=color:#e6db74>&#39;2000-03-21&#39;</span>, <span style=color:#ae81ff>1</span>),
-  (<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;张如意&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>, <span style=color:#e6db74>&#39;2001-08-08&#39;</span>, <span style=color:#ae81ff>1</span>);
-
-<span style=color:#75715e>-- 创建教师表
-</span><span style=color:#75715e></span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> teacher;
-<span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> teacher (
-  <span style=color:#66d9ef>no</span> INT <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,                   <span style=color:#75715e>-- 编号
-</span><span style=color:#75715e></span>  name VARCHAR(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,         <span style=color:#75715e>-- 姓名
-</span><span style=color:#75715e></span>  gender ENUM(<span style=color:#e6db74>&#39;男&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,  <span style=color:#75715e>-- 性别
-</span><span style=color:#75715e></span>  birthday DATETIME,                 <span style=color:#75715e>-- 出生日期
-</span><span style=color:#75715e></span>  <span style=color:#66d9ef>CONSTRAINT</span> <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span> (<span style=color:#66d9ef>no</span>)        <span style=color:#75715e>-- 编号为主键
-</span><span style=color:#75715e></span>);
-
-<span style=color:#75715e>-- 为教师表插入数据
-</span><span style=color:#75715e></span><span style=color:#66d9ef>INSERT</span> <span style=color:#66d9ef>INTO</span> teacher <span style=color:#66d9ef>VALUES</span>
-  (<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;宋达&#39;</span>, <span style=color:#e6db74>&#39;男&#39;</span>, <span style=color:#e6db74>&#39;1989-09-01&#39;</span>),
-  (<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;韩锋&#39;</span>, <span style=color:#e6db74>&#39;男&#39;</span>, <span style=color:#e6db74>&#39;1990-03-21&#39;</span>),
-  (<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;刘兰兰&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>, <span style=color:#e6db74>&#39;1992-08-08&#39;</span>);
+  (<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;闫浩然&#39;</span>, <span style=color:#e6db74>&#39;男&#39;</span>, <span style=color:#e6db74>&#39;1999-09-01&#39;</span>),
+  (<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;肖雪&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>, <span style=color:#e6db74>&#39;2000-03-21&#39;</span>),
+  (<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;张如意&#39;</span>, <span style=color:#e6db74>&#39;女&#39;</span>, <span style=color:#e6db74>&#39;2001-08-08&#39;</span>);
 
 <span style=color:#75715e>-- 创建课程表
 </span><span style=color:#75715e></span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> course;
 <span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> course (
-  <span style=color:#66d9ef>no</span> INT <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,                                            <span style=color:#75715e>-- 编号
-</span><span style=color:#75715e></span>  name VARCHAR(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,                                  <span style=color:#75715e>-- 名称
-</span><span style=color:#75715e></span>  teacher_no INT <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,                                    <span style=color:#75715e>-- 教师编号
-</span><span style=color:#75715e></span>  <span style=color:#66d9ef>CONSTRAINT</span> <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span> (<span style=color:#66d9ef>no</span>),                                <span style=color:#75715e>-- 编号为主键
-</span><span style=color:#75715e></span>  <span style=color:#66d9ef>CONSTRAINT</span> <span style=color:#66d9ef>FOREIGN</span> <span style=color:#66d9ef>KEY</span> (teacher_no) <span style=color:#66d9ef>REFERENCES</span> teacher(<span style=color:#66d9ef>no</span>)  <span style=color:#75715e>-- 教师编号为外键
+  <span style=color:#66d9ef>no</span> INT <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,             <span style=color:#75715e>-- 编号
+</span><span style=color:#75715e></span>  name VARCHAR(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,   <span style=color:#75715e>-- 名称
+</span><span style=color:#75715e></span>  <span style=color:#66d9ef>CONSTRAINT</span> <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span> (<span style=color:#66d9ef>no</span>)  <span style=color:#75715e>-- 编号为主键
 </span><span style=color:#75715e></span>);
 
 <span style=color:#75715e>-- 为课程表插入数据
 </span><span style=color:#75715e></span><span style=color:#66d9ef>INSERT</span> <span style=color:#66d9ef>INTO</span> course <span style=color:#66d9ef>VALUES</span>
-  (<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;语文&#39;</span>, <span style=color:#ae81ff>1</span>),
-  (<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;数学&#39;</span>, <span style=color:#ae81ff>2</span>),
-  (<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;英语&#39;</span>, <span style=color:#ae81ff>3</span>);
+  (<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#39;语文&#39;</span>),
+  (<span style=color:#ae81ff>2</span>, <span style=color:#e6db74>&#39;数学&#39;</span>),
+  (<span style=color:#ae81ff>3</span>, <span style=color:#e6db74>&#39;英语&#39;</span>);
 
 <span style=color:#75715e>-- 创建成绩表
 </span><span style=color:#75715e></span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> score;
@@ -83,4 +65,217 @@ jOOQ：3.18.6
   (<span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>83</span>.<span style=color:#ae81ff>0</span>),
   (<span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>94</span>.<span style=color:#ae81ff>5</span>),
   (<span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>73</span>.<span style=color:#ae81ff>0</span>);
-</code></pre></div><blockquote><p>参考资料</p><p>[1] <a href=https://www.jooq.org/doc/3.18/manual/>The jOOQ User Manual | jOOQ - www.jooq.org</a></p><p>[2] <a href=https://jooq.diamondfsd.com/>jOOQ 系列教程 | Diamond - jooq.diamondfsd.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/java/>#Java</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/concurrent-programming-with-java.html>Java 并发编程基础</a></li><li><a href=/posts/building-a-restful-web-service-with-spring-boot.html>如何使用 Spring Boot 构建一个 RESTful Web 服务</a></li><li><a href=/posts/spring-boot-quick-start.html>如何快速搭建一个 Spring Boot 项目</a></li><li><a href=/posts/spring-boot-parent-child-projects-with-maven.html>如何使用 Maven 搭建 Spring Boot 父子项目？</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
+</code></pre></div><h2 id=2-jooq-java-代码生成>2 jOOQ Java 代码生成</h2><p>该部分尝试用 jOOQ Maven 插件（<code>jooq-codegen-maven</code>）的方式来生成 Java 代码。</p><p>本文使用的是在本地搭建的 MySQL 数据库，将第一部分的 SQL 语句在数据库执行后，即可以尝试使用 jOOQ Maven 插件来生成 Java 代码了（主要是表相关的 Java 类和 POJO 类）。</p><p>插件<code>jooq-codegen-maven</code>在 Maven 配置文件<code>pom.xml</code>中的配置信息如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#f92672>&lt;plugin&gt;</span>
+    <span style=color:#f92672>&lt;groupId&gt;</span>org.jooq<span style=color:#f92672>&lt;/groupId&gt;</span>
+    <span style=color:#f92672>&lt;artifactId&gt;</span>jooq-codegen-maven<span style=color:#f92672>&lt;/artifactId&gt;</span>
+    <span style=color:#f92672>&lt;version&gt;</span>${jooq.version}<span style=color:#f92672>&lt;/version&gt;</span>
+    <span style=color:#f92672>&lt;executions&gt;</span>
+        <span style=color:#f92672>&lt;execution&gt;</span>
+            <span style=color:#f92672>&lt;goals&gt;</span>
+                <span style=color:#f92672>&lt;goal&gt;</span>generate<span style=color:#f92672>&lt;/goal&gt;</span>
+            <span style=color:#f92672>&lt;/goals&gt;</span>
+        <span style=color:#f92672>&lt;/execution&gt;</span>
+    <span style=color:#f92672>&lt;/executions&gt;</span>
+    <span style=color:#f92672>&lt;configuration&gt;</span>
+        <span style=color:#f92672>&lt;jdbc&gt;</span>
+            <span style=color:#f92672>&lt;driver&gt;</span>com.mysql.cj.jdbc.Driver<span style=color:#f92672>&lt;/driver&gt;</span>
+            <span style=color:#f92672>&lt;url&gt;</span>jdbc:mysql://localhost:3306/school<span style=color:#f92672>&lt;/url&gt;</span>
+            <span style=color:#f92672>&lt;user&gt;</span>root<span style=color:#f92672>&lt;/user&gt;</span>
+            <span style=color:#f92672>&lt;password&gt;</span>root<span style=color:#f92672>&lt;/password&gt;</span>
+        <span style=color:#f92672>&lt;/jdbc&gt;</span>
+        <span style=color:#f92672>&lt;generator&gt;</span>
+            <span style=color:#f92672>&lt;generate&gt;</span>
+                <span style=color:#f92672>&lt;pojos&gt;</span>true<span style=color:#f92672>&lt;/pojos&gt;</span>
+            <span style=color:#f92672>&lt;/generate&gt;</span>
+            <span style=color:#f92672>&lt;database&gt;</span>
+                <span style=color:#f92672>&lt;includes&gt;</span>.*<span style=color:#f92672>&lt;/includes&gt;</span>
+                <span style=color:#f92672>&lt;inputSchema&gt;</span>school<span style=color:#f92672>&lt;/inputSchema&gt;</span>
+            <span style=color:#f92672>&lt;/database&gt;</span>
+            <span style=color:#f92672>&lt;target&gt;</span>
+                <span style=color:#f92672>&lt;packageName&gt;</span>com.leileiluoluo.jooq.model.generated<span style=color:#f92672>&lt;/packageName&gt;</span>
+                <span style=color:#f92672>&lt;directory&gt;</span>src/main/java<span style=color:#f92672>&lt;/directory&gt;</span>
+            <span style=color:#f92672>&lt;/target&gt;</span>
+        <span style=color:#f92672>&lt;/generator&gt;</span>
+    <span style=color:#f92672>&lt;/configuration&gt;</span>
+<span style=color:#f92672>&lt;/plugin&gt;</span>
+</code></pre></div><p>然后，使用如下命令生成 Java 代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>mvn clean generate-sources
+</code></pre></div><p>可以看到，代码被生成到了<code>src/main/java</code>文件夹下的<code>com.leileiluoluo.jooq.model.generated</code>包下。</p><h2 id=3-jooq-初步使用>3 jOOQ 初步使用</h2><p>使用 jOOQ 的一个主要目的可能是想借力其丰富的 SQL 构造能力。</p><p>下面即会使用 jOOQ 以及在第二部分生成的 Java 代码来实现一些常用的查询。</p><p>如下即是使用 jOOQ 来查询所有 Student 的一段示例代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> com.leileiluoluo.jooq.model.generated.tables.pojos.Student<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> org.jooq.DSLContext<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> org.jooq.SQLDialect<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> org.jooq.impl.DSL<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> java.sql.Connection<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> java.sql.DriverManager<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> java.util.List<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import static</span> com.leileiluoluo.jooq.model.generated.Tables.STUDENT<span style=color:#f92672>;</span>
+
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JOOQSimpleQueryTest</span> <span style=color:#f92672>{</span>
+
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span><span style=color:#f92672>(</span>String<span style=color:#f92672>[]</span> args<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        String username <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;root&#34;</span><span style=color:#f92672>;</span>
+        String password <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;root&#34;</span><span style=color:#f92672>;</span>
+        String url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;jdbc:mysql://localhost:3306/school&#34;</span><span style=color:#f92672>;</span>
+
+        <span style=color:#66d9ef>try</span> <span style=color:#f92672>(</span>Connection conn <span style=color:#f92672>=</span> DriverManager<span style=color:#f92672>.</span><span style=color:#a6e22e>getConnection</span><span style=color:#f92672>(</span>url<span style=color:#f92672>,</span> username<span style=color:#f92672>,</span> password<span style=color:#f92672>))</span> <span style=color:#f92672>{</span>
+            DSLContext context <span style=color:#f92672>=</span> DSL<span style=color:#f92672>.</span><span style=color:#a6e22e>using</span><span style=color:#f92672>(</span>conn<span style=color:#f92672>,</span> SQLDialect<span style=color:#f92672>.</span><span style=color:#a6e22e>MYSQL</span><span style=color:#f92672>);</span>
+
+            List<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> students <span style=color:#f92672>=</span> context<span style=color:#f92672>.</span><span style=color:#a6e22e>selectFrom</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                    <span style=color:#f92672>.</span><span style=color:#a6e22e>fetchInto</span><span style=color:#f92672>(</span>Student<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
+
+            students<span style=color:#f92672>.</span><span style=color:#a6e22e>forEach</span><span style=color:#f92672>(</span>student <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>{</span>
+                System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>printf</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;no: %s, name: %s, gender: %s, birthday: %s\n&#34;</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getNo</span><span style=color:#f92672>(),</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getName</span><span style=color:#f92672>(),</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getGender</span><span style=color:#f92672>(),</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getBirthday</span><span style=color:#f92672>());</span>
+            <span style=color:#f92672>});</span>
+        <span style=color:#f92672>}</span> <span style=color:#66d9ef>catch</span> <span style=color:#f92672>(</span>Exception e<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+            e<span style=color:#f92672>.</span><span style=color:#a6e22e>printStackTrace</span><span style=color:#f92672>();</span>
+        <span style=color:#f92672>}</span>
+    <span style=color:#f92672>}</span>
+
+<span style=color:#f92672>}</span>
+</code></pre></div><p>可以看到，上面这段代码首先使用<code>DriverManager.getConnection();</code>来创建了一个数据库连接；然后使用<code>DSL.using(conn, SQLDialect.MYSQL);</code>来创建了<code>DSLContext</code>对象；然后即可以用<code>DSLContext</code>来像写 SQL 语句的方式一样（<code>context.selectFrom(STUDENT).fetchInto(Student.class);</code>）来拼装查询语句了，查询结果会自动转换为 POJO 类的类型，非常方便快捷。</p><p>上面的示例针对的是单表查询的情形，下面再看一下复杂查询的拼装：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java>DSLContext context <span style=color:#f92672>=</span> DSL<span style=color:#f92672>.</span><span style=color:#a6e22e>using</span><span style=color:#f92672>(</span>conn<span style=color:#f92672>,</span> SQLDialect<span style=color:#f92672>.</span><span style=color:#a6e22e>MYSQL</span><span style=color:#f92672>);</span>
+
+List<span style=color:#f92672>&lt;</span>Record3<span style=color:#f92672>&lt;</span>String<span style=color:#f92672>,</span> String<span style=color:#f92672>,</span> BigDecimal<span style=color:#f92672>&gt;&gt;</span> studentCourseScores <span style=color:#f92672>=</span> context<span style=color:#f92672>.</span><span style=color:#a6e22e>select</span><span style=color:#f92672>(</span>
+                STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NAME</span><span style=color:#f92672>,</span>
+                COURSE<span style=color:#f92672>.</span><span style=color:#a6e22e>NAME</span><span style=color:#f92672>,</span>
+                SCORE<span style=color:#f92672>.</span><span style=color:#a6e22e>DEGREE</span>
+        <span style=color:#f92672>).</span><span style=color:#a6e22e>from</span><span style=color:#f92672>(</span>SCORE<span style=color:#f92672>)</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>join</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>).</span><span style=color:#a6e22e>on</span><span style=color:#f92672>(</span>SCORE<span style=color:#f92672>.</span><span style=color:#a6e22e>STUDENT_NO</span><span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NO</span><span style=color:#f92672>))</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>join</span><span style=color:#f92672>(</span>COURSE<span style=color:#f92672>).</span><span style=color:#a6e22e>on</span><span style=color:#f92672>(</span>SCORE<span style=color:#f92672>.</span><span style=color:#a6e22e>COURSE_NO</span><span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span>COURSE<span style=color:#f92672>.</span><span style=color:#a6e22e>NO</span><span style=color:#f92672>))</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>fetch</span><span style=color:#f92672>();</span>
+
+studentCourseScores<span style=color:#f92672>.</span><span style=color:#a6e22e>forEach</span><span style=color:#f92672>(</span>record <span style=color:#f92672>-&gt;</span> <span style=color:#f92672>{</span>
+    String studentName <span style=color:#f92672>=</span> record<span style=color:#f92672>.</span><span style=color:#a6e22e>getValue</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NAME</span><span style=color:#f92672>);</span>
+    String courseName <span style=color:#f92672>=</span> record<span style=color:#f92672>.</span><span style=color:#a6e22e>getValue</span><span style=color:#f92672>(</span>COURSE<span style=color:#f92672>.</span><span style=color:#a6e22e>NAME</span><span style=color:#f92672>);</span>
+    BigDecimal degree <span style=color:#f92672>=</span> record<span style=color:#f92672>.</span><span style=color:#a6e22e>getValue</span><span style=color:#f92672>(</span>SCORE<span style=color:#f92672>.</span><span style=color:#a6e22e>DEGREE</span><span style=color:#f92672>);</span>
+    System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>printf</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;student: %s, course: %s, degree: %s\n&#34;</span><span style=color:#f92672>,</span> studentName<span style=color:#f92672>,</span> courseName<span style=color:#f92672>,</span> degree<span style=color:#f92672>);</span>
+<span style=color:#f92672>});</span>
+</code></pre></div><p>上面的查询涉及三个表的连接，依然可以像写 SQL 一样来进行构造。</p><p>其对应的 SQL 语句如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>SELECT</span>
+    s.name,
+    <span style=color:#66d9ef>c</span>.name,
+    sc.degree
+<span style=color:#66d9ef>FROM</span> score sc
+<span style=color:#66d9ef>JOIN</span> student s
+    <span style=color:#66d9ef>ON</span> sc.student_no<span style=color:#f92672>=</span>s.<span style=color:#66d9ef>no</span>
+<span style=color:#66d9ef>JOIN</span> course <span style=color:#66d9ef>c</span>
+    <span style=color:#66d9ef>ON</span> sc.course_no<span style=color:#f92672>=</span><span style=color:#66d9ef>c</span>.<span style=color:#66d9ef>no</span>;
+</code></pre></div><p>通过这两段示例程序，即可以看到 jOOQ 的使用非常的简单。针对单表的查询，可以直接将结果映射到 POJO 类；对于多表连接等复杂查询，拼装起来也并不复杂，且结果可以转换为一个多值的类<code>RecordN&lt;?, ?, ?, ...></code>。</p><h2 id=4-jooq-与-spring-boot-的集成>4 jOOQ 与 Spring Boot 的集成</h2><p>第三部分的示例仅适用于本地测试的情形，对于实际的项目，还需要考虑其如何与框架进行集成。</p><p>该部分即会探索 jOOQ 与 Spring Boot 的集成，主要会探索两个方面：<code>DSLContext</code>的自动创建、DAO 层的封装。</p><h3 id=41-dslcontext-的自动创建>4.1 DSLContext 的自动创建</h3><p>在 Spring Boot 中使用 jOOQ 时，<code>DSLContext</code>如何进行创建，这些交给<code>spring-boot-starter-jooq</code>就可以了，我们依然在<code>application.xml</code>采用通用的数据库信息配置即可，<code>DSLContext</code>会由 Spring 容器自动创建，我们只需在需要的地方进行自动注入就可以了。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml># application.yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/school
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// StudentDao.java
+</span><span style=color:#75715e></span><span style=color:#a6e22e>@Service</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>StudentDaoImpl</span> <span style=color:#66d9ef>implements</span> StudentDao <span style=color:#f92672>{</span>
+
+    <span style=color:#a6e22e>@Autowired</span>
+    <span style=color:#66d9ef>private</span> DSLContext context<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>}</span>
+</code></pre></div><h3 id=42-dao-层的封装>4.2 DAO 层的封装</h3><p>虽然 jOOQ 也支持自动生成 DAO 层，但其生成的 DAO 层代码比较泛化，有很多方法可能根本就用不着。所以，经过调研后，本人决定仅使用其构建 SQL 的能力（以及自动生成的表相关的类和 POJO 类），DAO 层还是根据业务情形自己来实现比较好一些。</p><p>如下即是为 Student 查询设计的 StudentDao 的示例代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// StudentDao.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.leileiluoluo.jooq.dao<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> com.leileiluoluo.jooq.model.generated.tables.pojos.Student<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> java.util.List<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> java.util.Optional<span style=color:#f92672>;</span>
+
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>StudentDao</span> <span style=color:#f92672>{</span>
+
+    Integer <span style=color:#a6e22e>countAll</span><span style=color:#f92672>();</span>
+
+    List<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>listAll</span><span style=color:#f92672>();</span>
+
+    List<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>listWithPagination</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> offset<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> limit<span style=color:#f92672>);</span>
+
+    Optional<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getByNo</span><span style=color:#f92672>(</span>Integer no<span style=color:#f92672>);</span>
+
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>save</span><span style=color:#f92672>(</span>Student record<span style=color:#f92672>);</span>
+
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>update</span><span style=color:#f92672>(</span>Student record<span style=color:#f92672>);</span>
+
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deleteByNo</span><span style=color:#f92672>(</span>Integer no<span style=color:#f92672>);</span>
+
+<span style=color:#f92672>}</span>
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// StudentDaoImpl.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.leileiluoluo.jooq.dao.impl<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> com.leileiluoluo.jooq.dao.StudentDao<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> com.leileiluoluo.jooq.model.generated.tables.pojos.Student<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> org.jooq.DSLContext<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> org.springframework.beans.factory.annotation.Autowired<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> org.springframework.stereotype.Service<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> java.util.List<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> java.util.Optional<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import static</span> com.leileiluoluo.jooq.model.generated.Tables.STUDENT<span style=color:#f92672>;</span>
+
+<span style=color:#a6e22e>@Service</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>StudentDaoImpl</span> <span style=color:#66d9ef>implements</span> StudentDao <span style=color:#f92672>{</span>
+
+    <span style=color:#a6e22e>@Autowired</span>
+    <span style=color:#66d9ef>private</span> DSLContext context<span style=color:#f92672>;</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> Integer <span style=color:#a6e22e>countAll</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>return</span> context<span style=color:#f92672>.</span><span style=color:#a6e22e>fetchCount</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>listAll</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>return</span> context<span style=color:#f92672>.</span><span style=color:#a6e22e>selectFrom</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>fetchInto</span><span style=color:#f92672>(</span>Student<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> List<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>listWithPagination</span><span style=color:#f92672>(</span><span style=color:#66d9ef>int</span> offset<span style=color:#f92672>,</span> <span style=color:#66d9ef>int</span> limit<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>return</span> context<span style=color:#f92672>.</span><span style=color:#a6e22e>selectFrom</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>offset</span><span style=color:#f92672>(</span>offset<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>limit</span><span style=color:#f92672>(</span>limit<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>fetchInto</span><span style=color:#f92672>(</span>Student<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> Optional<span style=color:#f92672>&lt;</span>Student<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>getByNo</span><span style=color:#f92672>(</span>Integer no<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        Student student <span style=color:#f92672>=</span> context<span style=color:#f92672>.</span><span style=color:#a6e22e>select</span><span style=color:#f92672>()</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>from</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>where</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NO</span><span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span>no<span style=color:#f92672>))</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>fetchOneInto</span><span style=color:#f92672>(</span>Student<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
+
+        <span style=color:#66d9ef>return</span> Optional<span style=color:#f92672>.</span><span style=color:#a6e22e>ofNullable</span><span style=color:#f92672>(</span>student<span style=color:#f92672>);</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>save</span><span style=color:#f92672>(</span>Student student<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        context<span style=color:#f92672>.</span><span style=color:#a6e22e>insertInto</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NO</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getNo</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NAME</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getName</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>GENDER</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getGender</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>BIRTHDAY</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getBirthday</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>execute</span><span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>update</span><span style=color:#f92672>(</span>Student student<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        context<span style=color:#f92672>.</span><span style=color:#a6e22e>update</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NAME</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getName</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>GENDER</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getGender</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>BIRTHDAY</span><span style=color:#f92672>,</span> student<span style=color:#f92672>.</span><span style=color:#a6e22e>getBirthday</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>where</span><span style=color:#f92672>(</span>
+                        STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NO</span><span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span>student<span style=color:#f92672>.</span><span style=color:#a6e22e>getNo</span><span style=color:#f92672>())</span>
+                <span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>execute</span><span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@Override</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deleteByNo</span><span style=color:#f92672>(</span>Integer no<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+        context<span style=color:#f92672>.</span><span style=color:#a6e22e>deleteFrom</span><span style=color:#f92672>(</span>STUDENT<span style=color:#f92672>)</span>
+                <span style=color:#f92672>.</span><span style=color:#a6e22e>where</span><span style=color:#f92672>(</span>
+                        STUDENT<span style=color:#f92672>.</span><span style=color:#a6e22e>NO</span><span style=color:#f92672>.</span><span style=color:#a6e22e>eq</span><span style=color:#f92672>(</span>no<span style=color:#f92672>)</span>
+                <span style=color:#f92672>).</span><span style=color:#a6e22e>execute</span><span style=color:#f92672>();</span>
+    <span style=color:#f92672>}</span>
+
+<span style=color:#f92672>}</span>
+</code></pre></div><p>可以看到，增、删、改、查都有了，基本满足了实际业务中的需要；在其上设计 Service 和 Controller 即可以实现真实的 REST 业务需求了。</p><p>综上，本文准备了一些测试数据，探索了 jOOQ 的代码生成和 SQL 构建能力，最后还思考了其与 Spring Boot 的集成。总体来看，jOOQ 还是比较易用的，是一个不错的 MyBatis 或 Hibernate 替代方案。</p><p>此外，本文涉及的所有代码均已提交至本人<a href=https://github.com/olzhy/java-exercises/tree/main/spring-boot-jooq-integration-demo>GitHub</a>，有兴趣的同学可以关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://www.jooq.org/doc/3.18/manual/>The jOOQ User Manual | jOOQ - www.jooq.org</a></p><p>[2] <a href=https://jooq.diamondfsd.com/>jOOQ 系列教程 | Diamond - jooq.diamondfsd.com</a></p><p>[3] <a href=https://medium.com/@tejozarkar/configure-jooq-with-spring-boot-and-postgresql-c362e41722b9>Configure jOOQ with Spring Boot and PostgreSQL | Medium - medium.com</a></p><p>[4] <a href=https://boottechnologies-ci.medium.com/spring-boot-with-jooq-and-postgresql-4a86378a4e5e>Spring Boot with jOOQ and PostgreSQL | Medium - medium.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/java/>#Java</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/concurrent-programming-with-java.html>Java 并发编程基础</a></li><li><a href=/posts/building-a-restful-web-service-with-spring-boot.html>如何使用 Spring Boot 构建一个 RESTful Web 服务</a></li><li><a href=/posts/spring-boot-quick-start.html>如何快速搭建一个 Spring Boot 项目</a></li><li><a href=/posts/spring-boot-parent-child-projects-with-maven.html>如何使用 Maven 搭建 Spring Boot 父子项目？</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
