@@ -23,7 +23,7 @@ Dependencies：Spring Web、MyBatis Framework 和 MySQL Driver
 |--- gradlew
 |--- settings.gradle.kts
 \--- build.gradle.kts
-</code></pre></div><p>可以看到这是一个标准的 Gradle 工程，我们将 Gradle 描述文件<code>build.gradle.kts</code>里边的 Kotlin 版本改成最新的 1.9.10（<code>kotlin("jvm") version "1.9.10"</code>），删去不需要的 Dependency 后，完整文件内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml>// build.gradle.kts
+</code></pre></div><p>下面重点看一下该工程的 Gradle 描述文件和程序入口类<code>DemoApplication.kt</code>。</p><h3 id=11-gradle-描述文件>1.1 Gradle 描述文件</h3><p>可以看到这是一个标准的 Gradle 工程，我们将 Gradle 描述文件<code>build.gradle.kts</code>里边的 Kotlin 版本改成最新的 1.9.10（<code>kotlin("jvm") version "1.9.10"</code>），删去不需要的 Dependency 后，完整文件内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml>// build.gradle.kts
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
