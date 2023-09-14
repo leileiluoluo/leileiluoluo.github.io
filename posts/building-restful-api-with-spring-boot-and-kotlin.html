@@ -23,44 +23,44 @@ Dependencies：Spring Web、MyBatis Framework 和 MySQL Driver
 |--- gradlew
 |--- settings.gradle.kts
 \--- build.gradle.kts
-</code></pre></div><p>下面重点看一下该工程的 Gradle 描述文件和程序入口类<code>DemoApplication.kt</code>。</p><h3 id=11-gradle-描述文件>1.1 Gradle 描述文件</h3><p>可以看到这是一个标准的 Gradle 工程，我们将 Gradle 描述文件<code>build.gradle.kts</code>里边的 Kotlin 版本改成最新的 1.9.10（<code>kotlin("jvm") version "1.9.10"</code>），删去不需要的 Dependency 后，完整文件内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml>// build.gradle.kts
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+</code></pre></div><p>下面重点看一下该工程的 Gradle 描述文件和程序入口类<code>DemoApplication.kt</code>。</p><h3 id=11-gradle-描述文件>1.1 Gradle 描述文件</h3><p>可以看到这是一个标准的 Gradle 工程，我们将 Gradle 描述文件<code>build.gradle.kts</code>里边的 Kotlin 版本改成最新的 1.9.10（<code>kotlin("jvm") version "1.9.10"</code>），删去不需要的 Dependency 后，完整文件内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=color:#75715e>// build.gradle.kts
+</span><span style=color:#75715e></span><span style=color:#f92672>import</span> org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-plugins {
-    id(&#34;org.springframework.boot&#34;) version &#34;3.1.3&#34;
-    id(&#34;io.spring.dependency-management&#34;) version &#34;1.1.3&#34;
-    kotlin(&#34;jvm&#34;) version &#34;1.9.10&#34;
-    kotlin(&#34;plugin.spring&#34;) version &#34;1.9.10&#34;
-}
+plugins <span style=color:#f92672>{</span>
+    id<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.springframework.boot&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;3.1.3&#34;</span>
+    id<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.spring.dependency-management&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.1.3&#34;</span>
+    kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;jvm&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
+    kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;plugin.spring&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
+<span style=color:#f92672>}</span>
 
-group = &#34;com.example&#34;
-version = &#34;0.0.1-SNAPSHOT&#34;
+group <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;com.example&#34;</span>
+version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.0.1-SNAPSHOT&#34;</span>
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-}
+java <span style=color:#f92672>{</span>
+    sourceCompatibility <span style=color:#f92672>=</span> JavaVersion<span style=color:#f92672>.</span><span style=color:#a6e22e>VERSION_17</span>
+<span style=color:#f92672>}</span>
 
-repositories {
-    mavenCentral()
-}
+repositories <span style=color:#f92672>{</span>
+    mavenCentral<span style=color:#f92672>()</span>
+<span style=color:#f92672>}</span>
 
-dependencies {
-    implementation(&#34;org.springframework.boot:spring-boot-starter-web&#34;)
-    implementation(&#34;org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2&#34;)
-    runtimeOnly(&#34;com.mysql:mysql-connector-j&#34;)
-    testImplementation(&#34;org.springframework.boot:spring-boot-starter-test&#34;)
-}
+dependencies <span style=color:#f92672>{</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.springframework.boot:spring-boot-starter-web&#34;</span><span style=color:#f92672>)</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2&#34;</span><span style=color:#f92672>)</span>
+    runtimeOnly<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.mysql:mysql-connector-j&#34;</span><span style=color:#f92672>)</span>
+    testImplementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.springframework.boot:spring-boot-starter-test&#34;</span><span style=color:#f92672>)</span>
+<span style=color:#f92672>}</span>
 
-tasks.withType<span style=color:#f92672>&lt;KotlinCompile&gt;</span> {
-    kotlinOptions {
-        freeCompilerArgs += &#34;-Xjsr305=strict&#34;
-        jvmTarget = &#34;17&#34;
-    }
-}
+tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>KotlinCompile<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    kotlinOptions <span style=color:#f92672>{</span>
+        freeCompilerArgs <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#34;-Xjsr305=strict&#34;</span>
+        jvmTarget <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;17&#34;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
 
-tasks.withType<span style=color:#f92672>&lt;Test&gt;</span> {
-    useJUnitPlatform()
-}
+tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>Test<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    useJUnitPlatform<span style=color:#f92672>()</span>
+<span style=color:#f92672>}</span>
 </code></pre></div><p>对于这个文件，需要特殊说明的是：</p><ul><li><p>使用了插件<code>kotlin("plugin.spring")</code></p><p>这是因为在 Kotlin 中，类默认是<code>final</code>的，即无法被继承。使用该插件则可将使用了 Spring 注解的类变为<code>open</code>的，这样 Spring 才能正常工作。</p></li><li><p>MySQL Driver 包的引用方式是<code>runtimeOnly</code></p><p>在 dependencies 中，可以看到<code>mysql-connector-j</code>的引用方式为<code>runtimeOnly</code>，即仅在运行时需要，在编译期是不需要的。</p></li><li><p>Kotlin 编译器参数为<code>-Xjsr305=strict</code></p><p>使用该编译器参数的目的是开启<code>JSR-305</code>严格检查模式，以充分利用 Kotlin 的空安全检查。</p></li></ul><h3 id=12-程序入口类-demoapplicationkt>1.2 程序入口类 DemoApplication.kt</h3><p>分析完 Gradle 描述文件，下面看一下程序入口类<code>DemoApplication.kt</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo
 
@@ -73,7 +73,29 @@ tasks.withType<span style=color:#f92672>&lt;Test&gt;</span> {
 <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>(args: Array&lt;String&gt;) {
     runApplication&lt;DemoApplication&gt;(*args)
 }
-</code></pre></div><p>需要特殊说明的是：</p><ul><li><p><code>class DemoApplication</code>是一个空类，除了被添加<code>@SpringBootApplication</code>注解外，没有任何属性与方法，所以无需加花括号；</p></li><li><p>程序入口函数<code>main</code>是一个顶层函数，不属于<code>DemoApplication</code>类。</p></li></ul><h2 id=2-编写业务代码>2 编写业务代码</h2><p>模板工程准备就绪，现在可以开始编写业务代码了。业务场景为提供 User 的增、删、改、查 API。</p><p>项目采用传统的 MVC 三层架构，代码目录结构如下：</p><p><img loading=lazy src=https://olzhy.github.io/static/images/uploads/2023/09/spring-boot-kotlin-demo-project-structure.png alt width=80%></p><p>下面逐一看看 Controller、Service、DAO 层的代码。</p><h3 id=21-controller-层代码>2.1 Controller 层代码</h3><p>Controller 层只有一个类<code>UserController.kt</code>，用于实现 User 的增、删、改、查。</p><p>完整代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/controller/UserController.kt
+</code></pre></div><p>需要特殊说明的是：</p><ul><li><p><code>class DemoApplication</code>是一个空类，除了被添加<code>@SpringBootApplication</code>注解外，没有任何属性与方法，所以无需加花括号；</p></li><li><p>程序入口函数<code>main</code>是一个顶层函数，不属于<code>DemoApplication</code>类。</p></li></ul><h2 id=2-编写业务代码>2 编写业务代码</h2><p>模板工程准备就绪，现在可以开始编写业务代码了。业务场景为提供 User 的增、删、改、查 API。</p><p>项目采用传统的 MVC 三层架构，代码目录结构如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>demo
+|--- src/main/
+|    |--- resources/
+|    |    |--- application.yaml
+|    |    \--- shema.sql
+|    \--- kotlin/
+|         \--- com.example.demo/
+|              |--- controller/
+|              |    \--- UserController.kt
+|              |--- service/
+|              |    |--- UserService.kt
+|              |    \--- impl/
+|              |         \--- UserServiceImpl.kt
+|              |--- dao/
+|              |    \--- UserMapper.kt
+|              |--- model/
+|              |    \--- User.kt
+|              \--- DemoApplication.kt
+...
+|--- gradlew
+|--- settings.gradle.kts
+\--- build.gradle.kts
+</code></pre></div><p>下面逐一看看 Controller、Service、DAO 层的代码。</p><h3 id=21-controller-层代码>2.1 Controller 层代码</h3><p>Controller 层只有一个类<code>UserController.kt</code>，用于实现 User 的增、删、改、查。</p><p>完整代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/controller/UserController.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.controller
 
 <span style=color:#66d9ef>import</span> com.example.demo.model.User
@@ -171,7 +193,11 @@ tasks.withType<span style=color:#f92672>&lt;Test&gt;</span> {
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long)
 
 }
-</code></pre></div><h3 id=24-配置文件信息>2.4 配置文件信息</h3><p>我们 Spring 配置文件采用的是 YAML 格式，主要配置了数据库连接信息并指定了初始化 SQL 脚本的位置。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#75715e># src/main/resources/application.yaml</span>
+</code></pre></div><h3 id=24-model-代码>2.4 Model 代码</h3><p>Model 用于数据的传递，即接收数据库查询数据，并最终序列化为 JSON 来返回给 API 调用者；也用于将 API 调用者发出的 JSON 请求体转换为 Kotlin 对象。</p><p>本项目只有一个 Model<code>User.kt</code>，其源码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/User.kt
+</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
+
+<span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long?, <span style=color:#66d9ef>val</span> name: String, <span style=color:#66d9ef>val</span> age: Int)
+</code></pre></div><h3 id=25-配置文件信息>2.5 配置文件信息</h3><p>我们 Spring 配置文件采用的是 YAML 格式，主要配置了数据库连接信息并指定了初始化 SQL 脚本的位置。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#75715e># src/main/resources/application.yaml</span>
 <span style=color:#f92672>spring</span>:
   <span style=color:#f92672>datasource</span>:
     <span style=color:#f92672>url</span>: <span style=color:#ae81ff>jdbc:mysql://localhost:3306/test</span>
@@ -182,7 +208,7 @@ tasks.withType<span style=color:#f92672>&lt;Test&gt;</span> {
     <span style=color:#f92672>init</span>:
       <span style=color:#f92672>schema-locations</span>: <span style=color:#ae81ff>classpath:schema.sql</span>
       <span style=color:#f92672>mode</span>: <span style=color:#ae81ff>always</span>
-</code></pre></div><p>连接信息指向的是在本地搭建的 MySQL 数据库，每次项目启动后都会重新执行<code>resources</code>下的<code>schema.sql</code>脚本。</p><h3 id=25-数据库脚本>2.5 数据库脚本</h3><p>建表语句如下（需要手动执行）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- src/main/resources/database.sql
+</code></pre></div><p>连接信息指向的是在本地搭建的 MySQL 数据库，每次项目启动后都会重新执行<code>resources</code>下的<code>schema.sql</code>脚本。</p><h3 id=26-数据库脚本>2.6 数据库脚本</h3><p>建表语句如下（需要手动执行）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- src/main/resources/database.sql
 </span><span style=color:#75715e></span><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>DATABASE</span> <span style=color:#f92672>`</span>test<span style=color:#f92672>`</span> <span style=color:#66d9ef>DEFAULT</span> CHARSET utf8 <span style=color:#66d9ef>COLLATE</span> utf8_general_ci;
 </code></pre></div><p>包含建表语句的 SQL 文件<code>schema.sql</code>内容如下（自动执行）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- src/main/resources/schema.sql
 </span><span style=color:#75715e></span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> <span style=color:#66d9ef>user</span>;
