@@ -16,11 +16,11 @@ http4k：5.8.1.0
 |--- gradlew
 |--- settings.gradle.kts
 \--- build.gradle.kts
-</code></pre></div><p>可以看到这是一个标准的 Gradle 模板工程。</p><p>下面主要看一下 Gralde 描述文件的内容：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=color:#75715e>// build.gradle.kts
-</span><span style=color:#75715e></span><span style=color:#f92672>import</span> org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+</code></pre></div><p>可以看到这是一个标准的 Gradle 模板工程。</p><p>下面主要看一下 Gralde 描述文件的内容：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=color:#f92672>import</span> org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins <span style=color:#f92672>{</span>
     kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;jvm&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
+    application
 <span style=color:#f92672>}</span>
 
 java <span style=color:#f92672>{</span>
@@ -40,6 +40,10 @@ dependencies <span style=color:#f92672>{</span>
     implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.google.inject:guice:7.0.0&#34;</span><span style=color:#f92672>)</span>
 <span style=color:#f92672>}</span>
 
+application <span style=color:#f92672>{</span>
+    mainClass<span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.example.demo.DemoApplicationKt&#34;</span><span style=color:#f92672>)</span>
+<span style=color:#f92672>}</span>
+
 tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>KotlinCompile<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
     kotlinOptions <span style=color:#f92672>{</span>
         freeCompilerArgs <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#34;-Xjvm-default=all&#34;</span>
@@ -50,7 +54,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>Test<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
     useJUnitPlatform<span style=color:#f92672>()</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到，我们使用的 Kotlin 版本为 1.9.10。</p><p>用到的 http4k 模块有：</p><ul><li><p>http4k-core</p><p>http4k 核心模块，诸如 HttpHandler、Filter 等基础功能都在里头了。</p></li><li><p>http4k-contract</p><p>支持更完善的参数配置，支持 OpenAPI 元信息描述、Swagger 配置等特性。</p></li><li><p>http4k-format-jackson</p><p>支持 JSON 和数据类的相互转换。</p></li><li><p>http4k-contract-ui-swagger</p><p>支持 Swagger UI 的生成以及 Swagger 静态资源的本地化。</p></li></ul><p>此外，我们还使用了 Guice 来做依赖注入（因其比较轻量，适合示例工程）。</p><h2 id=2-业务代码编写>2 业务代码编写</h2><p>项目结构：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>http4k-restful-service-demo
+</code></pre></div><p>可以看到，我们使用的 Kotlin 版本为 1.9.10，指定程序启动类为<code>com.example.demo.DemoApplication.kt</code>。</p><p>用到的 http4k 模块有：</p><ul><li><p>http4k-core</p><p>http4k 核心模块，诸如 HttpHandler、Filter 等基础功能都在里头了。</p></li><li><p>http4k-contract</p><p>支持更完善的参数配置，支持 OpenAPI 元信息描述、Swagger 配置等特性。</p></li><li><p>http4k-format-jackson</p><p>支持 JSON 和数据类的相互转换。</p></li><li><p>http4k-contract-ui-swagger</p><p>支持 Swagger UI 的生成以及 Swagger 静态资源的本地化。</p></li></ul><p>此外，我们还使用了 Guice 来做依赖注入（因其比较轻量，适合示例工程使用）。</p><h2 id=2-业务代码编写>2 业务代码编写</h2><p>该部分主要编写针对 User 增、删、改、查的业务代码。整个项目主要由 Controller 层、Service 层、Model 类、Error Codes 枚举类、程序入口类几个部分组成。</p><p>看一下开发完成后的项目结构：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>http4k-restful-service-demo
 |--- src/main/
 |    |--- resources/
 |    \--- kotlin/
@@ -68,7 +72,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 ...
 |--- gradlew
 \--- build.gradle.kts
-</code></pre></div><h3 id=21-controller-层代码>2.1 Controller 层代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/controller/UserController.kt
+</code></pre></div><p>下面逐一看一下各层的代码。</p><h3 id=21-controller-层代码>2.1 Controller 层代码</h3><p>Controller 层负责请求接收与响应返回，而具体的处理逻辑则在 Service 层内。</p><p>该项目的 Controller 层只有一个类<code>UserController.kt</code>，用于定义路由以及各个<code>Handler</code>函数，<code>Handler</code>函数内部则调用<code>UserService</code>来处理业务。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/controller/UserController.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.controller
 
 <span style=color:#66d9ef>import</span> com.example.demo.code.ErrorCodes
@@ -178,7 +182,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
         <span style=color:#66d9ef>return</span> Response(NO_CONTENT)
     }
 }
-</code></pre></div><h3 id=22-service-层代码>2.2 Service 层代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
+</code></pre></div><p>下面浅析一下这段代码：</p><ul><li><p><code>UserController</code>依赖<code>UserService</code>，使用 Guice 来自动注入依赖；</p></li><li><p>http4k 使用透镜（Lens，如代码中的<code>Body.auto&lt;User>().toLens()</code>）来做 JSON 和 Model 的相互映射和转换；</p></li><li><p>http4k 可以定义一组路由（ContractRout，如代码中的<code>"/users" meta {} bindContract GET to ::xxxHandler</code>）来指定请求路径、OpenAPI 元数据（用于生成 Swagger 文档）、HTTP 方法，以及处理请求的 Handler 函数；</p></li><li><p>http4k 中的 Handler 函数就是一个输入为<code>Request</code>，输出为<code>Response</code>的普通函数，业务逻辑都可以在这里边完成（本文的 Handler 函数做了自定义设计，将业务上用到的参数也放到了参数列表里，如：<code>fun getById(req: Request, id: Long): Response</code>）。</p></li></ul><h3 id=22-service-层代码>2.2 Service 层代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.service
 
 <span style=color:#66d9ef>import</span> com.example.demo.model.User
@@ -318,7 +322,8 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 </span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> filteredApp: HttpHandler = CachingFilters.Response.NoCache().then(timingFilter).then(app)
     filteredApp.asServer(SunHttp(<span style=color:#ae81ff>8080</span>)).start().block()
 }
-</code></pre></div><h2 id=4-api-测试与验证>4 API 测试与验证</h2><h3 id=41-查询所有-user>4.1 查询所有 User</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users
+</code></pre></div><h2 id=4-api-测试与验证>4 API 测试与验证</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>./gradlew run
+</code></pre></div><h3 id=41-查询所有-user>4.1 查询所有 User</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users
 
 <span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}]</span>
 </code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[timing filter] GET /users took 6ms
