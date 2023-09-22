@@ -5,7 +5,7 @@
 Kotlin：1.9.10
 JDK：Amazon Corretto 17.0.8
 http4k：5.8.1.0
-</code></pre></div><h2 id=1-模板项目搭建>1 模板项目搭建</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>http4k-restful-service-demo
+</code></pre></div><h2 id=1-模板项目搭建>1 模板项目搭建</h2><p>本文使用 Gradle 作为项目的构建与依赖管理工具，由其搭建的空项目的整体目录结构如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>http4k-restful-service-demo
 |--- gradle/
 |--- src/main/
 |    |--- resources/
@@ -16,7 +16,40 @@ http4k：5.8.1.0
 |--- gradlew
 |--- settings.gradle.kts
 \--- build.gradle.kts
-</code></pre></div><h2 id=2-业务代码编写>2 业务代码编写</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>http4k-restful-service-demo
+</code></pre></div><p>可以看到这是一个标准的 Gradle 模板工程。</p><p>下面主要看一下 Gralde 描述文件的内容：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=color:#f92672>import</span> org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins <span style=color:#f92672>{</span>
+    kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;jvm&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
+<span style=color:#f92672>}</span>
+
+java <span style=color:#f92672>{</span>
+    sourceCompatibility <span style=color:#f92672>=</span> JavaVersion<span style=color:#f92672>.</span><span style=color:#a6e22e>VERSION_17</span>
+<span style=color:#f92672>}</span>
+
+repositories <span style=color:#f92672>{</span>
+    mavenCentral<span style=color:#f92672>()</span>
+<span style=color:#f92672>}</span>
+
+dependencies <span style=color:#f92672>{</span>
+    implementation<span style=color:#f92672>(</span>platform<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-bom:5.8.1.0&#34;</span><span style=color:#f92672>))</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-core&#34;</span><span style=color:#f92672>)</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-contract&#34;</span><span style=color:#f92672>)</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-format-jackson&#34;</span><span style=color:#f92672>)</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-contract-ui-swagger&#34;</span><span style=color:#f92672>)</span>
+    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.google.inject:guice:7.0.0&#34;</span><span style=color:#f92672>)</span>
+<span style=color:#f92672>}</span>
+
+tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>KotlinCompile<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    kotlinOptions <span style=color:#f92672>{</span>
+        freeCompilerArgs <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#34;-Xjvm-default=all&#34;</span>
+        jvmTarget <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;17&#34;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+
+tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>Test<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    useJUnitPlatform<span style=color:#f92672>()</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><p>可以看到，我们使用的 Kotlin 版本为 1.9.10。</p><p>用到的 http4k 模块有：</p><ul><li><p>http4k-core</p><p>http4k 核心模块，诸如 HttpHandler、Filter 等基础功能都在里头了。</p></li><li><p>http4k-contract</p><p>支持更完善的参数配置，支持 OpenAPI 元信息描述、Swagger 配置等特性。</p></li><li><p>http4k-format-jackson</p><p>支持 JSON 和数据类的相互转换。</p></li><li><p>http4k-contract-ui-swagger</p><p>支持 Swagger UI 的生成以及 Swagger 静态资源的本地化。</p></li></ul><p>此外，我们还使用了 Guice 来做依赖注入（因其比较轻量，适合示例工程）。</p><h2 id=2-业务代码编写>2 业务代码编写</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>http4k-restful-service-demo
 |--- src/main/
 |    |--- resources/
 |    \--- kotlin/
@@ -34,4 +67,4 @@ http4k：5.8.1.0
 ...
 |--- gradlew
 \--- build.gradle.kts
-</code></pre></div><h2 id=3-api-测试与验证>3 API 测试与验证</h2><blockquote><p>参考资料</p><p>[1] <a href=https://www.http4k.org/documentation/>Introduction | http4k - www.http4k.org</a></p><p>[2] <a href=https://github.com/http4k/http4k-by-example>http4k Examples | GitHub - github.com</a></p><p>[3] <a href=https://github.com/dashfwd/kotlin-guice-examples>Kotlin Guice Examples | GitHub - GitHub.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2017-2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
+</code></pre></div><h2 id=3-swagger-ui-配置>3 Swagger UI 配置</h2><h2 id=4-api-测试与验证>4 API 测试与验证</h2><blockquote><p>参考资料</p><p>[1] <a href=https://www.http4k.org/documentation/>Introduction | http4k - www.http4k.org</a></p><p>[2] <a href=https://github.com/http4k/http4k-by-example>http4k Examples | GitHub - github.com</a></p><p>[3] <a href=https://github.com/dashfwd/kotlin-guice-examples>Kotlin Guice Examples | GitHub - GitHub.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2017-2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
