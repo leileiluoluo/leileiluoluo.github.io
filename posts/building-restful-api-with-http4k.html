@@ -182,7 +182,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
         <span style=color:#66d9ef>return</span> Response(NO_CONTENT)
     }
 }
-</code></pre></div><p>下面浅析一下这段代码：</p><ul><li><p><code>UserController</code>依赖<code>UserService</code>，使用 Guice 来自动注入依赖；</p></li><li><p>http4k 使用透镜（Lens，如代码中的<code>Body.auto&lt;User>().toLens()</code>）来做 JSON 和 Model 的相互映射和转换；</p></li><li><p>http4k 可以定义一组路由（ContractRout，如代码中的<code>"/users" meta {} bindContract GET to ::xxxHandler</code>）来指定请求路径、OpenAPI 元数据（用于生成 Swagger 文档）、HTTP 方法，以及处理请求的 Handler 函数；</p></li><li><p>http4k 中的 Handler 函数就是一个输入为<code>Request</code>，输出为<code>Response</code>的普通函数，业务逻辑都可以在这里边完成（本文的 Handler 函数做了自定义设计，将业务上用到的参数也放到了参数列表里，如：<code>fun getById(req: Request, id: Long): Response</code>）。</p></li></ul><h3 id=22-service-层代码>2.2 Service 层代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
+</code></pre></div><p>下面浅析一下这段代码：</p><ul><li><p><code>UserController</code>依赖<code>UserService</code>，使用 Guice 来自动注入依赖；</p></li><li><p>http4k 使用透镜（Lens，如代码中的<code>Body.auto&lt;User>().toLens()</code>）来做 JSON 和 Model 的相互映射和转换；</p></li><li><p>http4k 可以定义一组路由（ContractRout，如代码中的<code>"/users" meta {} bindContract GET to ::xxxHandler</code>）来指定请求路径、OpenAPI 元数据（用于生成 Swagger 文档）、HTTP 方法，以及处理请求的 Handler 函数；</p></li><li><p>http4k 中的 Handler 函数就是一个输入为<code>Request</code>，输出为<code>Response</code>的普通函数，业务逻辑都可以在这里边完成（本文的 Handler 函数做了自定义设计，将业务上用到的参数也放到了参数列表里，如：<code>fun getById(req: Request, id: Long): Response</code>）。</p></li></ul><h3 id=22-service-层代码>2.2 Service 层代码</h3><p>Service 层包含业务处理的主要部分，该项目 Service 层仅有一个类<code>UserService.kt</code>。</p><p>本文为了方便且专注于 http4k 的使用，没有引入 DAO 层和数据库，仅使用一个<code>MutableList</code>（<code>val fakeUsers = mutableListOf()</code>）来存储数据。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.service
 
 <span style=color:#66d9ef>import</span> com.example.demo.model.User
@@ -225,7 +225,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
         fakeUsers.removeIf { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
     }
 }
-</code></pre></div><h3 id=23-model-类代码>2.3 Model 类代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/User.kt
+</code></pre></div><p>如上代码中包含一个接口类和一个实现类，负责 User 的增、删、改、查。</p><h3 id=23-model-类代码>2.3 Model 类代码</h3><p>该项目包含两个 Model 类：<code>User.kt</code>和<code>ErrorResponse.kt</code>，前一个是 User 的模型类，后一个是标准的错误响应模型类。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/User.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
 
 <span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long, <span style=color:#66d9ef>var</span> name: String, <span style=color:#66d9ef>var</span> age: Int)
@@ -233,7 +233,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
 
 <span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorResponse</span>(<span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>val</span> description: String)
-</code></pre></div><h3 id=24-error-codes-枚举类代码>2.4 Error Codes 枚举类代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/code/ErrorCodes.kt
+</code></pre></div><h3 id=24-error-codes-枚举类代码>2.4 Error Codes 枚举类代码</h3><p>该项目特别设计了一个枚举类（<code>ErrorCodes.kt</code>）来存放所有的错误响应信息。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/code/ErrorCodes.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.code
 
 <span style=color:#66d9ef>import</span> com.example.demo.model.ErrorResponse
@@ -254,7 +254,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toSampleResponse</span>(): Pair&lt;BiDiBodyLens&lt;ErrorResponse&gt;, ErrorResponse&gt; =
             Body.auto&lt;ErrorResponse&gt;().toLens() to ErrorResponse(code, description)
 }
-</code></pre></div><h3 id=25-程序入口类代码>2.5 程序入口类代码</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
+</code></pre></div><h3 id=25-程序入口类代码>2.5 程序入口类代码</h3><p>下面看一下程序入口类<code>DemoApplication.kt</code>的代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo
 
 <span style=color:#66d9ef>import</span> com.example.demo.controller.UserController
@@ -322,7 +322,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 </span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> filteredApp: HttpHandler = CachingFilters.Response.NoCache().then(timingFilter).then(app)
     filteredApp.asServer(SunHttp(<span style=color:#ae81ff>8080</span>)).start().block()
 }
-</code></pre></div><h2 id=4-api-测试与验证>4 API 测试与验证</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>./gradlew run
+</code></pre></div><p>下面浅析一下这段代码：</p><ul><li><code>MainGuiceModule</code>类用于配置 Guice 的接口和实现；</li><li><code>createContractHandler</code>函数用于配置总路由和 OpenAPI 信息；</li><li><code>timingFilter</code>用于演示 http4k 中自定义<code>Filter</code>的写法，该<code>Filter</code>负责对每个请求打印请求路径和耗时信息；</li><li><code>main</code>函数首先配置了一下 Guice；然后配置了一下根 app 路由和 Swagger；最后在 app 上加了自定义 Filter 然后将其启动（使用了默认的<code>SunHttp</code>，http4k 还支持<code>Jetty</code>、<code>Undertow</code>等其它服务类型）。</li></ul><h2 id=4-api-测试与验证>4 API 测试与验证</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>./gradlew run
 </code></pre></div><h3 id=41-查询所有-user>4.1 查询所有 User</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users
 
 <span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}]</span>
