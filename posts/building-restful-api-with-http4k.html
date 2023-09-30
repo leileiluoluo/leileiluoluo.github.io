@@ -146,7 +146,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
     }
 
     <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(req: Request, id: Long): Response {
-        <span style=color:#66d9ef>val</span> user = userService.getUserById(id)
+        <span style=color:#66d9ef>val</span> user = userService.getById(id)
         <span style=color:#66d9ef>return</span> user<span style=color:#f92672>?.</span>let {
             Response(OK).with(userLens of <span style=color:#66d9ef>it</span>)
         } <span style=color:#f92672>?:</span> ErrorCodes.USER_NOT_FOUND.toResponse()
@@ -154,7 +154,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 
     <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(req: Request, user: User): Response {
         <span style=color:#75715e>// exists?
-</span><span style=color:#75715e></span>        userService.getUserById(user.id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> ErrorCodes.USER_NOT_FOUND.toResponse()
+</span><span style=color:#75715e></span>        userService.getById(user.id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> ErrorCodes.USER_NOT_FOUND.toResponse()
 
         <span style=color:#75715e>// update
 </span><span style=color:#75715e></span>        userService.update(user)
@@ -163,7 +163,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 
     <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(req: Request, user: User): Response {
         <span style=color:#75715e>// exists?
-</span><span style=color:#75715e></span>        <span style=color:#66d9ef>val</span> userStored = userService.getUserById(user.id)
+</span><span style=color:#75715e></span>        <span style=color:#66d9ef>val</span> userStored = userService.getById(user.id)
         <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>null</span> <span style=color:#f92672>!=</span> userStored) {
             <span style=color:#66d9ef>return</span> ErrorCodes.USER_ALREADY_EXISTS.toResponse()
         }
@@ -175,7 +175,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 
     <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(req: Request, id: Long): Response {
         <span style=color:#75715e>// exists?
-</span><span style=color:#75715e></span>        userService.getUserById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> ErrorCodes.USER_NOT_FOUND.toResponse()
+</span><span style=color:#75715e></span>        userService.getById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> ErrorCodes.USER_NOT_FOUND.toResponse()
 
         <span style=color:#75715e>// delete
 </span><span style=color:#75715e></span>        userService.deleteById(id)
@@ -189,7 +189,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
 
 <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserService</span> {
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt;
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getUserById</span>(id: Long): User?
+    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User?
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User)
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User)
     <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long)
@@ -206,7 +206,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
         <span style=color:#66d9ef>return</span> fakeUsers
     }
 
-    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getUserById</span>(id: Long): User? {
+    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User? {
         <span style=color:#66d9ef>return</span> fakeUsers.find { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
     }
 
@@ -218,7 +218,7 @@ tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span>
     }
 
     <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User) {
-        getUserById(user.id) <span style=color:#f92672>?:</span> fakeUsers.add(user)
+        getById(user.id) <span style=color:#f92672>?:</span> fakeUsers.add(user)
     }
 
     <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long) {
@@ -353,4 +353,4 @@ curl -X DELETE http://localhost:8080/users/100
 
 <span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
 </code></pre></div><p>返回也是正确的。</p><p>综上，本文尝试使用 http4k 工具包开发了针对 User 增、删、改、查的通用 RESTful API，并进行了简单的测试，总体来看该包还是比较轻量，比较易于使用的。</p><p>本文涉及的整个样例项目代码已托管至本人 <a href=https://github.com/olzhy/kotlin-exercises/tree/main/http4k-restful-service-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://www.http4k.org/documentation/>Introduction | http4k - www.http4k.org</a></p><p>[2] <a href=https://github.com/http4k/http4k-by-example>http4k Examples | GitHub - github.com</a></p><p>[3] <a href=https://github.com/dashfwd/kotlin-guice-examples>Kotlin Guice Examples | GitHub - GitHub.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a>
-<a href=/tags/gradle/>#Gradle</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2017-2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
+<a href=/tags/gradle/>#Gradle</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-ktor.html>如何使用 Kotlin Web 框架 Ktor 构建 RESTful API 服务？</a></li><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-1</a> | Copyright © 2017-2023</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
