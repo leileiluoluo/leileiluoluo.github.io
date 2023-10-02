@@ -213,7 +213,8 @@ dependencies <span style=color:#f92672>{</span>
 </span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
 
 <span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorResponse</span>(<span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>val</span> description: String)
-</code></pre></div><p>可以看到，User 有三个字段：id、name 和 age；ErrorResponse 有两个字段：code 和 description。</p><h3 id=27-conf-包下的代码>2.7 conf 包下的代码</h3><p>该示例项目的 conf 包主要用于存放除了 Ktor 配置之外的其它配置信息，其下只有一个文件：<code>KodeinConf.kt</code>，为 Kodein 依赖注入相关的配置。</p><p>其源码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>package</span> com.example.demo.conf
+</code></pre></div><p>可以看到，User 有三个字段：id、name 和 age；ErrorResponse 有两个字段：code 和 description。</p><h3 id=27-conf-包下的代码>2.7 conf 包下的代码</h3><p>该示例项目的 conf 包主要用于存放除了 Ktor 配置之外的其它配置信息，其下只有一个文件：<code>KodeinConf.kt</code>，为 Kodein 依赖注入相关的配置。</p><p>其源码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/conf/KodeinConf.kt
+</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.conf
 
 <span style=color:#66d9ef>import</span> com.example.demo.service.DefaultUserServiceImpl
 <span style=color:#66d9ef>import</span> com.example.demo.service.UserService
@@ -224,7 +225,8 @@ dependencies <span style=color:#f92672>{</span>
 <span style=color:#66d9ef>val</span> kodein = DI {
     bind&lt;UserService&gt;() with singleton { DefaultUserServiceImpl() }
 }
-</code></pre></div><p>可以看到，如上代码声明了<code>kodein</code>变量，并指定了 Service 的接口与实现。</p><h3 id=28-程序入口代码>2.8 程序入口代码</h3><p><code>DemoApplication.kt</code>为程序的入口，其代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#66d9ef>package</span> com.example.demo
+</code></pre></div><p>可以看到，如上代码声明了<code>kodein</code>变量，并指定了 Service 的接口与实现。</p><h3 id=28-程序入口代码>2.8 程序入口代码</h3><p><code>DemoApplication.kt</code>为程序的入口，其代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
+</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo
 
 <span style=color:#66d9ef>import</span> com.example.demo.plugin.configureRouting
 <span style=color:#66d9ef>import</span> com.example.demo.plugin.configureSerialization
@@ -236,7 +238,8 @@ dependencies <span style=color:#f92672>{</span>
     configureRouting()
     configureSerialization()
 }
-</code></pre></div><p>可以看到，该代码指定了 Server 引擎为 Netty；还为 Ktor<code>Application</code>编写了一个扩展函数<code>module</code>，该<code>module</code>调用了<code>plugin</code>下分别用于配置根路由与序列化的两个扩展函数<code>configureRouting</code>与<code>configureSerialization</code>；<code>module</code>的调用则在 Ktor 配置文件<code>application.conf</code>中作了指定。</p><h3 id=29-配置文件内容>2.9 配置文件内容</h3><p>该示例项目<code>src/main/resources</code>目录下有两个配置文件：<code>application.conf</code>和<code>logback.xml</code>，分别用于 Ktor Server 的配置与 Logback 日志输出的配置。</p><p><code>application.conf</code>内容如下：</p><pre><code class=language-hocon data-lang=hocon>ktor {
+</code></pre></div><p>可以看到，该代码指定了 Server 引擎为 Netty；还为 Ktor<code>Application</code>编写了一个扩展函数<code>module</code>，该<code>module</code>调用了<code>plugin</code>下分别用于配置根路由与序列化的两个扩展函数<code>configureRouting</code>与<code>configureSerialization</code>；<code>module</code>的调用则在 Ktor 配置文件<code>application.conf</code>中作了指定。</p><h3 id=29-配置文件内容>2.9 配置文件内容</h3><p>该示例项目<code>src/main/resources</code>目录下有两个配置文件：<code>application.conf</code>和<code>logback.xml</code>，分别用于 Ktor Server 的配置与 Logback 日志输出的配置。</p><p><code>application.conf</code>内容如下：</p><pre><code class=language-hocon data-lang=hocon># src/main/resources/application.conf
+ktor {
     deployment {
         port = 8080
         port = ${?PORT}
@@ -245,7 +248,8 @@ dependencies <span style=color:#f92672>{</span>
         modules = [ com.example.demo.DemoApplicationKt.module ]
     }
 }
-</code></pre><p>可以看到，该文件采用 HOCON 格式，指定了服务的端口以及 module 的位置。</p><p><code>logback.xml</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#f92672>&lt;configuration&gt;</span>
+</code></pre><p>可以看到，该文件采用 HOCON 格式，指定了服务的端口以及 module 的位置。</p><p><code>logback.xml</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml>// src/main/resources/logback.xml
+<span style=color:#f92672>&lt;configuration&gt;</span>
     <span style=color:#f92672>&lt;appender</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span style=color:#f92672>&gt;</span>
         <span style=color:#f92672>&lt;encoder&gt;</span>
             <span style=color:#f92672>&lt;pattern&gt;</span>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span style=color:#f92672>&lt;/pattern&gt;</span>
