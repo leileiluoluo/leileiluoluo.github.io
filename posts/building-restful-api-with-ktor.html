@@ -238,7 +238,7 @@ dependencies <span style=color:#f92672>{</span>
     configureRouting()
     configureSerialization()
 }
-</code></pre></div><p>可以看到，该代码指定了 Server 引擎为 Netty；还为 Ktor<code>Application</code>编写了一个扩展函数<code>module</code>，该<code>module</code>调用了<code>plugin</code>下分别用于配置根路由与序列化的两个扩展函数<code>configureRouting</code>与<code>configureSerialization</code>；<code>module</code>的调用则在 Ktor 配置文件<code>application.conf</code>中作了指定。</p><h3 id=29-配置文件内容>2.9 配置文件内容</h3><p>该示例项目<code>src/main/resources</code>目录下有两个配置文件：<code>application.conf</code>和<code>logback.xml</code>，分别用于 Ktor Server 的配置与 Logback 日志输出的配置。</p><p><code>application.conf</code>内容如下：</p><pre><code class=language-hocon data-lang=hocon># src/main/resources/application.conf
+</code></pre></div><p>可以看到，该代码指定了 Server 引擎为 Netty；还为 Ktor<code>Application</code>编写了一个扩展函数<code>module</code>，该<code>module</code>调用了<code>plugin</code>下分别用于配置根路由与序列化的两个扩展函数<code>configureRouting</code>与<code>configureSerialization</code>；<code>module</code>的调用则在 Ktor 配置文件<code>application.conf</code>中作了指定。</p><h3 id=29-配置文件内容>2.9 配置文件内容</h3><p>该示例项目<code>src/main/resources</code>目录下有两个配置文件：<code>application.conf</code>和<code>logback.xml</code>，分别用于 Ktor Server 的配置与 Logback 日志输出的配置。</p><p><code>application.conf</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text># src/main/resources/application.conf
 ktor {
     deployment {
         port = 8080
@@ -248,7 +248,7 @@ ktor {
         modules = [ com.example.demo.DemoApplicationKt.module ]
     }
 }
-</code></pre><p>可以看到，该文件采用 HOCON 格式，指定了服务的端口以及 module 的位置。</p><p><code>logback.xml</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml>// src/main/resources/logback.xml
+</code></pre></div><p>可以看到，该文件采用 HOCON 格式，指定了服务的端口以及 module 的位置。</p><p><code>logback.xml</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml>// src/main/resources/logback.xml
 <span style=color:#f92672>&lt;configuration&gt;</span>
     <span style=color:#f92672>&lt;appender</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span style=color:#f92672>&gt;</span>
         <span style=color:#f92672>&lt;encoder&gt;</span>
