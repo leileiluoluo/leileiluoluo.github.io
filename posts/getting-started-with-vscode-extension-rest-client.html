@@ -5,11 +5,15 @@
     ?page=1
     &amp;per_page=10
 Accept: application/vnd.github+json
-</code></pre></div><p>将如上内容保存为一个<code>.http</code>文件后，REST Client 会自动检测到如上内容，并在 GET 上面显示「Send Request」按钮；点击该按钮即可发送请求，稍后会看到右侧弹出一个窗口，显示返回的状态码、 Header，以及 Body 的完整内容。</p><p>效果如下：</p><p><img loading=lazy src=https://olzhy.github.io/static/images/uploads/2023/10/vscode-extension-rest-client-basic-usage.png#center alt="REST Client 基础使用" width=80%></p><h2 id=2-将文件内容载入为请求体>2 将文件内容载入为请求体</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>@baseUrl = https://api.github.com/repos/olzhy/olzhy.github.io
-@accessToken = ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</code></pre></div><p>将如上内容保存为一个<code>.http</code>文件后，REST Client 会自动检测到如上内容，并在 GET 上面显示「Send Request」按钮；点击该按钮即可发送请求，稍后会看到右侧弹出一个窗口，显示返回的状态码、 Header，以及 Body 的完整内容。</p><p>效果如下：</p><p><img loading=lazy src=https://olzhy.github.io/static/images/uploads/2023/10/vscode-extension-rest-client-basic-usage.png#center alt="REST Client 基础使用" width=80%></p><h2 id=2-将文件内容载入为请求体>2 将文件内容载入为请求体</h2><p>上面查询一个 GitHub 仓库的 Issues API 是一个 GET 请求，而对于诸如 POST 等需要 Body 的请求，可以采用如下写法：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>POST https://api.github.com/repos/olzhy/olzhy.github.io/issues
+Authorization: Bearer ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-POST {{baseUrl}}/issues
-Authorization: Bearer {{accessToken}}
+{
+    &#34;title&#34;: &#34;发现一个 Bug&#34;,
+    &#34;body&#34;: &#34;请尽快解决！&#34;
+}
+</code></pre></div><p>可以看到，上面演示的是一个针对仓库<code>olzhy.github.io</code>新建 Issue 的例子。相较于前面的 GET 请求，只需在 URL 和请求头下空出一行，填入请求体即可。</p><p>请求体太长的话，也可以将其抽取到一个文件中，然后使用如下写法将文件内容载入为请求体即可：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>POST https://api.github.com/repos/olzhy/olzhy.github.io/issues
+Authorization: Bearer ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 &lt;@ ./body.json
 </code></pre></div><h2 id=3-一个文件内编写多个请求>3 一个文件内编写多个请求</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>@baseUrl = https://api.github.com/repos/olzhy/olzhy.github.io
