@@ -52,21 +52,22 @@ Date: {{$datetime rfc1123}}
     &#34;custom_date&#34;: &#34;{{$datetime &#39;YYYY-MM-DD&#39;}}&#34;,
     &#34;local_custom_date&#34;: &#34;{{$localDatetime &#39;YYYY-MM-DD&#39;}}&#34;
 }
-</code></pre></div><h2 id=5-多环境配置与选择环境执行>5 多环境配置与选择环境执行</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#e6db74>&#34;rest-client.environmentVariables&#34;</span><span style=color:#960050;background-color:#1e0010>:</span> {
-    <span style=color:#f92672>&#34;$shared&#34;</span>: {
-        <span style=color:#f92672>&#34;version&#34;</span>: <span style=color:#e6db74>&#34;v1&#34;</span>
+</code></pre></div><h2 id=5-多环境配置与选择环境执行>5 多环境配置与选择环境执行</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>// settings.json
+&#34;rest-client.environmentVariables&#34;: {
+    &#34;$shared&#34;: {
+        &#34;version&#34;: &#34;v1&#34;
     },
-    <span style=color:#f92672>&#34;dev&#34;</span>: {
-        <span style=color:#f92672>&#34;address&#34;</span>: <span style=color:#e6db74>&#34;https://dev-api.example.com/v2&#34;</span>,
-        <span style=color:#f92672>&#34;token&#34;</span>: <span style=color:#e6db74>&#34;xxxxxx&#34;</span>
+    &#34;dev&#34;: {
+        &#34;address&#34;: &#34;https://dev-api.example.com/v2&#34;,
+        &#34;token&#34;: &#34;xxxxxx&#34;
     },
-    <span style=color:#f92672>&#34;qa&#34;</span>: {
-        <span style=color:#f92672>&#34;address&#34;</span>: <span style=color:#e6db74>&#34;https://qa-api.example.com/v2&#34;</span>,
-        <span style=color:#f92672>&#34;token&#34;</span>: <span style=color:#e6db74>&#34;xxxxxx&#34;</span>
+    &#34;qa&#34;: {
+        &#34;address&#34;: &#34;https://qa-api.example.com/v2&#34;,
+        &#34;token&#34;: &#34;xxxxxx&#34;
     },
-    <span style=color:#f92672>&#34;production&#34;</span>: {
-        <span style=color:#f92672>&#34;address&#34;</span>: <span style=color:#e6db74>&#34;https://api.example.com/v2&#34;</span>,
-        <span style=color:#f92672>&#34;token&#34;</span>: <span style=color:#e6db74>&#34;xxxxxx&#34;</span>
+    &#34;production&#34;: {
+        &#34;address&#34;: &#34;https://api.example.com/v2&#34;,
+        &#34;token&#34;: &#34;xxxxxx&#34;
     }
 }
 </code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>GET {{address}}/comments/1 HTTP/1.1
