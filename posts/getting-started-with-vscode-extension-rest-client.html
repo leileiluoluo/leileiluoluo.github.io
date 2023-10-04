@@ -16,7 +16,7 @@ Authorization: Bearer ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 Authorization: Bearer ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 &lt;@ ./body.json
-</code></pre></div><h2 id=3-一个文件内编写多个请求>3 一个文件内编写多个请求</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>@baseUrl = https://api.github.com/repos/olzhy/olzhy.github.io
+</code></pre></div><h2 id=3-一个文件内编写多个请求>3 一个文件内编写多个请求</h2><p>上面的两个场景均非常简单，而实际使用中，我们常会想在一个<code>.http</code>文件中编写多个请求，且可能会存在后一个请求依赖前一个请求的情况。对于这种情况，REST Client 也是支持的。</p><p>下面的示例即在一个文件中编写了三个请求（分别为：新建 Issue、获取刚刚新建的 Issue 和更新刚刚新建的 Issue），且后面的请求依赖前面的返回结果。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>@baseUrl = https://api.github.com/repos/olzhy/olzhy.github.io
 @accessToken = ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # @name createIssue
@@ -45,7 +45,7 @@ Authorization: Bearer {{accessToken}}
     &#34;title&#34;: &#34;紧急，发现一个 Bug&#34;,
     &#34;body&#34;: &#34;请尽快解决！！&#34;
 }
-</code></pre></div><h2 id=4-系统变量与环境变量的使用>4 系统变量与环境变量的使用</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>POST https://api.example.com/v2/comments HTTP/1.1
+</code></pre></div><p>可以看到，三个请求以内容为<code>###</code>的行进行分割，每个请求都起了一个名字（如：<code># @name createIssue</code>），后面的请求可以根据前面请求的名字来获取其返回的内容（如：<code>@newCreatedIssueNumber = {{createIssue.response.body.$.number}}</code>），此外我们还看到文件头部使用<code>@key = value</code>方式声明了一些共用变量。</p><h2 id=4-系统变量与环境变量的使用>4 系统变量与环境变量的使用</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>POST https://api.example.com/v2/comments HTTP/1.1
 Content-Type: application/json
 Date: {{$datetime rfc1123}}
 
