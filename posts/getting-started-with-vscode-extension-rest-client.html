@@ -49,9 +49,9 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-    &#34;user_name&#34;: &#34;{{$dotenv USERNAME}}&#34;, // 读取与`.http`文件同一目录下的`.env`文件中的环境变量
+    &#34;user_name&#34;: &#34;{{$dotenv USERNAME}}&#34;, // 读取与 .http 文件同一目录下的 .env 文件中的环境变量
     &#34;request_id&#34;: &#34;{{$guid}}&#34;, // 生成一个 36 位的 UUID，如：f63ebc18-216b-4c8e-8d51-9ab66bbe39fc
-    &#34;updated_at&#34;: &#34;{{$timestamp}}&#34;, // 生成一个时间戳，表示从`1970-01-01`至今的秒数，如：1696475647
+    &#34;updated_at&#34;: &#34;{{$timestamp}}&#34;, // 生成一个时间戳，表示从 1970-01-01 至今的秒数，如：1696475647
     &#34;created_at&#34;: &#34;{{$timestamp -1 d}}&#34;, // 指定偏移量生成一个时间戳，如：1696389771
     &#34;custom_date&#34;: &#34;{{$datetime &#39;YYYY-MM-DD&#39;}}&#34;, // 格式化日期，如：2023-10-05
     &#34;secret&#34;: &#34;{{$processEnv SECRET}}&#34; // 读取系统环境变量
