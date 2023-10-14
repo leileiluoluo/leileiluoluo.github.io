@@ -84,9 +84,26 @@ Moshi：1.18.30
         e<span style=color:#f92672>.</span><span style=color:#a6e22e>printStackTrace</span><span style=color:#f92672>();</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>需要注意的是，如上代码在构造 Moshi 实例时指定了<code>Date</code>类型对应的 JSON Adapter，否则在解析时会报错。</p><p>如上代码运行结果如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>{&#34;created_at&#34;:&#34;2023-10-14T09:34:35.945Z&#34;,&#34;name&#34;:&#34;Larry&#34;,&#34;roles&#34;:[&#34;ADMIN&#34;,&#34;EDITOR&#34;]}
-User(name=Larry, roles=[ADMIN, EDITOR], createdAt=Sat Oct 14 17:34:35 CST 2023)
-</code></pre></div><p>可以看到，User 对象序列化为的 JSON、JSON 反序列化为的 User 对象都是正确的。</p><h2 id=2-使用-json-自定义字段名>2 使用 @Json 自定义字段名</h2><h2 id=3-json-数组如何处理>3 JSON 数组如何处理？</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#a6e22e>@Test</span>
+</code></pre></div><p>需要注意的是，如上代码在构造 Moshi 实例时指定了<code>Date</code>类型对应的 JSON Adapter，否则在解析该类型字段时会报错。</p><p>如上代码运行结果如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>{&#34;createdAt&#34;:&#34;2023-10-14T09:47:37.763Z&#34;,&#34;name&#34;:&#34;Larry&#34;,&#34;roles&#34;:[&#34;ADMIN&#34;,&#34;EDITOR&#34;]}
+User(name=Larry, roles=[ADMIN, EDITOR], createdAt=Sat Oct 14 17:47:37 CST 2023)
+</code></pre></div><p>可以看到，User 对象序列化为的 JSON、JSON 反序列化为的 User 对象都是正确的。</p><h2 id=2-使用-json-自定义字段名>2 使用 @Json 自定义字段名</h2><p>上面的例子中，JSON 里的字段名与 Java 类里的字段名是完全一致的。</p><p>如果某个字段名需要自定义，该怎么做呢？下面即进行了演示：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
+
+<span style=color:#a6e22e>@ToString</span>
+<span style=color:#a6e22e>@Getter</span>
+<span style=color:#a6e22e>@Setter</span>
+<span style=color:#a6e22e>@NoArgsConstructor</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span> <span style=color:#f92672>{</span>
+
+    <span style=color:#75715e>// ...
+</span><span style=color:#75715e></span>
+    <span style=color:#a6e22e>@Json</span><span style=color:#f92672>(</span>name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;created_at&#34;</span><span style=color:#f92672>)</span>
+    <span style=color:#66d9ef>private</span> Date createdAt<span style=color:#f92672>;</span>
+
+    <span style=color:#75715e>// ...
+</span><span style=color:#75715e></span><span style=color:#f92672>}</span>
+</code></pre></div><p>可以看到，只需在 Java 类对应的字段上加上<code>@Json</code>注解，然后自定义其名称就可以了。</p><p>再次运行一下上面的测试用例（<code>src/test/java/com/example/demo/MoshiTest#testBasicUsage</code>），得到了如下结果：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>{&#34;created_at&#34;:&#34;2023-10-14T09:55:48.793Z&#34;,&#34;name&#34;:&#34;Larry&#34;,&#34;roles&#34;:[&#34;ADMIN&#34;,&#34;EDITOR&#34;]}
+User(name=Larry, roles=[ADMIN, EDITOR], createdAt=Sat Oct 14 17:55:48 CST 2023)
+</code></pre></div><p>可以看到，User 类的<code>createdAt</code>属性在序列化为 JSON 时变为了<code>created_at</code>；该 JSON 再次反序列化为 User 对象时，<code>createdAt</code>属性的赋值也是正常的。</p><h2 id=3-json-数组如何处理>3 JSON 数组如何处理？</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#a6e22e>@Test</span>
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testUserListSerializationAndDeserialization</span><span style=color:#f92672>()</span> <span style=color:#66d9ef>throws</span> IOException <span style=color:#f92672>{</span>
     Type type <span style=color:#f92672>=</span> Types<span style=color:#f92672>.</span><span style=color:#a6e22e>newParameterizedType</span><span style=color:#f92672>(</span>List<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>,</span> User<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
 
