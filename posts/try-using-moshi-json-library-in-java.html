@@ -28,7 +28,7 @@ Moshi：1.18.30
     <span style=color:#f92672>&lt;version&gt;</span>5.10.0<span style=color:#f92672>&lt;/version&gt;</span>
     <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
 <span style=color:#f92672>&lt;/dependency&gt;</span>
-</code></pre></div><p>准备好后，即可以开始使用了。</p><h2 id=1-基础使用>1 基础使用</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
+</code></pre></div><p>准备好后，即可以开始使用了。</p><h2 id=1-基础使用>1 基础使用</h2><p>首先，看一下最基础的使用，即 Model 类的序列化与反序列化（即 Java 对象转换为 JSON，以及 JSON 转换为 Java 对象）。</p><p>先新建一个 Model 类，本文以<code>User</code>为例，该类有三个字段：<code>name</code>、<code>roles</code>和<code>createdAt</code>，包括了<code>String</code>、<code>List</code>、<code>Date</code>以及枚举类型。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
 
 <span style=color:#f92672>import</span> lombok.Getter<span style=color:#f92672>;</span>
@@ -55,24 +55,28 @@ Moshi：1.18.30
         VIEWER
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/MoshiTest#testBasicUsage
+</code></pre></div><p>下面即编写一个测试用例来演示 User 对象与 JSON 的互转：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/MoshiTest#testBasicUsage
 </span><span style=color:#75715e></span><span style=color:#a6e22e>@Test</span>
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testBasicUsage</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
-    Moshi moshi <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Moshi<span style=color:#f92672>.</span><span style=color:#a6e22e>Builder</span><span style=color:#f92672>()</span>
+    <span style=color:#75715e>// 构造 Moshi 实例
+</span><span style=color:#75715e></span>    Moshi moshi <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Moshi<span style=color:#f92672>.</span><span style=color:#a6e22e>Builder</span><span style=color:#f92672>()</span>
             <span style=color:#f92672>.</span><span style=color:#a6e22e>add</span><span style=color:#f92672>(</span>Date<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>,</span> <span style=color:#66d9ef>new</span> Rfc3339DateJsonAdapter<span style=color:#f92672>())</span>
             <span style=color:#f92672>.</span><span style=color:#a6e22e>build</span><span style=color:#f92672>();</span>
-    JsonAdapter<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> jsonAdapter <span style=color:#f92672>=</span> moshi<span style=color:#f92672>.</span><span style=color:#a6e22e>adapter</span><span style=color:#f92672>(</span>User<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
 
-    User user <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> User<span style=color:#f92672>();</span>
+    <span style=color:#75715e>// 获取 User 的 JsonAdapter
+</span><span style=color:#75715e></span>    JsonAdapter<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> jsonAdapter <span style=color:#f92672>=</span> moshi<span style=color:#f92672>.</span><span style=color:#a6e22e>adapter</span><span style=color:#f92672>(</span>User<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
+
+    <span style=color:#75715e>// 构造 User 对象
+</span><span style=color:#75715e></span>    User user <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> User<span style=color:#f92672>();</span>
     user<span style=color:#f92672>.</span><span style=color:#a6e22e>setName</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;Larry&#34;</span><span style=color:#f92672>);</span>
     user<span style=color:#f92672>.</span><span style=color:#a6e22e>setRoles</span><span style=color:#f92672>(</span>List<span style=color:#f92672>.</span><span style=color:#a6e22e>of</span><span style=color:#f92672>(</span>User<span style=color:#f92672>.</span><span style=color:#a6e22e>Role</span><span style=color:#f92672>.</span><span style=color:#a6e22e>ADMIN</span><span style=color:#f92672>,</span> User<span style=color:#f92672>.</span><span style=color:#a6e22e>Role</span><span style=color:#f92672>.</span><span style=color:#a6e22e>EDITOR</span><span style=color:#f92672>));</span>
     user<span style=color:#f92672>.</span><span style=color:#a6e22e>setCreatedAt</span><span style=color:#f92672>(</span><span style=color:#66d9ef>new</span> Date<span style=color:#f92672>());</span>
 
-    <span style=color:#75715e>// serialization
+    <span style=color:#75715e>// 序列化
 </span><span style=color:#75715e></span>    String json <span style=color:#f92672>=</span> jsonAdapter<span style=color:#f92672>.</span><span style=color:#a6e22e>toJson</span><span style=color:#f92672>(</span>user<span style=color:#f92672>);</span>
     System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span>json<span style=color:#f92672>);</span>
 
-    <span style=color:#75715e>// deserialization
+    <span style=color:#75715e>// 反序列化
 </span><span style=color:#75715e></span>    <span style=color:#66d9ef>try</span> <span style=color:#f92672>{</span>
         User userParsed <span style=color:#f92672>=</span> jsonAdapter<span style=color:#f92672>.</span><span style=color:#a6e22e>fromJson</span><span style=color:#f92672>(</span>json<span style=color:#f92672>);</span>
         System<span style=color:#f92672>.</span><span style=color:#a6e22e>out</span><span style=color:#f92672>.</span><span style=color:#a6e22e>println</span><span style=color:#f92672>(</span>userParsed<span style=color:#f92672>);</span>
@@ -80,7 +84,9 @@ Moshi：1.18.30
         e<span style=color:#f92672>.</span><span style=color:#a6e22e>printStackTrace</span><span style=color:#f92672>();</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><h2 id=2-使用-json-自定义字段名>2 使用 @Json 自定义字段名</h2><h2 id=3-json-数组如何处理>3 JSON 数组如何处理？</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#a6e22e>@Test</span>
+</code></pre></div><p>需要注意的是，如上代码在构造 Moshi 实例时指定了<code>Date</code>类型对应的 JSON Adapter，否则在解析时会报错。</p><p>如上代码运行结果如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>{&#34;created_at&#34;:&#34;2023-10-14T09:34:35.945Z&#34;,&#34;name&#34;:&#34;Larry&#34;,&#34;roles&#34;:[&#34;ADMIN&#34;,&#34;EDITOR&#34;]}
+User(name=Larry, roles=[ADMIN, EDITOR], createdAt=Sat Oct 14 17:34:35 CST 2023)
+</code></pre></div><p>可以看到，User 对象序列化为的 JSON、JSON 反序列化为的 User 对象都是正确的。</p><h2 id=2-使用-json-自定义字段名>2 使用 @Json 自定义字段名</h2><h2 id=3-json-数组如何处理>3 JSON 数组如何处理？</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#a6e22e>@Test</span>
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testUserListSerializationAndDeserialization</span><span style=color:#f92672>()</span> <span style=color:#66d9ef>throws</span> IOException <span style=color:#f92672>{</span>
     Type type <span style=color:#f92672>=</span> Types<span style=color:#f92672>.</span><span style=color:#a6e22e>newParameterizedType</span><span style=color:#f92672>(</span>List<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>,</span> User<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
 
