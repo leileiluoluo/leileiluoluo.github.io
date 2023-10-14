@@ -4,7 +4,7 @@
 <a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p><a href=https://github.com/square/moshi>Moshi</a> 是一个可用于 Java 与 Kotlin 的 JSON 序列化与反序列化库，其主要使用 Kotlin 编写。本文以样例代码的方式来演示该库在 Java 中的使用。</p><p>示例项目使用 Maven 管理，下面列出各依赖项及其版本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>JDK：Amazon Corretto 17.0.8
 Maven：3.9.2
 Moshi：1.18.30
-</code></pre></div><p>开始前，需要在<code>pom.xml</code>的<code>&lt;dependencies></code>下引入 Moshi 依赖（<code>moshi</code>为核心模块，<code>moshi-adapters</code>包含一些诸如日期处理等适用的 Adapter）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#75715e>&lt;!-- pom.xml --&gt;</span>
+</code></pre></div><p>开始前，需要在<code>pom.xml</code>的<code>&lt;dependencies></code>下引入 Moshi 依赖（<code>moshi</code>为核心模块，<code>moshi-adapters</code>模块包含诸如<code>Date</code>类型处理等实用的 Adapter）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#75715e>&lt;!-- pom.xml --&gt;</span>
 <span style=color:#f92672>&lt;dependency&gt;</span>
     <span style=color:#f92672>&lt;groupId&gt;</span>com.squareup.moshi<span style=color:#f92672>&lt;/groupId&gt;</span>
     <span style=color:#f92672>&lt;artifactId&gt;</span>moshi<span style=color:#f92672>&lt;/artifactId&gt;</span>
