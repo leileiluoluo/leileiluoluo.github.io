@@ -29,7 +29,7 @@ Moshi：1.18.30
     <span style=color:#f92672>&lt;version&gt;</span>5.10.0<span style=color:#f92672>&lt;/version&gt;</span>
     <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
 <span style=color:#f92672>&lt;/dependency&gt;</span>
-</code></pre></div><p>准备好后，即可以开始使用了。</p><h2 id=1-基础使用>1 基础使用</h2><p>首先，看一下最基础的使用，即序列化与反序列化（即 Java 对象转换为 JSON，以及 JSON 转换为 Java 对象）。</p><p>先新建一个 Model 类，本文以<code>User</code>为例，该类有三个字段：<code>name</code>、<code>roles</code>和<code>createdAt</code>，包括了<code>String</code>、<code>List</code>、<code>Date</code>以及枚举类型。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
+</code></pre></div><p>准备好后，即可以开始使用了。</p><h2 id=1-基础使用>1 基础使用</h2><p>首先，看一下最基础的使用，即如何使用 Moshi 进行序列化与反序列化（即 Java 对象转换为 JSON，以及 JSON 转换为 Java 对象）。</p><p>先新建一个 Model 类，本文以<code>User</code>为例，该类有三个字段：<code>name</code>、<code>roles</code>和<code>createdAt</code>，包括了<code>String</code>、<code>List</code>、<code>Date</code>以及枚举类型。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
 
 <span style=color:#f92672>import</span> lombok.Getter<span style=color:#f92672>;</span>
