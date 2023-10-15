@@ -87,7 +87,7 @@ Moshi：1.18.30
 <span style=color:#f92672>}</span>
 </code></pre></div><p>需要注意的是，如上代码在构造 Moshi 实例时指定了<code>Date</code>类型对应的 JSON Adapter <code>Rfc3339DateJsonAdapter</code>，否则在解析该类型字段时会报错。</p><p>如上代码运行结果如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>{&#34;createdAt&#34;:&#34;2023-10-14T09:47:37.763Z&#34;,&#34;name&#34;:&#34;Larry&#34;,&#34;roles&#34;:[&#34;ADMIN&#34;,&#34;EDITOR&#34;]}
 User(name=Larry, roles=[ADMIN, EDITOR], createdAt=Sat Oct 14 17:47:37 CST 2023)
-</code></pre></div><p>可以看到，User 对象序列化为的 JSON、JSON 反序列化为的 User 对象都是正确的。</p><h2 id=2-使用-json-自定义字段名>2 使用 @Json 自定义字段名</h2><p>上面的例子中，JSON 里的字段名与 Java 类里的字段名是完全一致的。</p><p>如果某个字段名需要自定义，该怎么做呢？下面即进行了演示：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
+</code></pre></div><p>可以看到，User 对象序列化为的 JSON、JSON 反序列化为的 User 对象都是正确的。</p><h2 id=2-使用-json-自定义字段名>2 使用 @Json 自定义字段名</h2><p>上面的例子中，JSON 里的字段名与 Java 类里的属性名是完全一致的。</p><p>如果某个字段名需要自定义，该怎么做呢？下面即进行了演示：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
 
 <span style=color:#a6e22e>@ToString</span>
