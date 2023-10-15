@@ -132,7 +132,8 @@ User(name=Larry, roles=[ADMIN, EDITOR], createdAt=Sat Oct 14 17:55:48 CST 2023)
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到，我们为<code>Role</code>类型编写一个自定义 Adapter <code>RoleAdapter</code>。该类中有两个方法<code>toJson</code>与<code>fromJson</code>，且分别被加上了注解<code>@ToJson</code>与<code>@FromJson</code>，这两个方法分别用于<code>Role</code>类型由 Java 属性转为 JSON 字段以及由 JSON 字段转换为 Java 属性时的逻辑（本示例仅取第一个字母来表示 User 拥有的<code>Role</code>）。</p><p>下面编写一个测试用例来演示该自定义 Adapter 的使用：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#a6e22e>@Test</span>
+</code></pre></div><p>可以看到，我们为<code>Role</code>类型编写一个自定义 Adapter <code>RoleAdapter</code>。该类中有两个方法<code>toJson</code>与<code>fromJson</code>，且分别被加上了注解<code>@ToJson</code>与<code>@FromJson</code>，这两个方法分别用于<code>Role</code>类型由 Java 属性转为 JSON 字段以及由 JSON 字段转换为 Java 属性时的逻辑（本示例仅取第一个字母来表示 User 拥有的<code>Role</code>）。</p><p>下面编写一个测试用例来演示该自定义 Adapter 的使用：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/MoshiTest#testCustomTypeAdapter
+</span><span style=color:#75715e></span><span style=color:#a6e22e>@Test</span>
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testCustomTypeAdapter</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
     <span style=color:#75715e>// 构造 Moshi 实例
 </span><span style=color:#75715e></span>    Moshi moshi <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Moshi<span style=color:#f92672>.</span><span style=color:#a6e22e>Builder</span><span style=color:#f92672>()</span>
