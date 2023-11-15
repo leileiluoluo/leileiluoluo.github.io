@@ -219,7 +219,7 @@
 
         -&gt;  Seq Scan on log_history_2024 log_history_17  (cost=0.00..25.00 rows=400 width=0)
               Filter: (logdate &gt;= &#39;2023-01-01&#39;::date)
-</code></pre></div><p>可以看到，未启用分区裁剪时，针对该<code>WHERE</code>查询，包括旧的分区在内的每个分区都会被扫描。</p><p>接着，看一下启动分区裁剪的情况：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>SET</span> enable_partition_pruning <span style=color:#f92672>=</span> <span style=color:#66d9ef>on</span>; <span style=color:#75715e>-- 默认值
+</code></pre></div><p>可以看到，未启用分区裁剪时，针对该<code>WHERE</code>查询，包括旧的分区在内的每个分区都会被扫描。</p><p>接着，看一下启用分区裁剪的情况：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>SET</span> enable_partition_pruning <span style=color:#f92672>=</span> <span style=color:#66d9ef>on</span>; <span style=color:#75715e>-- 默认值
 </span><span style=color:#75715e></span><span style=color:#66d9ef>EXPLAIN</span> <span style=color:#66d9ef>SELECT</span> <span style=color:#66d9ef>count</span>(<span style=color:#f92672>*</span>) <span style=color:#66d9ef>FROM</span> log_history <span style=color:#66d9ef>WHERE</span> logdate <span style=color:#f92672>&gt;=</span> DATE <span style=color:#e6db74>&#39;2023-01-01&#39;</span>;
 </code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>Aggregate  (cost=112.00..112.01 rows=1 width=8)
   -&gt;  Append  (cost=0.00..108.00 rows=1600 width=0)
