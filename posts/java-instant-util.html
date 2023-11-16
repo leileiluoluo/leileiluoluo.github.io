@@ -91,7 +91,7 @@ Caused by: java.time.DateTimeException: Unable to obtain LocalTime from Temporal
 	at java.base/java.time.format.DateTimeFormatter.format(DateTimeFormatter.java:1823)
 	at FatalInstantUtil.instant2Str(FatalInstantUtil.java:18)
 	at FatalInstantUtil.main(FatalInstantUtil.java:27)
-</code></pre></div><p>这个异常信息说的也不是很清楚，其实原因出在未给 <code>DateTimeFormatter</code> 指定时区；这样其在 <code>format</code> 的时候不知道转换到哪个时区的格式。</p><p>知道了异常出现的原因后，下面修正一下，看一下正确的示例。</p><h3 id=22-正确示例>2.2 正确示例</h3><p>修正后的正确示例代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// 正确示例
+</code></pre></div><p>这个异常信息说的也不是很清楚，其实原因出在未给 <code>DateTimeFormatter</code> 指定时区；这样其在 <code>format</code> 的时候不知道转换到哪个时区的格式就会抛出异常。</p><p>知道了异常出现的原因后，下面修正一下，看一下正确的示例。</p><h3 id=22-正确示例>2.2 正确示例</h3><p>修正后的正确示例代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// 正确示例
 </span><span style=color:#75715e></span><span style=color:#f92672>import</span> java.time.Instant<span style=color:#f92672>;</span>
 <span style=color:#f92672>import</span> java.time.LocalDateTime<span style=color:#f92672>;</span>
 <span style=color:#f92672>import</span> java.time.ZoneId<span style=color:#f92672>;</span>
