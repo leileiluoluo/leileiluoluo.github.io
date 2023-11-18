@@ -49,7 +49,7 @@ PostgreSQL Server：16.0
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>如上程序使用 Java 原生 <code>DriverManager.getConnection();</code> 方式获取了一个数据库连接；然后使用 <code>conn.prepareStatement(sql);</code> 来创建查询语句；然后对该语句使用 <code>stmt.executeQuery();</code> 执行 10 次，并使用 <code>rs.getBigDecimal("price");</code> 获取数据库值而进行断言。</p><p>执行时发现，在前 5 次读取都没有问题；而在第 6 次读取时，数值 <code>20000.00000000</code> 读出来后变成了 <code>2.00000000</code>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>org.opentest4j.AssertionFailedError: assertion failed in round 5 ==&gt;
+</code></pre></div><p>如上程序使用 Java 原生 <code>DriverManager.getConnection();</code> 方式获取了一个数据库连接；然后使用 <code>conn.prepareStatement(sql);</code> 来创建查询语句；然后对该语句使用 <code>stmt.executeQuery();</code> 执行 10 次，并使用 <code>rs.getBigDecimal("price");</code> 获取字段值而进行断言。</p><p>执行时发现，在前 5 次读取都没有问题；而在第 6 次读取时，数值 <code>20000.00000000</code> 读出来后变成了 <code>2.00000000</code>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>org.opentest4j.AssertionFailedError: assertion failed in round 5 ==&gt;
 Expected :20000.00000000
 Actual   :2.00000000
 </code></pre></div><h2 id=3-解决办法>3 解决办法</h2><p>将 PostgreSQL JDBC Driver 版本升级到 <a href=https://mvnrepository.com/artifact/org.postgresql/postgresql>42.3.1</a> 及以上就可以了。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#f92672>&lt;dependency&gt;</span>
