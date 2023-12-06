@@ -109,7 +109,7 @@
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>JavaBeans 构造器模式解决了伸缩式构造器模式存在的问题：对一个字段进行设置时，无需对其前面的字段进行设置。但 JavaBeans 构造器模式又引入了别的问题：对象的构造由一次调用分散为多次调用，容易造成对象状态的不一致，从而引起问题。</p><h2 id=3-建造者模式>3 建造者模式</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> org.junit.jupiter.api.Test<span style=color:#f92672>;</span>
+</code></pre></div><p>JavaBeans 构造器模式解决了伸缩式构造器模式存在的问题：对一个字段进行设置时，无需对其前面的字段进行设置。但 JavaBeans 构造器模式又引入了别的问题：对象的构造由一次调用分散为多次调用，容易造成对象状态的不一致，从而引起问题。</p><h2 id=3-建造者模式>3 建造者模式</h2><p>下面介绍建造者模式（Builder Pattern），其兼具伸缩式模式的安全性与 JavaBeans 模式的可读性。其通过引入一个中间对象 Builder 来构造真正的对象，创建 Builder 时需要提供所有的必填参数；而对其它可选参数的设置则采用类似 <code>Setters</code> 的方式来进行；参数设置好后，最后调用一下 Builder 的 <code>build</code> 无参方法来一次性生成最终的不可变对象。</p><p>下面即是 <code>RedisConfig</code> 采用建造者模式的实现代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> org.junit.jupiter.api.Test<span style=color:#f92672>;</span>
 
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>BuilderPatternTest</span> <span style=color:#f92672>{</span>
 
