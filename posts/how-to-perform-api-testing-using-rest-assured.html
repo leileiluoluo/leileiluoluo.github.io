@@ -245,13 +245,13 @@ assertThat<span style=color:#f92672>(</span>commitMessage<span style=color:#f926
     },
     ...
 ]
-</code></pre></div><p>其是一个数组，我们定义一个 <a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/model/CommitEntity.java>CommitEntity</a> 类，来接收响应数据：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/model/CommitEntry.java
+</code></pre></div><p>其是一个数组，我们定义一个 <a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/model/CommitEntity.java>CommitEntity</a> 类，来接收响应数据：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/model/CommitEntity.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.tests.model<span style=color:#f92672>;</span>
 
 <span style=color:#f92672>import</span> com.fasterxml.jackson.annotation.JsonIgnoreProperties<span style=color:#f92672>;</span>
 
 <span style=color:#a6e22e>@JsonIgnoreProperties</span><span style=color:#f92672>(</span>ignoreUnknown <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span><span style=color:#f92672>)</span>
-<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CommitEntry</span> <span style=color:#f92672>{</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CommitEntity</span> <span style=color:#f92672>{</span>
 
     <span style=color:#66d9ef>private</span> Commit commit<span style=color:#f92672>;</span>
 
@@ -268,10 +268,10 @@ assertThat<span style=color:#f92672>(</span>commitMessage<span style=color:#f926
         <span style=color:#66d9ef>private</span> String date<span style=color:#f92672>;</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>REST Assured 将响应体反序列化为 <code>List&lt;CommitEntry></code>，并对其中的值进行断言的代码（<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubCommitAPITest.java#L104>GitHubCommitAPITest#deserializeCommits</a>）的关键部分如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubCommitAPITest.java#deserializeCommits
+</code></pre></div><p>REST Assured 将响应体反序列化为 <code>List&lt;CommitEntity></code>，并对其中的值进行断言的代码（<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubCommitAPITest.java#L104>GitHubCommitAPITest#deserializeCommits</a>）的关键部分如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubCommitAPITest.java#deserializeCommits
 </span><span style=color:#75715e></span>
 <span style=color:#75715e>// deserialization with generics
-</span><span style=color:#75715e></span>List<span style=color:#f92672>&lt;</span>CommitEntry<span style=color:#f92672>&gt;</span> commits <span style=color:#f92672>=</span> get<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;/commits&#34;</span><span style=color:#f92672>)</span>
+</span><span style=color:#75715e></span>List<span style=color:#f92672>&lt;</span>CommitEntity<span style=color:#f92672>&gt;</span> commits <span style=color:#f92672>=</span> get<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;/commits&#34;</span><span style=color:#f92672>)</span>
         <span style=color:#f92672>.</span><span style=color:#a6e22e>then</span><span style=color:#f92672>()</span>
         <span style=color:#f92672>.</span><span style=color:#a6e22e>statusCode</span><span style=color:#f92672>(</span>200<span style=color:#f92672>)</span>
         <span style=color:#f92672>.</span><span style=color:#a6e22e>extract</span><span style=color:#f92672>()</span>
