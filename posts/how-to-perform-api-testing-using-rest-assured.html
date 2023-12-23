@@ -79,7 +79,7 @@ JUnit：5.10.1
   },
   ...
 }
-</code></pre></div><p>如果我们想获取 <code>_links</code> 下的 <code>html</code>，以及 <code>protection</code> 下的 <code>enabled</code> 这两个值并进行断言，该怎么做呢？</p><p>直接使用 <code>Response</code> 的 <code>path()</code> 方法、使用 <code>JsonPath</code> 对象来提取字段并进行断言的代码（<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L19>GitHubBranchAPITest#getBranch</a> 与 <a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L19>GitHubBranchAPITest#getBranchUsingJsonPath</a>）的关键部分分别如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubBranchAPITest.java#getBranch
+</code></pre></div><p>如果我们想获取 <code>_links</code> 下的 <code>html</code>，以及 <code>protection</code> 下的 <code>enabled</code> 这两个值并进行断言，该怎么做呢？</p><p>直接使用 <code>Response</code> 的 <code>path()</code> 方法与使用 <code>JsonPath</code> 对象来提取字段并进行断言的代码（<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L19>GitHubBranchAPITest#getBranch</a> 与 <a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L19>GitHubBranchAPITest#getBranchUsingJsonPath</a>）的关键部分分别如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubBranchAPITest.java#getBranch
 </span><span style=color:#75715e></span>Response response <span style=color:#f92672>=</span> given<span style=color:#f92672>()</span>
         <span style=color:#f92672>.</span><span style=color:#a6e22e>pathParam</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;branch&#34;</span><span style=color:#f92672>,</span> <span style=color:#e6db74>&#34;main&#34;</span><span style=color:#f92672>)</span>
         <span style=color:#f92672>.</span><span style=color:#a6e22e>when</span><span style=color:#f92672>()</span>
@@ -114,6 +114,43 @@ Boolean protectionEnabled <span style=color:#f92672>=</span> jsonPath<span style
 <span style=color:#75715e>// assertions
 </span><span style=color:#75715e></span>assertThat<span style=color:#f92672>(</span>link<span style=color:#f92672>,</span> equalTo<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;https://github.com/olzhy/java-exercises/tree/main&#34;</span><span style=color:#f92672>));</span>
 assertThat<span style=color:#f92672>(</span>protectionEnabled<span style=color:#f92672>,</span> equalTo<span style=color:#f92672>(</span><span style=color:#66d9ef>false</span><span style=color:#f92672>));</span>
+</code></pre></div><p>此外，还可以将响应体反序列化为我们定义的 Java 对象，这样取值就是原生的 Java 操作了。</p><p>如声明一个 <code>BranchEntity</code> Java 类：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/model/BranchEntity.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.tests.model<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> com.fasterxml.jackson.annotation.JsonIgnoreProperties<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> com.fasterxml.jackson.annotation.JsonProperty<span style=color:#f92672>;</span>
+
+<span style=color:#a6e22e>@JsonIgnoreProperties</span><span style=color:#f92672>(</span>ignoreUnknown <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span><span style=color:#f92672>)</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>BranchEntity</span> <span style=color:#f92672>{</span>
+
+    <span style=color:#66d9ef>private</span> String name<span style=color:#f92672>;</span>
+    <span style=color:#a6e22e>@JsonProperty</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;_links&#34;</span><span style=color:#f92672>)</span>
+    <span style=color:#66d9ef>private</span> Links links<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> Protection protection<span style=color:#f92672>;</span>
+
+    <span style=color:#a6e22e>@JsonIgnoreProperties</span><span style=color:#f92672>(</span>ignoreUnknown <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span><span style=color:#f92672>)</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Links</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>private</span> String html<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+
+    <span style=color:#a6e22e>@JsonIgnoreProperties</span><span style=color:#f92672>(</span>ignoreUnknown <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span><span style=color:#f92672>)</span>
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Protection</span> <span style=color:#f92672>{</span>
+        <span style=color:#66d9ef>private</span> Boolean enabled<span style=color:#f92672>;</span>
+    <span style=color:#f92672>}</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><p>然后将响应体反序列化为 <code>BranchEntity</code> 对象再进行断言（<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L19>GitHubBranchAPITest#getBranchUsingDeserialization</a>）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubBranchAPITest.java#getBranchUsingDeserialization
+</span><span style=color:#75715e></span>BranchEntity branchEntity <span style=color:#f92672>=</span> given<span style=color:#f92672>()</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>pathParam</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;branch&#34;</span><span style=color:#f92672>,</span> <span style=color:#e6db74>&#34;main&#34;</span><span style=color:#f92672>)</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>when</span><span style=color:#f92672>()</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>get</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;/branches/{branch}&#34;</span><span style=color:#f92672>)</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>then</span><span style=color:#f92672>()</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>statusCode</span><span style=color:#f92672>(</span>200<span style=color:#f92672>)</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>extract</span><span style=color:#f92672>()</span>
+        <span style=color:#f92672>.</span><span style=color:#a6e22e>as</span><span style=color:#f92672>(</span>BranchEntity<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>);</span>
+
+<span style=color:#75715e>// assertions
+</span><span style=color:#75715e></span>assertThat<span style=color:#f92672>(</span>branchEntity<span style=color:#f92672>.</span><span style=color:#a6e22e>getLinks</span><span style=color:#f92672>().</span><span style=color:#a6e22e>getHtml</span><span style=color:#f92672>(),</span> equalTo<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;https://github.com/olzhy/java-exercises/tree/main&#34;</span><span style=color:#f92672>));</span>
+assertThat<span style=color:#f92672>(</span>branchEntity<span style=color:#f92672>.</span><span style=color:#a6e22e>getProtection</span><span style=color:#f92672>().</span><span style=color:#a6e22e>getEnabled</span><span style=color:#f92672>(),</span> equalTo<span style=color:#f92672>(</span><span style=color:#66d9ef>false</span><span style=color:#f92672>));</span>
 </code></pre></div><p><strong>响应体数组的表达式过滤与聚集运算</strong></p><p>REST Assured 支持以类似 Groovy 闭包的方式来对集合进行过滤或聚集运算（支持 find、findAll、sum、max、min 等）。</p><p>下面以请求「<a href="https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits">GitHub 仓库提交信息</a>」为例，来演示该特性的使用。</p><p>如下为获取仓库 Commits 列表的 CURL 命令和响应结果：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -L <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>  -H <span style=color:#e6db74>&#34;Accept: application/vnd.github+json&#34;</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>  -H <span style=color:#e6db74>&#34;Authorization: Bearer ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&#34;</span> <span style=color:#ae81ff>\
