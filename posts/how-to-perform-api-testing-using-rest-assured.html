@@ -191,7 +191,7 @@ Headers: Accept=application/json
     &#34;protected&#34;: false,
     ...
 }
-</code></pre></div><p>如果我们不想每次都打印日志，只想在断言失败时才打印请求和响应日志，该怎么做呢？</p><p>只要启用一下 REST Assured 自带的一个方法就可以了，示例如下（完整代码：<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L119>GitHubBranchAPITest#getBranchWithLogOnWhenValidationFails</a>）：）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubBranchAPITest.java#getBranchWithLogOnWhenValidationFails
+</code></pre></div><p>如果我们不想每次都打印日志，只想在断言失败时才打印请求和响应日志，该怎么做呢？</p><p>只要启用一下 REST Assured 自带的一个方法就可以了，示例如下（完整代码：<a href=https://github.com/olzhy/java-exercises/blob/main/rest-assured-demo/src/test/java/com/example/tests/GitHubBranchAPITest.java#L119>GitHubBranchAPITest#getBranchWithLogOnWhenValidationFails</a>）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/tests/GitHubBranchAPITest.java#getBranchWithLogOnWhenValidationFails
 </span><span style=color:#75715e></span>
 <span style=color:#75715e>// Log request and response details only when validation fails
 </span><span style=color:#75715e></span>RestAssured<span style=color:#f92672>.</span><span style=color:#a6e22e>enableLoggingOfRequestAndResponseIfValidationFails</span><span style=color:#f92672>();</span>
