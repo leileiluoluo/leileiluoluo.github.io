@@ -4,7 +4,7 @@
 <a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Spring Boot 自带的 <code>spring-boot-starter-validation</code> 包支持以标准注解的方式进行输入参数校验。<code>spring-boot-starter-validation</code> 包主要引用了 <code>hibernate-validator</code> 包，其参数校验功能就是 <code>hibernate-validator</code> 包所提供的。</p><p>本文即关注 <code>spring-boot-starter-validation</code> 包所涵盖的标准注解的使用、校验异常的捕获与展示、分组校验功能的使用，以及自定义校验器的使用。</p><p>本文示例工程使用 Maven 管理。</p><p>下面列出写作本文时所使用的 JDK、Maven 与 Spring Boot 的版本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>JDK：Amazon Corretto 17.0.8
 Maven：3.9.2
 Spring Boot：3.2.1
-</code></pre></div><p>开始前，需要在项目根目录 <code>pom.xml</code> 文件引入依赖 <code>spring-boot-starter-validation</code>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#75715e>&lt;!-- pom.xml --&gt;</span>
+</code></pre></div><p>开始前，需要在项目根目录 <code>pom.xml</code> 文件引入 <code>spring-boot-starter-validation</code> 依赖：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#75715e>&lt;!-- pom.xml --&gt;</span>
 <span style=color:#f92672>&lt;dependency&gt;</span>
     <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
     <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-validation<span style=color:#f92672>&lt;/artifactId&gt;</span>
