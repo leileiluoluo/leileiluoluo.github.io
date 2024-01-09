@@ -101,7 +101,7 @@ Spring Boot：3.2.1
 </span><span style=color:#ae81ff></span>  http://localhost:8080/users <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>  -d <span style=color:#e6db74>&#39;{&#34;name&#34;: &#34;Larry&#34;, &#34;age&#34;: 18, &#34;email&#34;: &#34;larry@qq.com&#34;}&#39;</span>
 </code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>{&#34;code&#34;: &#34;validation_failed&#34;,&#34;description&#34;: &#34;phone can not be empty&#34;}
-</code></pre></div><p>可以看到，如果有字段不满足校验规则时，会返回设定的错误信息。</p><p>了解了 Validation 包中常用注解的使用方式，下面看一下校验错误的异常捕获与展示。</p><h2 id=2-校验错误的异常捕获与展示>2 校验错误的异常捕获与展示</h2><p>我们注意到，上面的例子中 <code>UserController</code> 的 <code>addUser</code> 方法使用一个额外的参数 <code>BindingResult</code> 来接收校验错误信息，然后根据需要展示给调用者。但这种处理方式有点太冗余了，每个请求方法都需要加这么一个参数并重新写一遍错误返回的逻辑。</p><p>其实不加这个参数的话，若有校验错误，Spring Boot 框架会抛出一个 <code>MethodArgumentNotValidException</code>。所以简单一点的处理方式是：我们使用 <code>@RestControllerAdvice</code> 注解来将一个类标记为全局的异常处理类，针对 <code>MethodArgumentNotValidException</code>，只需要在这个异常处理类中统一处理一次就可以了。</p><p>异常处理类 <code>MyExceptionHandler</code> 的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/exception/MyExceptionHandler.java
+</code></pre></div><p>可以看到，如果有字段不满足校验规则时，会返回设定的错误信息。</p><p>了解了 Validation 包中常用注解的使用方式，下面看一下校验错误的异常捕获与展示。</p><h2 id=2-校验错误的异常捕获与展示>2 校验错误的异常捕获与展示</h2><p>我们注意到，上面的例子中 <code>UserController</code> 的 <code>addUser</code> 方法使用一个额外的参数 <code>BindingResult</code> 来接收校验错误信息，然后根据需要展示给调用者。但这种处理方式有点太冗余了，每个请求方法都需要加这么一个参数并重新写一遍错误返回的逻辑。</p><p>其实不加这个参数的话，若有校验错误，Spring Boot 框架会抛出一个 <code>MethodArgumentNotValidException</code>。所以简单一点的处理方式是：使用 <code>@RestControllerAdvice</code> 注解来将一个类标记为全局的异常处理类，针对 <code>MethodArgumentNotValidException</code>，只需要在这个异常处理类中进行统一捕获、统一处理就可以了。</p><p>异常处理类 <code>MyExceptionHandler</code> 的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/exception/MyExceptionHandler.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.exception<span style=color:#f92672>;</span>
 
 <span style=color:#f92672>import</span> com.example.demo.model.ErrorMessage<span style=color:#f92672>;</span>
@@ -131,7 +131,7 @@ Spring Boot：3.2.1
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>有了该异常处理类后，<code>UserController</code> 中即无需使用 <code>BindingResult</code> 来接收校验错误信息了：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/controller/UserController.java
+</code></pre></div><p>有了该异常处理类后，<code>UserController</code> 的代码即可以变得很纯净：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/controller/UserController.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.controller<span style=color:#f92672>;</span>
 
 <span style=color:#f92672>...</span>
