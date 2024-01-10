@@ -102,7 +102,7 @@ Spring Boot：3.2.1
 </span><span style=color:#ae81ff></span>  -d <span style=color:#e6db74>&#39;{&#34;name&#34;: &#34;Larry&#34;, &#34;age&#34;: 18, &#34;email&#34;: &#34;larry@qq.com&#34;}&#39;</span>
 </code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>// 400
 { &#34;code&#34;: &#34;validation_failed&#34;, &#34;description&#34;: &#34;phone can not be null&#34; }
-</code></pre></div><p>可以看到，如果有字段不满足校验规则时，会返回设定的错误信息。</p><p>如果 Model 类中有嵌套对象，该怎么做验证呢？只需要在对应的字段上加上 <code>@Valid</code> 注解就可以了。</p><p>比如，<code>User</code> Model 中有一个字段为 <code>address</code>，其为 <code>Address</code> 对象，其代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/Address.java
+</code></pre></div><p>可以看到，如果有字段不满足校验规则时，会返回设定的错误信息。</p><p>如果 Model 类中有嵌套对象，该怎么做验证呢？只需要在对应的字段上加上 <code>@Valid</code> 注解就可以了。</p><p>比如，<code>User</code> Model 中有一个字段为 <code>address</code>，其为 <code>Address</code> 对象，<code>Address</code> 类的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/Address.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
 
 <span style=color:#f92672>import</span> jakarta.validation.constraints.NotNull<span style=color:#f92672>;</span>
