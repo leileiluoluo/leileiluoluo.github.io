@@ -221,7 +221,7 @@ curl -L <span style=color:#ae81ff>\
     <span style=color:#f92672>}</span>
 
 <span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到，新增 User 接口与更新 User 接口使用了同一个 <code>User</code> Model；但新增使用的分组是 <code>User.Add.class</code>，更新使用的分组是 <code>User.Update.class</code>。</p><p>下面尝试在不提供 <code>id</code> 字段的情况下更新一下 User：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -L <span style=color:#ae81ff>\
+</code></pre></div><p>可以看到，新增 User 接口与更新 User 接口使用了同一个 <code>User</code> Model；但新增使用的分组是 <code>User.Add.class</code>，更新使用的分组是 <code>User.Update.class</code>。</p><p><strong><em>注意：这里指定分组时用到了 <code>@Validated</code> 注解，而前面用到的是 <code>@Valid</code> 注解，这里简单解释一下两者的不同。<code>@Validated</code> 注解是 Spring 框架自带的，而 <code>@Valid</code> 注解是 <code>jakarta.validation</code> 包下的，<code>@Validated</code> 注解可以指定分组，而 <code>@Valid</code> 注解则没有这个功能。</em></strong></p><p>下面尝试在不提供 <code>id</code> 字段的情况下更新一下 User：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -L <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>  -X PATCH <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>  -H <span style=color:#e6db74>&#34;Content-Type: application/json&#34;</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>  http://localhost:8080/users <span style=color:#ae81ff>\
