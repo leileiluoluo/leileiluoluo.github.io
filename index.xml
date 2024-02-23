@@ -1,47 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>磊磊落落</title><link>https://olzhy.github.io/</link><description>Recent content on 磊磊落落</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><managingEditor>leileiluoluo@leileiluoluo.com (磊磊落落)</managingEditor><webMaster>leileiluoluo@leileiluoluo.com (磊磊落落)</webMaster><lastBuildDate>Thu, 22 Feb 2024 08:00:00 +0800</lastBuildDate><atom:link href="https://olzhy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>如何使用 Spring JDBC 进行数据库操作？</title><link>https://olzhy.github.io/posts/spring-jdbc.html</link><pubDate>Thu, 22 Feb 2024 08:00:00 +0800</pubDate><author>leileiluoluo@leileiluoluo.com (磊磊落落)</author><guid>https://olzhy.github.io/posts/spring-jdbc.html</guid><description>&lt;p>Spring JDBC 是 Spring 框架提供的一个基于 Java JDBC 之上的用于操作关系型数据库的模块，其提供对数据库连接的管理、数据库访问、SQL 执行结果获取、事务支持和异常处理等功能。本文首先对 Spring JDBC 的基础知识进行介绍，然后以示例代码的方式来演示 Spring JDBC 的使用。&lt;/p>
-&lt;h2 id="1-spring-jdbc-介绍">1 Spring JDBC 介绍&lt;/h2>
-&lt;p>Spring JDBC 的包层级：&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>core&lt;/p>
-&lt;p>包 &lt;code>org.springframework.jdbc.core&lt;/code> 包含 Spring JDBC 的核心功能，核心类 &lt;code>JdbcTemplate&lt;/code>、&lt;code>SimpleJdbcInsert&lt;/code>、&lt;code>SimpleJdbcCall&lt;/code> 与 &lt;code>NamedParameterJdbcTemplate&lt;/code> 均位于其下。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>datasource&lt;/p>
-&lt;p>包 &lt;code>org.springframework.jdbc.datasource&lt;/code> 含有访问 &lt;code>DataSource&lt;/code> 的工具类和 &lt;code>DataSource&lt;/code> 的简单实现。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>object&lt;/p>
-&lt;p>包 &lt;code>org.springframework.jdbc.object&lt;/code> 含有访问关系型数据库（查询、更新、执行存储过程等）的各个可重用类，其以面向对象的方式来操作数据库并将结果返回为更加易用的 Java 对象。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>support&lt;/p>
-&lt;p>包 &lt;code>org.springframework.jdbc.support&lt;/code> 主要提供对 &lt;code>SQLException&lt;/code> 的翻译和对包 &lt;code>core&lt;/code> 和 &lt;code>object&lt;/code> 的支持。JDBC 层抛出的异常（&lt;code>SQLException&lt;/code>）将会被翻译为在 &lt;code>org.springframework.dao&lt;/code> 中定义的异常（如：&lt;code>DataAccessException&lt;/code>）。&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>使用 Spring JDBC 进行数据库访问的方式：&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>JdbcTemplate&lt;/p>
-&lt;p>&lt;code>JdbcTemplate&lt;/code> 是 Spring JDBC 提供的访问数据库的方式之一，是 Spring JDBC 中最基本、最底层的数据库访问实现方式。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>NamedParameterJdbcTemplate&lt;/p>
-&lt;p>&lt;code>NamedParameterJdbcTemplate&lt;/code> 对 &lt;code>JdbcTemplate&lt;/code> 进行了包装，以代替 JDBC 的 &lt;code>?&lt;/code> 占位符而进行带参数的 SQL 语句执行。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>SimpleJdbcInsert 与 SimpleJdbcCall&lt;/p>
-&lt;p>&lt;code>SimpleJdbcInsert&lt;/code> 与 &lt;code>SimpleJdbcCall&lt;/code> 可以利用 JDBC 驱动提供的数据库元数据来简化 JDBC 操作。&lt;/p>
-&lt;p>&lt;code>SimpleJdbcInsert&lt;/code> 提供一种基于数据库元数据的数据插入方式，可用于普通插入、插入时获取主键值和批处理。&lt;/p>
-&lt;p>&lt;code>SimpleJdbcCall&lt;/code> 提供一种简单的存储过程执行方式。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>其它关系型数据库对象&lt;/p>
-&lt;p>&lt;code>MappingSqlQuery&lt;/code>、&lt;code>SqlUpdate&lt;/code> 和 &lt;code>StoredProcedure&lt;/code> 分别用于查询、更新和存储过程定义，为操作数据库的可重用对象。&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>了解了 Spring JDBC 的基础知识后，下面即要开始进行使用了。开始之前，准备一下测试数据，并对示例工程进行简单介绍。&lt;/p>
-&lt;h2 id="2-测试数据准备与示例工程介绍">2 测试数据准备与示例工程介绍&lt;/h2></description></item><item><title>相似的人生</title><link>https://olzhy.github.io/posts/similar-life.html</link><pubDate>Mon, 19 Feb 2024 08:00:00 +0800</pubDate><author>leileiluoluo@leileiluoluo.com (磊磊落落)</author><guid>https://olzhy.github.io/posts/similar-life.html</guid><description>每一代人，在年輕時，都可能會覺得自己與父輩有着很大的不同，認爲父輩是老舊的一代，認爲自己所處的當下是一個與之前全然不同的時代。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>磊磊落落</title><link>https://olzhy.github.io/</link><description>Recent content on 磊磊落落</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><managingEditor>leileiluoluo@leileiluoluo.com (磊磊落落)</managingEditor><webMaster>leileiluoluo@leileiluoluo.com (磊磊落落)</webMaster><lastBuildDate>Thu, 22 Feb 2024 08:00:00 +0800</lastBuildDate><atom:link href="https://olzhy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>如何使用 Spring JDBC 进行数据库操作？</title><link>https://olzhy.github.io/posts/spring-jdbc.html</link><pubDate>Thu, 22 Feb 2024 08:00:00 +0800</pubDate><author>leileiluoluo@leileiluoluo.com (磊磊落落)</author><guid>https://olzhy.github.io/posts/spring-jdbc.html</guid><description>Spring JDBC 是 Spring 框架提供的一个基于 Java JDBC 之上的用于操作关系型数据库的模块，其提供对数据库连接的管理、数据库访问、SQL 执行结果获取、事务支持和异常处理等功能。本文首先对 Spring JDBC 的基础知识进行介绍，然后以示例代码的方式来演示 Spring JDBC 的使用。</description></item><item><title>相似的人生</title><link>https://olzhy.github.io/posts/similar-life.html</link><pubDate>Mon, 19 Feb 2024 08:00:00 +0800</pubDate><author>leileiluoluo@leileiluoluo.com (磊磊落落)</author><guid>https://olzhy.github.io/posts/similar-life.html</guid><description>每一代人，在年輕時，都可能會覺得自己與父輩有着很大的不同，認爲父輩是老舊的一代，認爲自己所處的當下是一個與之前全然不同的時代。
 但走着走着，當我們不再年輕時，可能會感嘆我們與父輩以及各自所經歷的時代並沒有什麼本質的不同，我們大多重複着父輩所犯的錯誤、擁有了與他們相似的人生。
 我們對世界不同的看法更多是來自於我們所處的年齡，而不是所處的時代。
 人生苦短，時光易逝，不變的是陽光雨露，變換的是我們這些過客。</description></item><item><title>關於減負，關於教育</title><link>https://olzhy.github.io/posts/about-education.html</link><pubDate>Wed, 07 Feb 2024 08:00:00 +0800</pubDate><author>leileiluoluo@leileiluoluo.com (磊磊落落)</author><guid>https://olzhy.github.io/posts/about-education.html</guid><description>昨天在拼娃羣裏看到一個網友發來的一段視頻，內容是 2019 年教育部部長回答記者關於給學生減負問題的一段節選：
