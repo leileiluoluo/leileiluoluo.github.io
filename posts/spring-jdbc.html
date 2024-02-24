@@ -57,7 +57,23 @@ Spring JDBC：6.1.3
     <span style=color:#f92672>url</span>: <span style=color:#ae81ff>jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8</span>
     <span style=color:#f92672>username</span>: <span style=color:#ae81ff>root</span>
     <span style=color:#f92672>password</span>: <span style=color:#ae81ff>root</span>
-</code></pre></div><p>这样，测试数据与示例工程脚手架就准备好了。接下来即以示例代码的方式对 Spring JDBC 的使用进行介绍。</p><h2 id=3-spring-jdbc-核心功能使用>3 Spring JDBC 核心功能使用</h2><p>该部分以封装一个 User 增删改查的 DAO 实现类（<a href=https://github.com/olzhy/java-exercises/blob/main/spring-jdbc-demo/src/main/java/com/example/demo/dao/impl/UserDaoImpl.java>UserDaoImpl.java</a>）为例来演示 Spring JDBC 核心功能的使用。</p><h3 id=31-jdbctemplate-的使用>3.1 JdbcTemplate 的使用</h3><p><code>JdbcTemplate</code> 是 Spring JDBC 中被使用最多的一个类，其自动管理资源的创建和释放，可以使用其来执行 SQL 查询、SQL 更新或调用存储过程。</p><p>下面演示如何使用 <code>JdbcTemplate</code> 查询 User 总数：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/dao/impl/UserDaoImpl.java
+</code></pre></div><p>这样，测试数据与示例工程脚手架就准备好了。接下来即以示例代码的方式对 Spring JDBC 的使用进行介绍。</p><h2 id=3-spring-jdbc-核心功能使用>3 Spring JDBC 核心功能使用</h2><p>该部分以封装一个 User 增删改查的 DAO 实现类（<a href=https://github.com/olzhy/java-exercises/blob/main/spring-jdbc-demo/src/main/java/com/example/demo/dao/impl/UserDaoImpl.java>UserDaoImpl.java</a>）为例来演示 Spring JDBC 核心功能的使用。</p><p>首先附上 User Model 类的代码：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>import</span> lombok.Data<span style=color:#f92672>;</span>
+<span style=color:#f92672>import</span> java.util.Date<span style=color:#f92672>;</span>
+
+<span style=color:#a6e22e>@Data</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span> <span style=color:#f92672>{</span>
+
+    <span style=color:#66d9ef>private</span> Integer id<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> String name<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> Integer age<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> String email<span style=color:#f92672>;</span>
+    <span style=color:#66d9ef>private</span> Date createdAt<span style=color:#f92672>;</span>
+
+<span style=color:#f92672>}</span>
+</code></pre></div><h3 id=31-jdbctemplate-的使用>3.1 JdbcTemplate 的使用</h3><p><code>JdbcTemplate</code> 是 Spring JDBC 中被使用最多的一个类，其自动管理资源的创建和释放，可以使用其来执行 SQL 查询、SQL 更新或调用存储过程。</p><p>下面演示如何使用 <code>JdbcTemplate</code> 查询 User 总数：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/dao/impl/UserDaoImpl.java
 </span><span style=color:#75715e></span><span style=color:#a6e22e>@Override</span>
 <span style=color:#66d9ef>public</span> Integer <span style=color:#a6e22e>countAll</span><span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
     String sql <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;select count(*) from user&#34;</span><span style=color:#f92672>;</span>
