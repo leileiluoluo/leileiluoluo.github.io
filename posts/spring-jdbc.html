@@ -156,7 +156,7 @@ Spring JDBC：6.1.3
             <span style=color:#e6db74>&#34;update user set name = :name, age = :age, email = :email where id = :id&#34;</span><span style=color:#f92672>,</span>
             SqlParameterSourceUtils<span style=color:#f92672>.</span><span style=color:#a6e22e>createBatch</span><span style=color:#f92672>(</span>users<span style=color:#f92672>));</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><h3 id=33-jdbcclient-的使用>3.3 JdbcClient 的使用</h3><p><code>JdbcTemplate</code> 与 <code>NamedParameterJdbcTemplate</code> 用起来依然觉得没那么方便？下面试一下封装了它们两个功能的更加易用的统一 API <code>JdbcClient</code> 的使用。</p><p>使用 <code>JdbcClient</code> 将带参数的查询结果直接映射为 Java Model 类：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/dao/impl/UserDaoImpl.java
+</code></pre></div><h3 id=33-jdbcclient-的使用>3.3 JdbcClient 的使用</h3><p><code>JdbcTemplate</code> 与 <code>NamedParameterJdbcTemplate</code> 用起来依然觉得没那么方便？下面试一下更易用的统一 API <code>JdbcClient</code> 的使用。</p><p>使用 <code>JdbcClient</code> 将带参数的查询结果直接映射为 Java Model 类：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/dao/impl/UserDaoImpl.java
 </span><span style=color:#75715e></span><span style=color:#a6e22e>@Override</span>
 <span style=color:#66d9ef>public</span> User <span style=color:#a6e22e>getById</span><span style=color:#f92672>(</span>Integer id<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
     String sql <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;select id, name, age, email, created_at from user where id = :id&#34;</span><span style=color:#f92672>;</span>
@@ -232,7 +232,7 @@ Spring JDBC：6.1.3
             <span style=color:#f92672>()</span> <span style=color:#f92672>-&gt;</span> userDao<span style=color:#f92672>.</span><span style=color:#a6e22e>update</span><span style=color:#f92672>(</span>user<span style=color:#f92672>)</span>
     <span style=color:#f92672>);</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>对应的 SQL 语句与 MySQL 返回的原始错误如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- [Code: 1048, SQL State: 23000] Column &#39;age&#39; cannot be null
+</code></pre></div><p><code>userDao</code> 的 <code>update</code> 方法对应的 SQL 语句以及 MySQL 返回的原始错误如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#75715e>-- [Code: 1048, SQL State: 23000] Column &#39;age&#39; cannot be null
 </span><span style=color:#75715e></span><span style=color:#66d9ef>UPDATE</span> <span style=color:#66d9ef>user</span>
 <span style=color:#66d9ef>SET</span> name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;Larry&#39;</span>, age <span style=color:#f92672>=</span> <span style=color:#66d9ef>null</span>, email <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;larry@larry.com&#39;</span>
 <span style=color:#66d9ef>WHERE</span> id <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
