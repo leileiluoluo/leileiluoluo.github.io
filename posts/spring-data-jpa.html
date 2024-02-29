@@ -109,7 +109,7 @@ Hibernate Core：6.4.1.Final
     <span style=color:#f92672>properties</span>:
       <span style=color:#f92672>hibernate</span>:
         <span style=color:#f92672>format_sql</span>: <span style=color:#66d9ef>true</span>
-</code></pre></div><p>这样，测试数据与示例工程脚手架就准备好了。接下来即以示例代码的方式对 Spring Data JPA 进行使用。</p><h2 id=3-spring-data-jpa-基础功能使用>3 Spring Data JPA 基础功能使用</h2><p>该部分以设计 User 的增删改查接口为例来演示 Spring Data JPA 基础功能的使用。</p><h3 id=31-定义-model-类>3.1 定义 Model 类</h3><p>首先需要定义一个 Model 类 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/main/java/com/example/demo/model/User.java>User.java</a>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
+</code></pre></div><p>这样，测试数据与示例工程脚手架就准备好了。接下来即以示例代码的方式对 Spring Data JPA 进行使用。</p><h2 id=3-spring-data-jpa-repository-的使用>3 Spring Data JPA Repository 的使用</h2><p>该部分以设计 User 的增删改查接口为例来演示 Spring Data JPA Repository 的使用。</p><h3 id=31-定义-model-类>3.1 定义 Model 类</h3><p>首先需要定义一个 Model 类 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/main/java/com/example/demo/model/User.java>User.java</a>：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
 
 <span style=color:#a6e22e>@Data</span>
@@ -125,7 +125,7 @@ Hibernate Core：6.4.1.Final
     <span style=color:#66d9ef>private</span> Date createdAt<span style=color:#f92672>;</span>
     <span style=color:#66d9ef>private</span> Date updatedAt<span style=color:#f92672>;</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><h3 id=32-定义-repository-接口>3.2 定义 Repository 接口</h3><p>接着定义一个仓库 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/main/java/com/example/demo/repository/UserRepository.java>UserRepository.java</a> ，并让其扩展最基础的 <code>Repository</code> 接口：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/repository/UserRepository.java
+</code></pre></div><h3 id=32-定义-repository-接口并添加常用方法>3.2 定义 Repository 接口并添加常用方法</h3><p>接着定义一个仓库 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/main/java/com/example/demo/repository/UserRepository.java>UserRepository.java</a> ，并让其扩展最基础的 <code>Repository</code> 接口：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/repository/UserRepository.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
 
 <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserRepository</span> <span style=color:#66d9ef>extends</span> Repository<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>,</span> Long<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
