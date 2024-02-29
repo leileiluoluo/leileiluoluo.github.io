@@ -123,7 +123,6 @@ Hibernate Core：6.4.1.Final
     <span style=color:#66d9ef>private</span> Integer age<span style=color:#f92672>;</span>
     <span style=color:#66d9ef>private</span> String email<span style=color:#f92672>;</span>
     <span style=color:#66d9ef>private</span> Date createdAt<span style=color:#f92672>;</span>
-    <span style=color:#66d9ef>private</span> Date updatedAt<span style=color:#f92672>;</span>
 <span style=color:#f92672>}</span>
 </code></pre></div><h3 id=32-定义-repository-接口并添加常用方法>3.2 定义 Repository 接口并添加常用方法</h3><p>接着定义一个仓库 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/main/java/com/example/demo/repository/UserRepository.java>UserRepository.java</a> ，并让其扩展最基础的 <code>Repository</code> 接口：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/repository/UserRepository.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
@@ -154,7 +153,26 @@ Hibernate Core：6.4.1.Final
     <span style=color:#75715e>// 根据 id 删除 User
 </span><span style=color:#75715e></span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deleteById</span><span style=color:#f92672>(</span>Long id<span style=color:#f92672>);</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>然后在 <code>UserRepository</code> 接口内按照命名规则（支持：<code>find...By</code>、<code>exists...By</code>、<code>count...By</code> <code>delete...By</code>等）添加常用的增删改查方法。</p><h3 id=33-repository-接口的使用>3.3 Repository 接口的使用</h3><p>下面编写一个单元测试类 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/test/java/com/example/demo/repository/UserRepositoryTest.java>UserRepositoryTest.java</a>，即可对上面 <code>UserRepository</code> 接口中的方法进行测试了：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/repository/UserRepositoryTest.java
+</code></pre></div><p>然后在 <code>UserRepository</code> 接口内按照命名规则（支持：<code>find...By</code>、<code>exists...By</code>、<code>count...By</code> <code>delete...By</code>等）添加常用的增删改查方法。</p><h3 id=33-使用-query-注解>3.3 使用 @Query 注解</h3><p>除了使用约定的命名规则添加常用方法外，还可以使用 <code>@Query</code> 注解进行查询：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/repository/UserRepository.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
+
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserRepository</span> <span style=color:#66d9ef>extends</span> Repository<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>,</span> Long<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    <span style=color:#a6e22e>@Query</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;select u from User u where u.name = :name and u.age = :age&#34;</span><span style=color:#f92672>)</span>
+    User <span style=color:#a6e22e>findByNameAndAge</span><span style=color:#f92672>(</span><span style=color:#a6e22e>@Param</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;name&#34;</span><span style=color:#f92672>)</span> String name<span style=color:#f92672>,</span> <span style=color:#a6e22e>@Param</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;age&#34;</span><span style=color:#f92672>)</span> Integer age<span style=color:#f92672>);</span>
+
+    <span style=color:#a6e22e>@Query</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;select u from User u where u.name = ?1 and u.age = ?2&#34;</span><span style=color:#f92672>)</span>
+    User <span style=color:#a6e22e>findByNameAndAgeAnotherWay</span><span style=color:#f92672>(</span>String name<span style=color:#f92672>,</span> Integer age<span style=color:#f92672>);</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><h3 id=34-使用-modifying-注解>3.4 使用 @Modifying 注解</h3><p>如果方法上的 <code>@Query</code> 语句需要更新数据库，则需要同时加上 <code>@Modifying</code> 注解。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/repository/UserRepository.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
+
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserRepository</span> <span style=color:#66d9ef>extends</span> Repository<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>,</span> Long<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    <span style=color:#a6e22e>@Transactional</span>
+    <span style=color:#a6e22e>@Modifying</span>
+    <span style=color:#a6e22e>@Query</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;update User u set u.name = :name where u.id = :id&#34;</span><span style=color:#f92672>)</span>
+    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>updateNameById</span><span style=color:#f92672>(</span><span style=color:#a6e22e>@Param</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;name&#34;</span><span style=color:#f92672>)</span> String name<span style=color:#f92672>,</span> <span style=color:#a6e22e>@Param</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;id&#34;</span><span style=color:#f92672>)</span> Long id<span style=color:#f92672>);</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><p>您可能注意到如上代码还使用了一个 <code>@Transactional</code> 注解，其是用来开启事务支持的。</p><h3 id=35-对-repository-接口进行测试>3.5 对 Repository 接口进行测试</h3><p>下面编写一个单元测试类 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/test/java/com/example/demo/repository/UserRepositoryTest.java>UserRepositoryTest.java</a>，即可对上面 <code>UserRepository</code> 接口中的方法进行测试了：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/repository/UserRepositoryTest.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
 
 <span style=color:#a6e22e>@SpringBootTest</span>
