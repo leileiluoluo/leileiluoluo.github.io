@@ -59,7 +59,7 @@ Hibernate Core：6.4.1.Final
 
 <span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> <span style=color:#66d9ef>user</span>;
 <span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>user</span> (
-    id INT AUTO_INCREMENT <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span>,
+    id BIGINT AUTO_INCREMENT <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span>,
     name VARCHAR(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,
     age INT <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,
     email VARCHAR(<span style=color:#ae81ff>20</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,
@@ -180,7 +180,35 @@ Hibernate Core：6.4.1.Final
     <span style=color:#a6e22e>@Query</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;delete from User u where u.age &gt; :age&#34;</span><span style=color:#f92672>)</span>
     <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deleteByAgeGreaterThan</span><span style=color:#f92672>(</span><span style=color:#a6e22e>@Param</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;age&#34;</span><span style=color:#f92672>)</span> Integer age<span style=color:#f92672>);</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到更新与删除方法使用了一个 <code>@Transactional</code> 注解，其是用来开启事务支持的。</p><h3 id=35-对-repository-接口进行测试>3.5 对 Repository 接口进行测试</h3><p>下面编写一个单元测试类 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/test/java/com/example/demo/repository/UserRepositoryTest.java>UserRepositoryTest.java</a>，即可对上面 <code>UserRepository</code> 接口中的方法进行测试了：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/repository/UserRepositoryTest.java
+</code></pre></div><p>可以看到更新与删除方法使用了一个 <code>@Transactional</code> 注解，其是用来开启事务支持的。</p><h3 id=35-调用存储过程>3.5 调用存储过程</h3><p>首先使用如下 SQL 语句新建一个存储过程 <code>find_user_by_id</code>（功能为根据 ID 查询 User）：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>DELIMITER</span> <span style=color:#f92672>//</span>
+<span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>PROCEDURE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> get_md5_email_by_id <span style=color:#f92672>//</span>
+<span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>PROCEDURE</span> get_md5_email_by_id (
+    <span style=color:#66d9ef>IN</span> user_id BIGINT,
+    <span style=color:#66d9ef>OUT</span> md5_email VARCHAR(<span style=color:#ae81ff>32</span>))
+<span style=color:#66d9ef>BEGIN</span>
+    <span style=color:#66d9ef>SELECT</span> md5(email)
+    <span style=color:#66d9ef>INTO</span> md5_email
+    <span style=color:#66d9ef>FROM</span> <span style=color:#66d9ef>user</span> <span style=color:#66d9ef>where</span> id <span style=color:#f92672>=</span> user_id;
+<span style=color:#66d9ef>END</span> <span style=color:#f92672>//</span>
+
+<span style=color:#66d9ef>DELIMITER</span> ;
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.model<span style=color:#f92672>;</span>
+
+<span style=color:#a6e22e>@Entity</span>
+<span style=color:#a6e22e>@NamedStoredProcedureQuery</span><span style=color:#f92672>(</span>name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;User.getMd5EmailById&#34;</span><span style=color:#f92672>,</span> procedureName <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;get_md5_email_by_id&#34;</span><span style=color:#f92672>,</span> parameters <span style=color:#f92672>=</span> <span style=color:#f92672>{</span>
+        <span style=color:#a6e22e>@StoredProcedureParameter</span><span style=color:#f92672>(</span>mode <span style=color:#f92672>=</span> ParameterMode<span style=color:#f92672>.</span><span style=color:#a6e22e>IN</span><span style=color:#f92672>,</span> type <span style=color:#f92672>=</span> Long<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>),</span>
+        <span style=color:#a6e22e>@StoredProcedureParameter</span><span style=color:#f92672>(</span>mode <span style=color:#f92672>=</span> ParameterMode<span style=color:#f92672>.</span><span style=color:#a6e22e>OUT</span><span style=color:#f92672>,</span> type <span style=color:#f92672>=</span> String<span style=color:#f92672>.</span><span style=color:#a6e22e>class</span><span style=color:#f92672>)})</span>
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span> <span style=color:#f92672>{</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/main/java/com/example/demo/repository/UserRepository.java
+</span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
+
+<span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserRepository</span> <span style=color:#66d9ef>extends</span> Repository<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>,</span> Long<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
+    <span style=color:#a6e22e>@Procedure</span><span style=color:#f92672>(</span>procedureName <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;get_md5_email_by_id&#34;</span><span style=color:#f92672>)</span>
+    String <span style=color:#a6e22e>getMd5EmailUsingProcedure</span><span style=color:#f92672>(</span><span style=color:#a6e22e>@Param</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;user_id&#34;</span><span style=color:#f92672>)</span> Long id<span style=color:#f92672>);</span>
+<span style=color:#f92672>}</span>
+</code></pre></div><h3 id=36-对-repository-接口进行测试>3.6 对 Repository 接口进行测试</h3><p>下面编写一个单元测试类 <a href=https://github.com/olzhy/java-exercises/blob/main/spring-data-jpa-demo/src/test/java/com/example/demo/repository/UserRepositoryTest.java>UserRepositoryTest.java</a>，即可对上面 <code>UserRepository</code> 接口中的方法进行测试了：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#75715e>// src/test/java/com/example/demo/repository/UserRepositoryTest.java
 </span><span style=color:#75715e></span><span style=color:#f92672>package</span> com.example.demo.repository<span style=color:#f92672>;</span>
 
 <span style=color:#a6e22e>@SpringBootTest</span>
