@@ -1,197 +1,198 @@
-<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>Istio 流量管理之安全 Gateway - 磊磊落落</title><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="工具使用,服务网格,Service Mesh,云原生,Istio"><meta name=description content="Istio流量管理之安全Gateway (Secure Gateways of Istio Traffic Management)"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.81.0"><link rel=stylesheet href=https://olzhy.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://olzhy.github.io/css/themify-icons.css><link rel=stylesheet href=https://olzhy.github.io/css/larry-custom.css><link rel=stylesheet href=https://olzhy.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://olzhy.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://olzhy.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var a=document.createElement("script"),b;a.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",b=document.getElementsByTagName("script")[0],b.parentNode.insertBefore(a,b)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://olzhy.github.io/>磊磊落落</a>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>Istio 流量管理之安全 Gateway - 磊磊落落</title>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="工具使用,服务网格,Service Mesh,云原生,Istio"><meta name=description content="Istio流量管理之安全Gateway (Secure Gateways of Istio Traffic Management)"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.com/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.com/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.com/css/larry-custom.css><link rel=stylesheet href=https://leileiluoluo.com/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.com/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.com/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.com/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
-<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://olzhy.github.io/></a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://olzhy.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Istio 流量管理之安全 Gateway</h1><div class="mb-3 post-meta">2021年01月02日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>上文<a href=https://olzhy.github.io/posts/istio-ingress-gateways.html>“Istio 流量管理之 Ingress Gateway”</a>介绍了如何使用 Gateway 将一个 7 层 HTTP 服务暴露给外部使用。本文将介绍如何为 Gateway 配置单向或双向 TLS 从而暴露一个安全的 HTTPS 服务给外部访问。关于 Istio 安装等环境准备，请参阅<a href=https://olzhy.github.io/posts/istio-get-started.html>“Istio 安装使用”</a>。</p><h3 id=1-部署-httpbin>1 部署 httpbin</h3><p>使用 Istio 安装目录自带的配置文件将 httpbin 部署至<code>istio-demo</code> namespace。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ cd /usr/local/istio-1.8.1
-$ kubectl apply -n istio-demo -f samples/httpbin/httpbin.yaml
-</code></pre></div><h3 id=2-生成证书及私钥>2 生成证书及私钥</h3><p>使用 openssl 生成用于为服务签发证书的根证书及私钥，如下命令执行后会生成两个文件（<code>example.com.crt</code>，<code>example.com.key</code>）。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ openssl req -x509 -sha256 -nodes -days <span style=color:#ae81ff>365</span> -newkey rsa:2048 -subj <span style=color:#e6db74>&#39;/O=example Inc./CN=example.com&#39;</span> -keyout example.com.key -out example.com.crt
-</code></pre></div><p>为<code>httpbin.example.com</code>生成证书及私钥，如下命令执行后会生成三个文件（<code>httpbin.example.com.csr</code>，<code>httpbin.example.com.key</code>，<code>httpbin.example.com.crt</code>）。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ openssl req -out httpbin.example.com.csr -newkey rsa:2048 -nodes -keyout httpbin.example.com.key -subj <span style=color:#e6db74>&#34;/CN=httpbin.example.com/O=httpbin organization&#34;</span>
-$ openssl x509 -req -days <span style=color:#ae81ff>365</span> -CA example.com.crt -CAkey example.com.key -set_serial <span style=color:#ae81ff>0</span> -in httpbin.example.com.csr -out httpbin.example.com.crt
-</code></pre></div><h3 id=3-配置-tls-ingress-gateway>3 配置 TLS Ingress Gateway</h3><p>使用第 2 步生成的私钥及证书为 Ingress Gateway 创建 secret。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl create -n istio-system secret tls httpbin-credential --key<span style=color:#f92672>=</span>httpbin.example.com.key --cert<span style=color:#f92672>=</span>httpbin.example.com.crt
-</code></pre></div><p>应用 Gateway 配置，端口为 443，hosts 为<code>httpbin.example.com</code>，开启 TLS SIMPLE 模式，并配置 credentialName 为刚刚创建的 secret 名称。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
-</span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span><span style=color:#e6db74>kind: Gateway
-</span><span style=color:#e6db74>metadata:
-</span><span style=color:#e6db74>  name: mygateway
-</span><span style=color:#e6db74>spec:
-</span><span style=color:#e6db74>  selector:
-</span><span style=color:#e6db74>    istio: ingressgateway # use istio default ingress gateway
-</span><span style=color:#e6db74>  servers:
-</span><span style=color:#e6db74>  - port:
-</span><span style=color:#e6db74>      number: 443
-</span><span style=color:#e6db74>      name: https
-</span><span style=color:#e6db74>      protocol: HTTPS
-</span><span style=color:#e6db74>    tls:
-</span><span style=color:#e6db74>      mode: SIMPLE
-</span><span style=color:#e6db74>      credentialName: httpbin-credential # must be the same as secret
-</span><span style=color:#e6db74>    hosts:
-</span><span style=color:#e6db74>    - httpbin.example.com
-</span><span style=color:#e6db74>heredoc&gt; EOF</span>
-</code></pre></div><p>使用 Virtual Service 为 httpbin 配置 Gateway 路由规则。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
-</span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span><span style=color:#e6db74>kind: VirtualService
-</span><span style=color:#e6db74>metadata:
-</span><span style=color:#e6db74>  name: httpbin
-</span><span style=color:#e6db74>spec:
-</span><span style=color:#e6db74>  hosts:
-</span><span style=color:#e6db74>  - &#34;httpbin.example.com&#34;
-</span><span style=color:#e6db74>  gateways:
-</span><span style=color:#e6db74>  - mygateway
-</span><span style=color:#e6db74>  http:
-</span><span style=color:#e6db74>  - match:
-</span><span style=color:#e6db74>    - uri:
-</span><span style=color:#e6db74>        prefix: /status
-</span><span style=color:#e6db74>    - uri:
-</span><span style=color:#e6db74>        prefix: /delay
-</span><span style=color:#e6db74>    route:
-</span><span style=color:#e6db74>    - destination:
-</span><span style=color:#e6db74>        port:
-</span><span style=color:#e6db74>          number: 8000
-</span><span style=color:#e6db74>        host: httpbin
-</span><span style=color:#e6db74>heredoc&gt; EOF</span>
-</code></pre></div><p>使用 curl 对 httpbin 发送 https 请求（本文使用 Docker Desktop Kubernetes 环境，INGRESS_HOST 为 127.0.0.1，SECURE_INGRESS_PORT 为 443），成功返回“418 I’m a Teapot”。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ curl -v -HHost:httpbin.example.com --resolve <span style=color:#e6db74>&#34;httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--cacert example.com.crt <span style=color:#e6db74>&#34;https://httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/status/418&#34;</span>
-
-...
-    -<span style=color:#f92672>=[</span> teapot <span style=color:#f92672>]=</span>-
-
-       _...._
-     .<span style=color:#960050;background-color:#1e0010>&#39;</span>  _ _ <span style=color:#e6db74>`</span>.
-    | .<span style=color:#e6db74>&#34;` ^ `&#34;</span>. _,
-    <span style=color:#ae81ff>\_</span>;<span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;---&#34;</span><span style=color:#e6db74>`</span>|//
-      |       ;/
-      <span style=color:#ae81ff>\_</span>     _/
-        <span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;&#34;&#34;`
-</span></code></pre></div><h3 id=4-为多-host-配置-tls-gateway>4 为多 Host 配置 TLS Gateway</h3><p>上面配置的 Gateway 仅支持一组 Host 的 TLS 访问。下面再部署一个<code>helloworld-v1</code>服务，然后配置 Ingress Gateway，让其同时支持<code>httpbin.example.com</code>与<code>helloworld-v1.example.com</code>两个 Host 的 TLS 访问。</p><p>部署<code>helloworld-v1</code>样例。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
-</span><span style=color:#e6db74>heredoc&gt; &gt;....
-</span><span style=color:#e6db74>metadata:
-</span><span style=color:#e6db74>  name: helloworld-v1
-</span><span style=color:#e6db74>spec:
-</span><span style=color:#e6db74>  replicas: 1
-</span><span style=color:#e6db74>  selector:
-</span><span style=color:#e6db74>    matchLabels:
-</span><span style=color:#e6db74>      app: helloworld-v1
-</span><span style=color:#e6db74>      version: v1
-</span><span style=color:#e6db74>  template:
-</span><span style=color:#e6db74>    metadata:
-</span><span style=color:#e6db74>      labels:
-</span><span style=color:#e6db74>        app: helloworld-v1
-</span><span style=color:#e6db74>        version: v1
-</span><span style=color:#e6db74>    spec:
-</span><span style=color:#e6db74>      containers:
-</span><span style=color:#e6db74>      - name: helloworld
-</span><span style=color:#e6db74>        image: istio/examples-helloworld-v1
-</span><span style=color:#e6db74>        resources:
-</span><span style=color:#e6db74>          requests:
-</span><span style=color:#e6db74>            cpu: &#34;100m&#34;
-</span><span style=color:#e6db74>        imagePullPolicy: IfNotPresent #Always
-</span><span style=color:#e6db74>        ports:
-</span><span style=color:#e6db74>        - containerPort: 5000
-</span><span style=color:#e6db74>heredoc&gt; EOF</span>
-</code></pre></div><p>为<code>helloworld-v1.example.com</code>生成证书及私钥。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ openssl req -out helloworld-v1.example.com.csr -newkey rsa:2048 -nodes -keyout helloworld-v1.example.com.key -subj <span style=color:#e6db74>&#34;/CN=helloworld-v1.example.com/O=helloworld organization&#34;</span>
-$ openssl x509 -req -days <span style=color:#ae81ff>365</span> -CA example.com.crt -CAkey example.com.key -set_serial <span style=color:#ae81ff>1</span> -in helloworld-v1.example.com.csr -out helloworld-v1.example.com.crt
-</code></pre></div><p>为 Ingress Gateway 创建 secret <code>helloworld-credential</code>。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl create -n istio-system secret tls helloworld-credential --key<span style=color:#f92672>=</span>helloworld-v1.example.com.key --cert<span style=color:#f92672>=</span>helloworld-v1.example.com.crt
-</code></pre></div><p>修改 Gateway 配置，增加对<code>helloworld-v1.example.com</code>的 TLS 访问支持。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
-</span><span style=color:#e6db74>heredoc&gt; &gt;....
-</span><span style=color:#e6db74>  name: mygateway
-</span><span style=color:#e6db74>spec:
-</span><span style=color:#e6db74>  selector:
-</span><span style=color:#e6db74>    istio: ingressgateway # use istio default ingress gateway
-</span><span style=color:#e6db74>  servers:
-</span><span style=color:#e6db74>  - port:
-</span><span style=color:#e6db74>      number: 443
-</span><span style=color:#e6db74>      name: https-httpbin
-</span><span style=color:#e6db74>      protocol: HTTPS
-</span><span style=color:#e6db74>    tls:
-</span><span style=color:#e6db74>      mode: SIMPLE
-</span><span style=color:#e6db74>      credentialName: httpbin-credential
-</span><span style=color:#e6db74>    hosts:
-</span><span style=color:#e6db74>    - httpbin.example.com
-</span><span style=color:#e6db74>  - port:
-</span><span style=color:#e6db74>      number: 443
-</span><span style=color:#e6db74>      name: https-helloworld
-</span><span style=color:#e6db74>      protocol: HTTPS
-</span><span style=color:#e6db74>    tls:
-</span><span style=color:#e6db74>      mode: SIMPLE
-</span><span style=color:#e6db74>      credentialName: helloworld-credential
-</span><span style=color:#e6db74>    hosts:
-</span><span style=color:#e6db74>    - helloworld-v1.example.com
-</span><span style=color:#e6db74>heredoc&gt; EOF</span>
-</code></pre></div><p>使用 Virtual Service 为 Gateway 配置路由规则。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
-</span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span><span style=color:#e6db74>kind: VirtualService
-</span><span style=color:#e6db74>metadata:
-</span><span style=color:#e6db74>  name: helloworld-v1
-</span><span style=color:#e6db74>spec:
-</span><span style=color:#e6db74>  hosts:
-</span><span style=color:#e6db74>  - helloworld-v1.example.com
-</span><span style=color:#e6db74>  gateways:
-</span><span style=color:#e6db74>  - mygateway
-</span><span style=color:#e6db74>  http:
-</span><span style=color:#e6db74>  - match:
-</span><span style=color:#e6db74>    - uri:
-</span><span style=color:#e6db74>        exact: /hello
-</span><span style=color:#e6db74>    route:
-</span><span style=color:#e6db74>    - destination:
-</span><span style=color:#e6db74>        host: helloworld-v1
-</span><span style=color:#e6db74>        port:
-</span><span style=color:#e6db74>          number: 5000
-</span><span style=color:#e6db74>heredoc&gt; EOF</span>
-</code></pre></div><p>然后，使用 curl 对<code>helloworld-v1</code>发起 https 请求，发现成功返回 200 状态码。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ curl -v -HHost:helloworld-v1.example.com --resolve <span style=color:#e6db74>&#34;helloworld-v1.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--cacert example.com.crt <span style=color:#e6db74>&#34;https://helloworld-v1.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/hello&#34;</span>
-</code></pre></div><p>再次使用刚刚的命令对<code>httpbin</code>发起 https 请求，同样成功返回结果。说明 Gateway 同时支持两组 Host 的 TLS 访问。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ curl -v -HHost:httpbin.example.com --resolve <span style=color:#e6db74>&#34;httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--cacert example.com.crt <span style=color:#e6db74>&#34;https://httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/status/418&#34;</span>
-
-...
-    -<span style=color:#f92672>=[</span> teapot <span style=color:#f92672>]=</span>-
-
-       _...._
-     .<span style=color:#960050;background-color:#1e0010>&#39;</span>  _ _ <span style=color:#e6db74>`</span>.
-    | .<span style=color:#e6db74>&#34;` ^ `&#34;</span>. _,
-    <span style=color:#ae81ff>\_</span>;<span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;---&#34;</span><span style=color:#e6db74>`</span>|//
-      |       ;/
-      <span style=color:#ae81ff>\_</span>     _/
-        <span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;&#34;&#34;`
-</span></code></pre></div><h3 id=5-配置双向-tls-ingress-gateway>5 配置双向 TLS Ingress Gateway</h3><p>为使 Gateway 支持双向 TLS 通信，须将原有 secret 删除，创建新的 secret，并将用于校验客户端的根证书囊括进来。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl -n istio-system delete secret httpbin-credential
-$ kubectl create -n istio-system secret generic httpbin-credential --from-file<span style=color:#f92672>=</span>tls.key<span style=color:#f92672>=</span>httpbin.example.com.key --from-file<span style=color:#f92672>=</span>tls.crt<span style=color:#f92672>=</span>httpbin.example.com.crt --from-file<span style=color:#f92672>=</span>ca.crt<span style=color:#f92672>=</span>example.com.crt
-</code></pre></div><p>更新 Gateway 配置，为<code>httpbin</code>开启双向 TLS 模式。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
-</span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span><span style=color:#e6db74>kind: Gateway
-</span><span style=color:#e6db74>metadata:
-</span><span style=color:#e6db74> name: mygateway
-</span><span style=color:#e6db74>spec:
-</span><span style=color:#e6db74> selector:
-</span><span style=color:#e6db74>   istio: ingressgateway # use istio default ingress gateway
-</span><span style=color:#e6db74> servers:
-</span><span style=color:#e6db74> - port:
-</span><span style=color:#e6db74>     number: 443
-</span><span style=color:#e6db74>     name: https
-</span><span style=color:#e6db74>     protocol: HTTPS
-</span><span style=color:#e6db74>   tls:
-</span><span style=color:#e6db74>     mode: MUTUAL
-</span><span style=color:#e6db74>     credentialName: httpbin-credential # must be the same as secret
-</span><span style=color:#e6db74>   hosts:
-</span><span style=color:#e6db74>   - httpbin.example.com
-</span><span style=color:#e6db74>heredoc&gt; EOF</span>
-</code></pre></div><p>配置生效后，之前请求 httpbin 的方式就不好使了。</p><p>下面使用如下命令尝试为客户端创建证书及私钥。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ openssl req -out client.example.com.csr -newkey rsa:2048 -nodes -keyout client.example.com.key -subj <span style=color:#e6db74>&#34;/CN=client.example.com/O=client organization&#34;</span>
-$ openssl x509 -req -days <span style=color:#ae81ff>365</span> -CA example.com.crt -CAkey example.com.key -set_serial <span style=color:#ae81ff>1</span> -in client.example.com.csr -out client.example.com.crt
-</code></pre></div><p>使用<code>--cert</code>及<code>--key</code>选项将客户端证书及私钥传入后，再次使用 https 方式请求<code>httpbin</code>，这时返回成功，</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ curl -v -HHost:httpbin.example.com --resolve <span style=color:#e6db74>&#34;httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--cacert example.com.crt --cert client.example.com.crt --key client.example.com.key <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span><span style=color:#e6db74>&#34;https://httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/status/418&#34;</span>
-
-...
-    -<span style=color:#f92672>=[</span> teapot <span style=color:#f92672>]=</span>-
-
-       _...._
-     .<span style=color:#960050;background-color:#1e0010>&#39;</span>  _ _ <span style=color:#e6db74>`</span>.
-    | .<span style=color:#e6db74>&#34;` ^ `&#34;</span>. _,
-    <span style=color:#ae81ff>\_</span>;<span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;---&#34;</span><span style=color:#e6db74>`</span>|//
-      |       ;/
-      <span style=color:#ae81ff>\_</span>     _/
-        <span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;&#34;&#34;`
-</span></code></pre></div><h3 id=6-环境清理>6 环境清理</h3><p>测试结束，使用如下命令删除 Gateway，Virtual Service 及 Secret。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl delete gateway mygateway -n istio-demo
-$ kubectl delete virtualservice httpbin helloworld-v1 -n istio-demo
-$ kubectl delete --ignore-not-found<span style=color:#f92672>=</span>true -n istio-system secret httpbin-credential helloworld-credential
-</code></pre></div><p>使用如下命令卸载 httpbin 及 helloworld-v1 服务。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>$ kubectl delete deploy --ignore-not-found<span style=color:#f92672>=</span>true httpbin helloworld-v1 -n istio-demo
-$ kubectl delete svc --ignore-not-found<span style=color:#f92672>=</span>true httpbin helloworld-v1 -n istio-demo
-</code></pre></div><p>总结本文，首先介绍了 Istio Ingress Gateway 支持简单及双向 TLS 访问；然后使用 httpbin 样例测试了简单 TLS 访问；引入 helloworld-v1 样例测试了多 Host TLS 访问；最后使用 httpbin 样例测试了双向 TLS 访问。</p><blockquote><p>参考资料</p><p>[1] <a href=https://istio.io/latest/docs/tasks/traffic-management/ingress/secure-ingress/>Istio Secure Gateways</a></p><p>[2] <a href=https://istio.io/latest/docs/concepts/traffic-management/>Istio Traffic Management</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC/>#服务网格</a>
-<a href=/tags/istio/>#Istio</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/istio-plug-in-ca-certificates.html>Istio 证书管理之植入 CA 证书</a></li><li><a href=/posts/istio-ingress-gateways.html>Istio 流量管理之 Ingress Gateway</a></li><li><a href=/posts/istio-mirroring.html>Istio 流量管理之流量镜像</a></li><li><a href=/posts/istio-circuit-breaking.html>Istio 流量管理之熔断</a></li><li><a href=/posts/istio-request-timeouts.html>Istio 流量管理之请求超时</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div align=center><table><tr><b style=color:#e8505b>创作不易，如果我的文章确实帮助到了您，请我喝点东西就是一种莫大的支持！<a href=/thanks>Thanks!</a></b></tr><tr><td align=center><b>微信</b></td><td></td><td></td><td></td><td></td><td align=center><b>支付宝</b></td></tr><tr><td><img src=/static/images/self/wechat.png style=width:120px;height:120px></td><td></td><td></td><td></td><td></td><td><img src=/static/images/self/alipay.png style=width:120px;height:120px></td></tr></table></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
+<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.com//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Istio 流量管理之安全 Gateway</h1><div class="mb-3 post-meta">2021年01月02日
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>上文<a href=https://leileiluoluo.com/posts/istio-ingress-gateways.html>“Istio 流量管理之 Ingress Gateway”</a>介绍了如何使用 Gateway 将一个 7 层 HTTP 服务暴露给外部使用。本文将介绍如何为 Gateway 配置单向或双向 TLS 从而暴露一个安全的 HTTPS 服务给外部访问。关于 Istio 安装等环境准备，请参阅<a href=https://leileiluoluo.com/posts/istio-get-started.html>“Istio 安装使用”</a>。</p><h3 id=1-部署-httpbin>1 部署 httpbin</h3><p>使用 Istio 安装目录自带的配置文件将 httpbin 部署至<code>istio-demo</code> namespace。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ cd /usr/local/istio-1.8.1
+</span></span><span style=display:flex><span>$ kubectl apply -n istio-demo -f samples/httpbin/httpbin.yaml
+</span></span></code></pre></div><h3 id=2-生成证书及私钥>2 生成证书及私钥</h3><p>使用 openssl 生成用于为服务签发证书的根证书及私钥，如下命令执行后会生成两个文件（<code>example.com.crt</code>，<code>example.com.key</code>）。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ openssl req -x509 -sha256 -nodes -days <span style=color:#ae81ff>365</span> -newkey rsa:2048 -subj <span style=color:#e6db74>&#39;/O=example Inc./CN=example.com&#39;</span> -keyout example.com.key -out example.com.crt
+</span></span></code></pre></div><p>为<code>httpbin.example.com</code>生成证书及私钥，如下命令执行后会生成三个文件（<code>httpbin.example.com.csr</code>，<code>httpbin.example.com.key</code>，<code>httpbin.example.com.crt</code>）。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ openssl req -out httpbin.example.com.csr -newkey rsa:2048 -nodes -keyout httpbin.example.com.key -subj <span style=color:#e6db74>&#34;/CN=httpbin.example.com/O=httpbin organization&#34;</span>
+</span></span><span style=display:flex><span>$ openssl x509 -req -days <span style=color:#ae81ff>365</span> -CA example.com.crt -CAkey example.com.key -set_serial <span style=color:#ae81ff>0</span> -in httpbin.example.com.csr -out httpbin.example.com.crt
+</span></span></code></pre></div><h3 id=3-配置-tls-ingress-gateway>3 配置 TLS Ingress Gateway</h3><p>使用第 2 步生成的私钥及证书为 Ingress Gateway 创建 secret。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl create -n istio-system secret tls httpbin-credential --key<span style=color:#f92672>=</span>httpbin.example.com.key --cert<span style=color:#f92672>=</span>httpbin.example.com.crt
+</span></span></code></pre></div><p>应用 Gateway 配置，端口为 443，hosts 为<code>httpbin.example.com</code>，开启 TLS SIMPLE 模式，并配置 credentialName 为刚刚创建的 secret 名称。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>kind: Gateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  name: mygateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  selector:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    istio: ingressgateway # use istio default ingress gateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  servers:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - port:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      number: 443
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      name: https
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      protocol: HTTPS
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    tls:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      mode: SIMPLE
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      credentialName: httpbin-credential # must be the same as secret
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    hosts:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - httpbin.example.com
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>使用 Virtual Service 为 httpbin 配置 Gateway 路由规则。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>kind: VirtualService
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  name: httpbin
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  hosts:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - &#34;httpbin.example.com&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  gateways:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - mygateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  http:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - match:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - uri:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        prefix: /status
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - uri:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        prefix: /delay
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    route:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - destination:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        port:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          number: 8000
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        host: httpbin
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>使用 curl 对 httpbin 发送 https 请求（本文使用 Docker Desktop Kubernetes 环境，INGRESS_HOST 为 127.0.0.1，SECURE_INGRESS_PORT 为 443），成功返回“418 I’m a Teapot”。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -v -HHost:httpbin.example.com --resolve <span style=color:#e6db74>&#34;httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>--cacert example.com.crt <span style=color:#e6db74>&#34;https://httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/status/418&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>    -<span style=color:#f92672>=[</span> teapot <span style=color:#f92672>]=</span>-
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>       _...._
+</span></span><span style=display:flex><span>     .<span style=color:#960050;background-color:#1e0010>&#39;</span>  _ _ <span style=color:#e6db74>`</span>.
+</span></span><span style=display:flex><span>    | .<span style=color:#e6db74>&#34;` ^ `&#34;</span>. _,
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>\_</span>;<span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;---&#34;</span><span style=color:#e6db74>`</span>|//
+</span></span><span style=display:flex><span>      |       ;/
+</span></span><span style=display:flex><span>      <span style=color:#ae81ff>\_</span>     _/
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;&#34;&#34;`
+</span></span></span></code></pre></div><h3 id=4-为多-host-配置-tls-gateway>4 为多 Host 配置 TLS Gateway</h3><p>上面配置的 Gateway 仅支持一组 Host 的 TLS 访问。下面再部署一个<code>helloworld-v1</code>服务，然后配置 Ingress Gateway，让其同时支持<code>httpbin.example.com</code>与<code>helloworld-v1.example.com</code>两个 Host 的 TLS 访问。</p><p>部署<code>helloworld-v1</code>样例。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; &gt;....
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  name: helloworld-v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  replicas: 1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  selector:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    matchLabels:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      app: helloworld-v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      version: v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  template:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    metadata:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      labels:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        app: helloworld-v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        version: v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      containers:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      - name: helloworld
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        image: istio/examples-helloworld-v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        resources:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          requests:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>            cpu: &#34;100m&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        imagePullPolicy: IfNotPresent #Always
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        ports:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        - containerPort: 5000
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>为<code>helloworld-v1.example.com</code>生成证书及私钥。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ openssl req -out helloworld-v1.example.com.csr -newkey rsa:2048 -nodes -keyout helloworld-v1.example.com.key -subj <span style=color:#e6db74>&#34;/CN=helloworld-v1.example.com/O=helloworld organization&#34;</span>
+</span></span><span style=display:flex><span>$ openssl x509 -req -days <span style=color:#ae81ff>365</span> -CA example.com.crt -CAkey example.com.key -set_serial <span style=color:#ae81ff>1</span> -in helloworld-v1.example.com.csr -out helloworld-v1.example.com.crt
+</span></span></code></pre></div><p>为 Ingress Gateway 创建 secret <code>helloworld-credential</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl create -n istio-system secret tls helloworld-credential --key<span style=color:#f92672>=</span>helloworld-v1.example.com.key --cert<span style=color:#f92672>=</span>helloworld-v1.example.com.crt
+</span></span></code></pre></div><p>修改 Gateway 配置，增加对<code>helloworld-v1.example.com</code>的 TLS 访问支持。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; &gt;....
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  name: mygateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  selector:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    istio: ingressgateway # use istio default ingress gateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  servers:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - port:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      number: 443
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      name: https-httpbin
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      protocol: HTTPS
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    tls:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      mode: SIMPLE
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      credentialName: httpbin-credential
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    hosts:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - httpbin.example.com
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - port:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      number: 443
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      name: https-helloworld
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      protocol: HTTPS
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    tls:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      mode: SIMPLE
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      credentialName: helloworld-credential
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    hosts:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - helloworld-v1.example.com
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>使用 Virtual Service 为 Gateway 配置路由规则。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>kind: VirtualService
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  name: helloworld-v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  hosts:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - helloworld-v1.example.com
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  gateways:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - mygateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  http:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - match:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - uri:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        exact: /hello
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    route:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - destination:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        host: helloworld-v1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        port:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          number: 5000
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>然后，使用 curl 对<code>helloworld-v1</code>发起 https 请求，发现成功返回 200 状态码。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -v -HHost:helloworld-v1.example.com --resolve <span style=color:#e6db74>&#34;helloworld-v1.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>--cacert example.com.crt <span style=color:#e6db74>&#34;https://helloworld-v1.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/hello&#34;</span>
+</span></span></code></pre></div><p>再次使用刚刚的命令对<code>httpbin</code>发起 https 请求，同样成功返回结果。说明 Gateway 同时支持两组 Host 的 TLS 访问。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -v -HHost:httpbin.example.com --resolve <span style=color:#e6db74>&#34;httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>--cacert example.com.crt <span style=color:#e6db74>&#34;https://httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/status/418&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>    -<span style=color:#f92672>=[</span> teapot <span style=color:#f92672>]=</span>-
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>       _...._
+</span></span><span style=display:flex><span>     .<span style=color:#960050;background-color:#1e0010>&#39;</span>  _ _ <span style=color:#e6db74>`</span>.
+</span></span><span style=display:flex><span>    | .<span style=color:#e6db74>&#34;` ^ `&#34;</span>. _,
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>\_</span>;<span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;---&#34;</span><span style=color:#e6db74>`</span>|//
+</span></span><span style=display:flex><span>      |       ;/
+</span></span><span style=display:flex><span>      <span style=color:#ae81ff>\_</span>     _/
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;&#34;&#34;`
+</span></span></span></code></pre></div><h3 id=5-配置双向-tls-ingress-gateway>5 配置双向 TLS Ingress Gateway</h3><p>为使 Gateway 支持双向 TLS 通信，须将原有 secret 删除，创建新的 secret，并将用于校验客户端的根证书囊括进来。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl -n istio-system delete secret httpbin-credential
+</span></span><span style=display:flex><span>$ kubectl create -n istio-system secret generic httpbin-credential --from-file<span style=color:#f92672>=</span>tls.key<span style=color:#f92672>=</span>httpbin.example.com.key --from-file<span style=color:#f92672>=</span>tls.crt<span style=color:#f92672>=</span>httpbin.example.com.crt --from-file<span style=color:#f92672>=</span>ca.crt<span style=color:#f92672>=</span>example.com.crt
+</span></span></code></pre></div><p>更新 Gateway 配置，为<code>httpbin</code>开启双向 TLS 模式。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>kind: Gateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74> name: mygateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>spec:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74> selector:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>   istio: ingressgateway # use istio default ingress gateway
+</span></span></span><span style=display:flex><span><span style=color:#e6db74> servers:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74> - port:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>     number: 443
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>     name: https
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>     protocol: HTTPS
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>   tls:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>     mode: MUTUAL
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>     credentialName: httpbin-credential # must be the same as secret
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>   hosts:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>   - httpbin.example.com
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>配置生效后，之前请求 httpbin 的方式就不好使了。</p><p>下面使用如下命令尝试为客户端创建证书及私钥。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ openssl req -out client.example.com.csr -newkey rsa:2048 -nodes -keyout client.example.com.key -subj <span style=color:#e6db74>&#34;/CN=client.example.com/O=client organization&#34;</span>
+</span></span><span style=display:flex><span>$ openssl x509 -req -days <span style=color:#ae81ff>365</span> -CA example.com.crt -CAkey example.com.key -set_serial <span style=color:#ae81ff>1</span> -in client.example.com.csr -out client.example.com.crt
+</span></span></code></pre></div><p>使用<code>--cert</code>及<code>--key</code>选项将客户端证书及私钥传入后，再次使用 https 方式请求<code>httpbin</code>，这时返回成功，</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -v -HHost:httpbin.example.com --resolve <span style=color:#e6db74>&#34;httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>:</span>$INGRESS_HOST<span style=color:#e6db74>&#34;</span> <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>--cacert example.com.crt --cert client.example.com.crt --key client.example.com.key <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span><span style=color:#e6db74>&#34;https://httpbin.example.com:</span>$SECURE_INGRESS_PORT<span style=color:#e6db74>/status/418&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>    -<span style=color:#f92672>=[</span> teapot <span style=color:#f92672>]=</span>-
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>       _...._
+</span></span><span style=display:flex><span>     .<span style=color:#960050;background-color:#1e0010>&#39;</span>  _ _ <span style=color:#e6db74>`</span>.
+</span></span><span style=display:flex><span>    | .<span style=color:#e6db74>&#34;` ^ `&#34;</span>. _,
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>\_</span>;<span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;---&#34;</span><span style=color:#e6db74>`</span>|//
+</span></span><span style=display:flex><span>      |       ;/
+</span></span><span style=display:flex><span>      <span style=color:#ae81ff>\_</span>     _/
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>`</span><span style=color:#e6db74>&#34;&#34;&#34;`
+</span></span></span></code></pre></div><h3 id=6-环境清理>6 环境清理</h3><p>测试结束，使用如下命令删除 Gateway，Virtual Service 及 Secret。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl delete gateway mygateway -n istio-demo
+</span></span><span style=display:flex><span>$ kubectl delete virtualservice httpbin helloworld-v1 -n istio-demo
+</span></span><span style=display:flex><span>$ kubectl delete --ignore-not-found<span style=color:#f92672>=</span>true -n istio-system secret httpbin-credential helloworld-credential
+</span></span></code></pre></div><p>使用如下命令卸载 httpbin 及 helloworld-v1 服务。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl delete deploy --ignore-not-found<span style=color:#f92672>=</span>true httpbin helloworld-v1 -n istio-demo
+</span></span><span style=display:flex><span>$ kubectl delete svc --ignore-not-found<span style=color:#f92672>=</span>true httpbin helloworld-v1 -n istio-demo
+</span></span></code></pre></div><p>总结本文，首先介绍了 Istio Ingress Gateway 支持简单及双向 TLS 访问；然后使用 httpbin 样例测试了简单 TLS 访问；引入 helloworld-v1 样例测试了多 Host TLS 访问；最后使用 httpbin 样例测试了双向 TLS 访问。</p><blockquote><p>参考资料</p><p>[1] <a href=https://istio.io/latest/docs/tasks/traffic-management/ingress/secure-ingress/>Istio Secure Gateways</a></p><p>[2] <a href=https://istio.io/latest/docs/concepts/traffic-management/>Istio Traffic Management</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC/>#服务网格</a>
+<a href=/tags/istio/>#Istio</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/istio-plug-in-ca-certificates.html>Istio 证书管理之植入 CA 证书</a></li><li><a href=/posts/istio-ingress-gateways.html>Istio 流量管理之 Ingress Gateway</a></li><li><a href=/posts/istio-mirroring.html>Istio 流量管理之流量镜像</a></li><li><a href=/posts/istio-circuit-breaking.html>Istio 流量管理之熔断</a></li><li><a href=/posts/istio-request-timeouts.html>Istio 流量管理之请求超时</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div align=center><table><tr><b style=color:#e8505b>创作不易，如果我的文章确实帮助到了您，请我喝点东西就是一种莫大的支持！<a href=/thanks>Thanks!</a></b></tr><tr><td align=center><b>微信</b></td><td></td><td></td><td></td><td></td><td align=center><b>支付宝</b></td></tr><tr><td><img src=/static/images/self/wechat.png style=width:120px;height:120px></td><td></td><td></td><td></td><td></td><td><img src=/static/images/self/alipay.png style=width:120px;height:120px></td></tr></table></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.com/index.json"</script><script src=https://leileiluoluo.com/js/jquery.min.js></script><script src=https://leileiluoluo.com/js/bootstrap.min.js></script><script src=https://leileiluoluo.com/js/fuse.min.js></script><script src=https://leileiluoluo.com/js/mark.js></script><script src=https://leileiluoluo.com/js/search.js></script><script src=https://leileiluoluo.com/js/script.min.js></script></body></html>

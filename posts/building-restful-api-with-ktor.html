@@ -1,295 +1,296 @@
-<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>如何使用 Kotlin Web 框架 Ktor 构建 RESTful API 服务？ - 磊磊落落</title><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="使用,Kotlin,Web,框架,Ktor,构建,RESTful,API,服务"><meta name=description content="本文以开发 User 的增、删、改、查 API 为例，来演示 Ktor 的使用。全文共有三个部分：项目结构介绍、项目代码浅析，以及 API 测试与验证。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.81.0"><link rel=stylesheet href=https://olzhy.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://olzhy.github.io/css/themify-icons.css><link rel=stylesheet href=https://olzhy.github.io/css/larry-custom.css><link rel=stylesheet href=https://olzhy.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://olzhy.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://olzhy.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var a=document.createElement("script"),b;a.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",b=document.getElementsByTagName("script")[0],b.parentNode.insertBefore(a,b)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://olzhy.github.io/>磊磊落落</a>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>如何使用 Kotlin Web 框架 Ktor 构建 RESTful API 服务？ - 磊磊落落</title>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="使用,Kotlin,Web,框架,Ktor,构建,RESTful,API,服务"><meta name=description content="本文以开发 User 的增、删、改、查 API 为例，来演示 Ktor 的使用。全文共有三个部分：项目结构介绍、项目代码浅析，以及 API 测试与验证。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.com/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.com/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.com/css/larry-custom.css><link rel=stylesheet href=https://leileiluoluo.com/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.com/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.com/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.com/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
-<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://olzhy.github.io/></a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://olzhy.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>如何使用 Kotlin Web 框架 Ktor 构建 RESTful API 服务？</h1><div class="mb-3 post-meta">2023年09月29日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>前面两篇文章「<a href=https://olzhy.github.io/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a>」、「<a href=https://olzhy.github.io/posts/building-restful-api-with-http4k.html>如何使用 Kotlin HTTP 工具包 http4k 构建 RESTful API 服务？</a>」分别介绍了 Kotlin 使用 Spring Boot，以及 Kotlin 使用 http4k 开发 RESTful API 的方法。本文则关注如何使用 Kotlin 官方主推的 Web 框架 Ktor 来开发 RESTful API？</p><p>本文将以开发 User 的增、删、改、查 API 为例，来学习 Ktor 的使用。示例项目使用 Gradle 管理，项目结构依然采用业界最通用 MVC 三层架构；为了突出重点，本文不涉及数据库和 DAO 层，而在 Service 层使用一个 List 作数据存储；为了接近真实项目的情景，该示例项目的依赖注入使用 Kodein 来实现。</p><p>全文共有三个部分：项目结构介绍、项目代码浅析，以及 API 测试与验证。以期阅读本文后，我们对如何使用 Ktor 开发 API 会有一个基本的了解。</p><p>开始前，列出本文用到的依赖软件或框架的版本：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>Gradle：8.3
-Kotlin：1.9.10
-JDK：Amazon Corretto 17.0.8
-Ktor：2.3.4
-</code></pre></div><h2 id=1-项目结构介绍>1 项目结构介绍</h2><p>该项目使用 Gradle 管理，项目结构如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>ktor-restful-service-demo
-|--- src/main/
-|    |--- resources/
-|    |    |--- application.conf
-|    |    \--- logback.xml
-|    \--- kotlin/
-|         \--- com.example.demo/
-|              |--- route/
-|              |    \--- UserRoute.kt
-|              |--- service/
-|              |    |--- UserService.kt
-|              |--- code/
-|              |    \--- ErrorCodes.kt
-|              |--- model/
-|              |    |--- ErrorResponse.kt
-|              |    \--- User.kt
-|              |--- plugin/
-|              |    |--- Routing.kt
-|              |    \--- Serialization.kt
-|              |--- conf/
-|              |    \--- KodeinConf.kt
-|              \--- DemoApplication.kt
-...
-|--- gradle/
-|--- gradlew
-\--- build.gradle.kts
-</code></pre></div><p>可以看到，项目根目录下是 Gradle 配置文件<code>build.gradle.kts</code>、Gradle 命令<code>gradlew</code>和 Gradle Wrapper 文件夹<code>gradle</code>；然后是配置文件目录<code>src/main/resources</code>和源码目录<code>src/main/kotlin</code>。</p><p><code>src/main/resources</code>下有两个文件：<code>application.conf</code>和<code>logback.xml</code>，分别为 Ktor Server 配置文件和 Logback 日志配置文件。</p><p>下面看一下<code>src/main/kotlin</code>包下的几个目录：</p><ul><li><p>route</p><p>类似于其它框架的 Controller 层，用于 Ktor 路由配置。</p></li><li><p>service</p><p>Service 层，主要业务逻辑都在这里编写。</p></li><li><p>code</p><p><code>ErrorCodes.kt</code>枚举类所在目录，本示例项目使用该枚举类存放所有错误响应信息。</p></li><li><p>model</p><p>数据模型类所在目录。</p></li><li><p>plugin</p><p>Ktor 插件所在目录，用于配置根路由和序列化方式等。</p></li><li><p>conf</p><p>配置类所在目录，本项目的用于依赖注入的框架 Kodein 的配置类<code>KodeinConf.kt</code>即位于此。</p></li></ul><p>除了这些包，<code>src/main/kotlin</code>下还有一个文件<code>DemoApplication.kt</code>，为程序的总入口。</p><h2 id=2-项目代码浅析>2 项目代码浅析</h2><p>前面介绍了示例项目的目录结构与包的含义，接下来浅析一下 Gradle 配置文件和各个包下的代码。</p><h3 id=21-gradle-配置文件>2.1 Gradle 配置文件</h3><p>该示例项目使用 Gradle 管理，配置文件<code>build.gradle.kts</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=color:#75715e>// build.gradle.kts
-</span><span style=color:#75715e></span>plugins <span style=color:#f92672>{</span>
-    kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;jvm&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
-    id<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor.plugin&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;2.3.4&#34;</span>
-<span style=color:#f92672>}</span>
-
-application <span style=color:#f92672>{</span>
-    mainClass<span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.example.demo.DemoApplicationKt&#34;</span><span style=color:#f92672>)</span>
-<span style=color:#f92672>}</span>
-
-repositories <span style=color:#f92672>{</span>
-    mavenCentral<span style=color:#f92672>()</span>
-<span style=color:#f92672>}</span>
-
-dependencies <span style=color:#f92672>{</span>
-    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-server-core&#34;</span><span style=color:#f92672>)</span>
-    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-server-netty&#34;</span><span style=color:#f92672>)</span>
-    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-server-content-negotiation&#34;</span><span style=color:#f92672>)</span>
-    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-serialization-jackson&#34;</span><span style=color:#f92672>)</span>
-    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.kodein.di:kodein-di:7.20.2&#34;</span><span style=color:#f92672>)</span>
-    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;ch.qos.logback:logback-classic:1.4.11&#34;</span><span style=color:#f92672>)</span>
-<span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到，该文件指定了 Kotlin 的版本为<code>1.9.10</code>，Ktor 的版本为<code>2.3.4</code>；程序入口为<code>DemoApplication.kt</code>；仓库为 Maven Repository，依赖有<code>io.ktor:ktor-server-core</code>（Ktor 核心组件）、<code>io.ktor:ktor-server-netty</code>（所使用的 Netty Server 引擎）、<code>io.ktor:ktor-server-content-negotiation</code>（用于 Kotlin 对象与 JSON 等格式的序列化与反序列化转换）、<code>io.ktor:ktor-serialization-jackson</code>（本项目所使用的 JSON 序列化实现 Jackson）、<code>org.kodein.di:kodein-di:7.20.2</code>（Kodein 依赖注入包），以及<code>ch.qos.logback:logback-classic:1.4.11</code>（Logback 日志打印包）。</p><h3 id=22-plugin-包下的代码>2.2 plugin 包下的代码</h3><p>plugin 包下有两个文件：<code>Routing.kt</code>和<code>Serialization.kt</code>，分别用于根路由配置和序列化方式配置。</p><p><code>Routing.kt</code>的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/plugin/Routing.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.plugin
-
-<span style=color:#66d9ef>import</span> com.example.demo.route.userRouting
-<span style=color:#66d9ef>import</span> io.ktor.server.application.*
-<span style=color:#66d9ef>import</span> io.ktor.server.routing.*
-
-<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.configureRouting() {
-    routing {
-        userRouting()
-    }
-}
-</code></pre></div><p>可以看到，如上代码负责配置项目的根路由，本项目配置的路由只有一个：<code>userRouting()</code>，位于<code>route</code>包下，为 User 的路由规则，稍后会看一下具体的代码。</p><p><code>Serialization.kt</code>的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/plugin/Serialization.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.plugin
-
-<span style=color:#66d9ef>import</span> io.ktor.serialization.jackson.*
-<span style=color:#66d9ef>import</span> io.ktor.server.application.*
-<span style=color:#66d9ef>import</span> io.ktor.server.plugins.contentnegotiation.*
-
-<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.configureSerialization() {
-    install(ContentNegotiation) {
-        jackson()
-    }
-}
-</code></pre></div><p>可以看到，如上代码将 Jackson 配置为内容的序列化与反序列化实现。</p><h3 id=23-route-包下的代码>2.3 route 包下的代码</h3><p>Route 相当于 Controller，负责接收请求，调用 Service 进行处理，最后返回响应。</p><p>本示例项目的 route 包下只有一个文件<code>UserRoute.kt</code>，其源码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/route/UserRoute.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.route
-
-<span style=color:#66d9ef>import</span> com.example.demo.code.ErrorCodes
-<span style=color:#66d9ef>import</span> com.example.demo.conf.kodein
-<span style=color:#66d9ef>import</span> com.example.demo.model.User
-<span style=color:#66d9ef>import</span> com.example.demo.service.UserService
-<span style=color:#66d9ef>import</span> io.ktor.http.*
-<span style=color:#66d9ef>import</span> io.ktor.server.application.*
-<span style=color:#66d9ef>import</span> io.ktor.server.request.*
-<span style=color:#66d9ef>import</span> io.ktor.server.response.*
-<span style=color:#66d9ef>import</span> io.ktor.server.routing.*
-<span style=color:#66d9ef>import</span> org.kodein.di.instance
-
-<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Route</span>.userRouting() {
-    <span style=color:#66d9ef>val</span> userService: UserService <span style=color:#66d9ef>by</span> kodein.instance()
-
-    route(<span style=color:#e6db74>&#34;/users&#34;</span>) {
-        <span style=color:#75715e>// list all
-</span><span style=color:#75715e></span>        <span style=color:#66d9ef>get</span> {
-            <span style=color:#66d9ef>val</span> users = userService.listAll()
-            call.respond(users)
-        }
-
-        <span style=color:#75715e>// get user by id
-</span><span style=color:#75715e></span>        <span style=color:#66d9ef>get</span>(Regex(<span style=color:#e6db74>&#34;/(?&lt;id&gt;</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>d+)&#34;</span>)) {
-            <span style=color:#66d9ef>val</span> id = call.parameters[<span style=color:#e6db74>&#34;id&#34;</span>]<span style=color:#f92672>!!</span>.toLong()
-
-            <span style=color:#66d9ef>val</span> user = userService.getById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@get</span> call.respond(
-                    ErrorCodes.USER_NOT_FOUND.status,
-                    ErrorCodes.USER_NOT_FOUND.toErrorResponse()
-            )
-            call.respond(user)
-        }
-
-        <span style=color:#75715e>// update
-</span><span style=color:#75715e></span>        patch {
-            <span style=color:#66d9ef>val</span> user = call.receive&lt;User&gt;()
-            userService.getById(user.id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@patch</span> call.respond(
-                    ErrorCodes.USER_NOT_FOUND.status,
-                    ErrorCodes.USER_NOT_FOUND.toErrorResponse()
-            )
-
-            userService.update(user)
-            call.respond(HttpStatusCode.NoContent)
-        }
-
-        <span style=color:#75715e>// save
-</span><span style=color:#75715e></span>        post {
-            <span style=color:#66d9ef>val</span> user = call.receive&lt;User&gt;()
-            userService.getById(user.id)<span style=color:#f92672>?.</span>let {
-                <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@post</span> call.respond(
-                        ErrorCodes.USER_ALREADY_EXISTS.status,
-                        ErrorCodes.USER_ALREADY_EXISTS.toErrorResponse()
-                )
-            }
-
-            userService.save(user)
-            call.respond(HttpStatusCode.Created)
-        }
-
-        <span style=color:#75715e>// delete by id
-</span><span style=color:#75715e></span>        delete(Regex(<span style=color:#e6db74>&#34;/(?&lt;id&gt;</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>d+)&#34;</span>)) {
-            <span style=color:#66d9ef>val</span> id = call.parameters[<span style=color:#e6db74>&#34;id&#34;</span>]<span style=color:#f92672>!!</span>.toLong()
-            userService.getById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@delete</span> call.respond(
-                    ErrorCodes.USER_NOT_FOUND.status,
-                    ErrorCodes.USER_NOT_FOUND.toErrorResponse()
-            )
-
-            userService.deleteById(id)
-            call.respond(HttpStatusCode.NoContent)
-        }
-    }
-}
-</code></pre></div><p>可以看到，如上代码中<code>userRouting</code>为<code>Route</code>的扩展函数，使用 Kodein 注入方式拿到了<code>UserService</code>的实例；其中有五个 API，分别为：获取全部 User、获取单个 User、更新 User、新建 User，以及删除 User；内部均调用了<code>UserService</code>来进行实现，对于错误信息的响应，均使用了统一的枚举类<code>ErrorCodes.kt</code>。</p><h3 id=24-code-包下的代码>2.4 code 包下的代码</h3><p>code 包下只有一个文件<code>ErrorCodes.kt</code>，为全局统一的错误信息枚举类，其源码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/code/ErrorCodes.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.code
-
-<span style=color:#66d9ef>import</span> com.example.demo.model.ErrorResponse
-<span style=color:#66d9ef>import</span> io.ktor.http.*
-
-<span style=color:#66d9ef>enum</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorCodes</span>(<span style=color:#66d9ef>val</span> status: HttpStatusCode, <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> description: String) {
-    USER_NOT_FOUND(HttpStatusCode.NotFound, <span style=color:#e6db74>&#34;user_not_found&#34;</span>, <span style=color:#e6db74>&#34;user not found&#34;</span>),
-    USER_ALREADY_EXISTS(HttpStatusCode.BadRequest, <span style=color:#e6db74>&#34;user_already_exists&#34;</span>, <span style=color:#e6db74>&#34;user already exists&#34;</span>);
-
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toErrorResponse</span>(): ErrorResponse = ErrorResponse(code, description)
-}
-</code></pre></div><p>可以看到，如上代码定义了两个错误信息：用户不存在与用于已存在。刚刚在<code>UserRoute.kt</code>代码中，已看到了这些错误信息的使用。</p><h3 id=25-service-包下的代码>2.5 service 包下的代码</h3><p>Service 承载具体的业务逻辑实现，该示例项目只有一个 Service：<code>UserService.kt</code>，其负责具体的 User 增、删、改、查逻辑处理。</p><p>其代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.service
-
-<span style=color:#66d9ef>import</span> com.example.demo.model.User
-
-<span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserService</span> {
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt;
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User?
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User)
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User)
-    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long)
-}
-
-<span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DefaultUserServiceImpl</span> : UserService {
-    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> fakeUsers = mutableListOf(
-            User(id = <span style=color:#ae81ff>1L</span>, name = <span style=color:#e6db74>&#34;Larry&#34;</span>, age = <span style=color:#ae81ff>28</span>),
-            User(id = <span style=color:#ae81ff>2L</span>, name = <span style=color:#e6db74>&#34;Stephen&#34;</span>, age = <span style=color:#ae81ff>19</span>),
-            User(id = <span style=color:#ae81ff>3L</span>, name = <span style=color:#e6db74>&#34;Jacky&#34;</span>, age = <span style=color:#ae81ff>24</span>)
-    )
-
-    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt; {
-        <span style=color:#66d9ef>return</span> fakeUsers
-    }
-
-    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User? {
-        <span style=color:#66d9ef>return</span> fakeUsers.find { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
-    }
-
-    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User) {
-        fakeUsers.filter { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> user.id }.forEach {
-            <span style=color:#66d9ef>it</span>.name = user.name
-            <span style=color:#66d9ef>it</span>.age = user.age
-        }
-    }
-
-    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User) {
-        getById(user.id) <span style=color:#f92672>?:</span> fakeUsers.add(user)
-    }
-
-    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long) {
-        fakeUsers.removeIf { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
-    }
-}
-</code></pre></div><p>可以看到，如上代码中包含一个接口和一个实现类，负责具体的 User 增、删、改、查实现，其使用一个<code>mutableList</code>来充当存储功能，初始化时预置了三条数据。</p><h3 id=26-model-包下的代码>2.6 model 包下的代码</h3><p>Model 用于承载与传递数据，该示例项目的 model 包下有两个文件：<code>User.kt</code>与<code>ErrorResponse.kt</code>，分别为 User 数据类与错误信息数据类。</p><p><code>User.kt</code>的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/User.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
-
-<span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long, <span style=color:#66d9ef>var</span> name: String, <span style=color:#66d9ef>var</span> age: Int)
-</code></pre></div><p><code>ErrorResponse.kt</code>的代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/ErrorResponse.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
-
-<span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorResponse</span>(<span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>val</span> description: String)
-</code></pre></div><p>可以看到，User 有三个字段：id、name 和 age；ErrorResponse 有两个字段：code 和 description。</p><h3 id=27-conf-包下的代码>2.7 conf 包下的代码</h3><p>该示例项目的 conf 包主要用于存放除了 Ktor 配置之外的其它配置信息，其下只有一个文件：<code>KodeinConf.kt</code>，为 Kodein 依赖注入相关的配置。</p><p>其源码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/conf/KodeinConf.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.conf
-
-<span style=color:#66d9ef>import</span> com.example.demo.service.DefaultUserServiceImpl
-<span style=color:#66d9ef>import</span> com.example.demo.service.UserService
-<span style=color:#66d9ef>import</span> org.kodein.di.DI
-<span style=color:#66d9ef>import</span> org.kodein.di.bind
-<span style=color:#66d9ef>import</span> org.kodein.di.singleton
-
-<span style=color:#66d9ef>val</span> kodein = DI {
-    bind&lt;UserService&gt;() with singleton { DefaultUserServiceImpl() }
-}
-</code></pre></div><p>可以看到，如上代码声明了<code>kodein</code>变量，并指定了 Service 的接口与实现。</p><h3 id=28-程序入口代码>2.8 程序入口代码</h3><p><code>DemoApplication.kt</code>为程序的入口，其代码如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
-</span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo
-
-<span style=color:#66d9ef>import</span> com.example.demo.plugin.configureRouting
-<span style=color:#66d9ef>import</span> com.example.demo.plugin.configureSerialization
-<span style=color:#66d9ef>import</span> io.ktor.server.application.*
-
-<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>(args: Array&lt;String&gt;): Unit = io.ktor.server.netty.EngineMain.main(args)
-
-<span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.module() {
-    configureRouting()
-    configureSerialization()
-}
-</code></pre></div><p>可以看到，该代码指定了 Server 引擎为 Netty；还为 Ktor<code>Application</code>编写了一个扩展函数<code>module</code>，该<code>module</code>调用了<code>plugin</code>下分别用于配置根路由与序列化的两个扩展函数<code>configureRouting</code>与<code>configureSerialization</code>；<code>module</code>的调用则在 Ktor 配置文件<code>application.conf</code>中作了指定。</p><h3 id=29-配置文件内容>2.9 配置文件内容</h3><p>该示例项目<code>src/main/resources</code>目录下有两个配置文件：<code>application.conf</code>和<code>logback.xml</code>，分别用于 Ktor Server 的配置与 Logback 日志输出的配置。</p><p><code>application.conf</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text># src/main/resources/application.conf
-ktor {
-    deployment {
-        port = 8080
-        port = ${?PORT}
-    }
-    application {
-        modules = [ com.example.demo.DemoApplicationKt.module ]
-    }
-}
-</code></pre></div><p>可以看到，该文件采用 HOCON 格式，指定了服务的端口以及 module 的位置。</p><p><code>logback.xml</code>内容如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=color:#75715e>&lt;!-- src/main/resources/logback.xml --&gt;</span>
-<span style=color:#f92672>&lt;configuration&gt;</span>
-    <span style=color:#f92672>&lt;appender</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span style=color:#f92672>&gt;</span>
-        <span style=color:#f92672>&lt;encoder&gt;</span>
-            <span style=color:#f92672>&lt;pattern&gt;</span>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span style=color:#f92672>&lt;/pattern&gt;</span>
-        <span style=color:#f92672>&lt;/encoder&gt;</span>
-    <span style=color:#f92672>&lt;/appender&gt;</span>
-    <span style=color:#f92672>&lt;root</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;INFO&#34;</span><span style=color:#f92672>&gt;</span>
-        <span style=color:#f92672>&lt;appender-ref</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span><span style=color:#f92672>/&gt;</span>
-    <span style=color:#f92672>&lt;/root&gt;</span>
-    <span style=color:#f92672>&lt;logger</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;io.netty&#34;</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;INFO&#34;</span><span style=color:#f92672>/&gt;</span>
-<span style=color:#f92672>&lt;/configuration&gt;</span>
-</code></pre></div><p>可以看到该文件指定了日志的级别与输出格式。</p><h2 id=3-api-测试与验证>3 API 测试与验证</h2><p>概览了项目的整体结构和各个包下的源码，下面就将其启动，并使用 CURL 命名对各个 API 进行测试。</p><p>项目启动命令如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>./gradlew run
-</code></pre></div><p>启动完成后，即可以开始 API 验证了。</p><h3 id=31-查询所有-user>3.1 查询所有 User</h3><p>首先查询一下所有 User，CURL 命令如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users
-
-<span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}]</span>
-</code></pre></div><p>可以看到三条预置数据正确返回。</p><h3 id=32-查询单个-user>3.2 查询单个 User</h3><p>下面查询一下 ID 为 1 的 User，CURL 命名如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users/1
-
-<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到返回正确。</p><p>再尝试查询一个不存在的 User：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users/100
-
-<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
-</code></pre></div><p>可以看到，返回了我们在<code>ErrorCodes.kt</code>枚举类中定义的错误信息。</p><h3 id=33-更新-user>3.3 更新 User</h3><p>再尝试更新一下 ID 为 1 的 User，CURL 命令如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X PATCH -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
-</code></pre></div><p>更新完成后，再次查询，发现更新成功：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users/1
-
-<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry2&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>
-</code></pre></div><p>再尝试对一个不存在的 User 进行更新，CURL 命令如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X PATCH -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 100, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
-
-<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
-</code></pre></div><p>发现返回了我们设定的错误信息。</p><h3 id=34-新建-user>3.4 新建 User</h3><p>下面，尝试一下新建 User，CURL 命令如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X POST -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 4, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
-</code></pre></div><p>然后，再次查询一下所有 User：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X GET http://localhost:8080/users
-
-<span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry2&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:4,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Lucy&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:16<span style=color:#f92672>}]</span>
-</code></pre></div><p>发现返回结果已包含刚刚新建的 User。</p><p>再尝试新建一个 ID 已存在的 User：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>curl -X POST -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
-
-<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_already_exists&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user already exists&#34;</span><span style=color:#f92672>}</span>
-</code></pre></div><p>发现返回了设定的错误信息。</p><h3 id=35-删除单个-user>3.5 删除单个 User</h3><p>最后试一下删除 User，CURL 命令如下：</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># 删除已有 User</span>
-curl -X DELETE http://localhost:8080/users/1
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># 删除不存在的 User</span>
-curl -X DELETE http://localhost:8080/users/100
-
-<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
-</code></pre></div><p>返回也是正确的。</p><p>综上，本文使用 Ktor 开发了一个针对 User 增、删、改、查的示例项目，并对项目结构和源码进行了分析，最后进行了 API 测试与验证，发现功能均是正常的。最后的结论是，使用 Ktor 开发 API 还是比较顺滑的。</p><p>本文整个示例项目的代码已托管至本人 <a href=https://github.com/olzhy/kotlin-exercises/tree/main/ktor-restful-service-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://ktor.io/docs/creating-http-apis.html>Creating HTTP APIs | Ktor Documentation - ktor.io</a></p><p>[2] <a href=https://github.com/ktorio/ktor-documentation/tree/2.3.4/codeSnippets/snippets/tutorial-http-api>A sample Ktor project showing how to create HTTP APIs using Ktor | GitHub - github.com</a></p><p>[3] <a href=https://medium.com/@billwixted/building-a-rest-api-with-ktor-4c322d31eb31>Building a REST API with Ktor | Medium - medium.com</a></p><p>[4] <a href=https://github.com/ktorio/ktor-samples/tree/main/di-kodein>Using Kodein Dependency Injection framework with Ktor | GitHub - github.com</a></p><p>[5] <a href=https://techkluster.com/kotlin/kodein-dependency-injection/>Kotlin Dependency Injection with Kodein | Techkluster - techkluster.com</a></p><p>[6] <a href=https://start.ktor.io/>Generate Ktor Project | Ktor Project Generator - start.ktor.io</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a>
-<a href=/tags/gradle/>#Gradle</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-http4k.html>如何使用 Kotlin HTTP 工具包 http4k 构建 RESTful API 服务？</a></li><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div align=center><table><tr><b style=color:#e8505b>创作不易，如果我的文章确实帮助到了您，请我喝点东西就是一种莫大的支持！<a href=/thanks>Thanks!</a></b></tr><tr><td align=center><b>微信</b></td><td></td><td></td><td></td><td></td><td align=center><b>支付宝</b></td></tr><tr><td><img src=/static/images/self/wechat.png style=width:120px;height:120px></td><td></td><td></td><td></td><td></td><td><img src=/static/images/self/alipay.png style=width:120px;height:120px></td></tr></table></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
+<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.com//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>如何使用 Kotlin Web 框架 Ktor 构建 RESTful API 服务？</h1><div class="mb-3 post-meta">2023年09月29日
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>前面两篇文章「<a href=https://leileiluoluo.com/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a>」、「<a href=https://leileiluoluo.com/posts/building-restful-api-with-http4k.html>如何使用 Kotlin HTTP 工具包 http4k 构建 RESTful API 服务？</a>」分别介绍了 Kotlin 使用 Spring Boot，以及 Kotlin 使用 http4k 开发 RESTful API 的方法。本文则关注如何使用 Kotlin 官方主推的 Web 框架 Ktor 来开发 RESTful API？</p><p>本文将以开发 User 的增、删、改、查 API 为例，来学习 Ktor 的使用。示例项目使用 Gradle 管理，项目结构依然采用业界最通用 MVC 三层架构；为了突出重点，本文不涉及数据库和 DAO 层，而在 Service 层使用一个 List 作数据存储；为了接近真实项目的情景，该示例项目的依赖注入使用 Kodein 来实现。</p><p>全文共有三个部分：项目结构介绍、项目代码浅析，以及 API 测试与验证。以期阅读本文后，我们对如何使用 Ktor 开发 API 会有一个基本的了解。</p><p>开始前，列出本文用到的依赖软件或框架的版本：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>Gradle：8.3
+</span></span><span style=display:flex><span>Kotlin：1.9.10
+</span></span><span style=display:flex><span>JDK：Amazon Corretto 17.0.8
+</span></span><span style=display:flex><span>Ktor：2.3.4
+</span></span></code></pre></div><h2 id=1-项目结构介绍>1 项目结构介绍</h2><p>该项目使用 Gradle 管理，项目结构如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>ktor-restful-service-demo
+</span></span><span style=display:flex><span>|--- src/main/
+</span></span><span style=display:flex><span>|    |--- resources/
+</span></span><span style=display:flex><span>|    |    |--- application.conf
+</span></span><span style=display:flex><span>|    |    \--- logback.xml
+</span></span><span style=display:flex><span>|    \--- kotlin/
+</span></span><span style=display:flex><span>|         \--- com.example.demo/
+</span></span><span style=display:flex><span>|              |--- route/
+</span></span><span style=display:flex><span>|              |    \--- UserRoute.kt
+</span></span><span style=display:flex><span>|              |--- service/
+</span></span><span style=display:flex><span>|              |    |--- UserService.kt
+</span></span><span style=display:flex><span>|              |--- code/
+</span></span><span style=display:flex><span>|              |    \--- ErrorCodes.kt
+</span></span><span style=display:flex><span>|              |--- model/
+</span></span><span style=display:flex><span>|              |    |--- ErrorResponse.kt
+</span></span><span style=display:flex><span>|              |    \--- User.kt
+</span></span><span style=display:flex><span>|              |--- plugin/
+</span></span><span style=display:flex><span>|              |    |--- Routing.kt
+</span></span><span style=display:flex><span>|              |    \--- Serialization.kt
+</span></span><span style=display:flex><span>|              |--- conf/
+</span></span><span style=display:flex><span>|              |    \--- KodeinConf.kt
+</span></span><span style=display:flex><span>|              \--- DemoApplication.kt
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>|--- gradle/
+</span></span><span style=display:flex><span>|--- gradlew
+</span></span><span style=display:flex><span>\--- build.gradle.kts
+</span></span></code></pre></div><p>可以看到，项目根目录下是 Gradle 配置文件<code>build.gradle.kts</code>、Gradle 命令<code>gradlew</code>和 Gradle Wrapper 文件夹<code>gradle</code>；然后是配置文件目录<code>src/main/resources</code>和源码目录<code>src/main/kotlin</code>。</p><p><code>src/main/resources</code>下有两个文件：<code>application.conf</code>和<code>logback.xml</code>，分别为 Ktor Server 配置文件和 Logback 日志配置文件。</p><p>下面看一下<code>src/main/kotlin</code>包下的几个目录：</p><ul><li><p>route</p><p>类似于其它框架的 Controller 层，用于 Ktor 路由配置。</p></li><li><p>service</p><p>Service 层，主要业务逻辑都在这里编写。</p></li><li><p>code</p><p><code>ErrorCodes.kt</code>枚举类所在目录，本示例项目使用该枚举类存放所有错误响应信息。</p></li><li><p>model</p><p>数据模型类所在目录。</p></li><li><p>plugin</p><p>Ktor 插件所在目录，用于配置根路由和序列化方式等。</p></li><li><p>conf</p><p>配置类所在目录，本项目的用于依赖注入的框架 Kodein 的配置类<code>KodeinConf.kt</code>即位于此。</p></li></ul><p>除了这些包，<code>src/main/kotlin</code>下还有一个文件<code>DemoApplication.kt</code>，为程序的总入口。</p><h2 id=2-项目代码浅析>2 项目代码浅析</h2><p>前面介绍了示例项目的目录结构与包的含义，接下来浅析一下 Gradle 配置文件和各个包下的代码。</p><h3 id=21-gradle-配置文件>2.1 Gradle 配置文件</h3><p>该示例项目使用 Gradle 管理，配置文件<code>build.gradle.kts</code>内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=display:flex><span><span style=color:#75715e>// build.gradle.kts
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>plugins <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;jvm&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
+</span></span><span style=display:flex><span>    id<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor.plugin&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;2.3.4&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>application <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    mainClass<span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.example.demo.DemoApplicationKt&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>repositories <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    mavenCentral<span style=color:#f92672>()</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dependencies <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-server-core&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-server-netty&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-server-content-negotiation&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;io.ktor:ktor-serialization-jackson&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.kodein.di:kodein-di:7.20.2&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;ch.qos.logback:logback-classic:1.4.11&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>可以看到，该文件指定了 Kotlin 的版本为<code>1.9.10</code>，Ktor 的版本为<code>2.3.4</code>；程序入口为<code>DemoApplication.kt</code>；仓库为 Maven Repository，依赖有<code>io.ktor:ktor-server-core</code>（Ktor 核心组件）、<code>io.ktor:ktor-server-netty</code>（所使用的 Netty Server 引擎）、<code>io.ktor:ktor-server-content-negotiation</code>（用于 Kotlin 对象与 JSON 等格式的序列化与反序列化转换）、<code>io.ktor:ktor-serialization-jackson</code>（本项目所使用的 JSON 序列化实现 Jackson）、<code>org.kodein.di:kodein-di:7.20.2</code>（Kodein 依赖注入包），以及<code>ch.qos.logback:logback-classic:1.4.11</code>（Logback 日志打印包）。</p><h3 id=22-plugin-包下的代码>2.2 plugin 包下的代码</h3><p>plugin 包下有两个文件：<code>Routing.kt</code>和<code>Serialization.kt</code>，分别用于根路由配置和序列化方式配置。</p><p><code>Routing.kt</code>的代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/plugin/Routing.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.plugin
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.route.userRouting
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.application.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.routing.*
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.configureRouting() {
+</span></span><span style=display:flex><span>    routing {
+</span></span><span style=display:flex><span>        userRouting()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，如上代码负责配置项目的根路由，本项目配置的路由只有一个：<code>userRouting()</code>，位于<code>route</code>包下，为 User 的路由规则，稍后会看一下具体的代码。</p><p><code>Serialization.kt</code>的代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/plugin/Serialization.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.plugin
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.serialization.jackson.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.application.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.plugins.contentnegotiation.*
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.configureSerialization() {
+</span></span><span style=display:flex><span>    install(ContentNegotiation) {
+</span></span><span style=display:flex><span>        jackson()
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，如上代码将 Jackson 配置为内容的序列化与反序列化实现。</p><h3 id=23-route-包下的代码>2.3 route 包下的代码</h3><p>Route 相当于 Controller，负责接收请求，调用 Service 进行处理，最后返回响应。</p><p>本示例项目的 route 包下只有一个文件<code>UserRoute.kt</code>，其源码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/route/UserRoute.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.route
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.code.ErrorCodes
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.conf.kodein
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.model.User
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.service.UserService
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.http.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.application.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.request.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.response.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.routing.*
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.kodein.di.instance
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Route</span>.userRouting() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> userService: UserService <span style=color:#66d9ef>by</span> kodein.instance()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    route(<span style=color:#e6db74>&#34;/users&#34;</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// list all
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>get</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> users = userService.listAll()
+</span></span><span style=display:flex><span>            call.respond(users)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// get user by id
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>get</span>(Regex(<span style=color:#e6db74>&#34;/(?&lt;id&gt;</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>d+)&#34;</span>)) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> id = call.parameters[<span style=color:#e6db74>&#34;id&#34;</span>]<span style=color:#f92672>!!</span>.toLong()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> user = userService.getById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@get</span> call.respond(
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.status,
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toErrorResponse()
+</span></span><span style=display:flex><span>            )
+</span></span><span style=display:flex><span>            call.respond(user)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// update
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        patch {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> user = call.receive&lt;User&gt;()
+</span></span><span style=display:flex><span>            userService.getById(user.id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@patch</span> call.respond(
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.status,
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toErrorResponse()
+</span></span><span style=display:flex><span>            )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            userService.update(user)
+</span></span><span style=display:flex><span>            call.respond(<span style=color:#a6e22e>HttpStatusCode</span>.NoContent)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// save
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        post {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> user = call.receive&lt;User&gt;()
+</span></span><span style=display:flex><span>            userService.getById(user.id)<span style=color:#f92672>?.</span>let {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@post</span> call.respond(
+</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_ALREADY_EXISTS</span>.status,
+</span></span><span style=display:flex><span>                        <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_ALREADY_EXISTS</span>.toErrorResponse()
+</span></span><span style=display:flex><span>                )
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            userService.save(user)
+</span></span><span style=display:flex><span>            call.respond(<span style=color:#a6e22e>HttpStatusCode</span>.Created)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// delete by id
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        delete(Regex(<span style=color:#e6db74>&#34;/(?&lt;id&gt;</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>d+)&#34;</span>)) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>val</span> id = call.parameters[<span style=color:#e6db74>&#34;id&#34;</span>]<span style=color:#f92672>!!</span>.toLong()
+</span></span><span style=display:flex><span>            userService.getById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span><span style=color:#a6e22e>@delete</span> call.respond(
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.status,
+</span></span><span style=display:flex><span>                    <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toErrorResponse()
+</span></span><span style=display:flex><span>            )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            userService.deleteById(id)
+</span></span><span style=display:flex><span>            call.respond(<span style=color:#a6e22e>HttpStatusCode</span>.NoContent)
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，如上代码中<code>userRouting</code>为<code>Route</code>的扩展函数，使用 Kodein 注入方式拿到了<code>UserService</code>的实例；其中有五个 API，分别为：获取全部 User、获取单个 User、更新 User、新建 User，以及删除 User；内部均调用了<code>UserService</code>来进行实现，对于错误信息的响应，均使用了统一的枚举类<code>ErrorCodes.kt</code>。</p><h3 id=24-code-包下的代码>2.4 code 包下的代码</h3><p>code 包下只有一个文件<code>ErrorCodes.kt</code>，为全局统一的错误信息枚举类，其源码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/code/ErrorCodes.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.code
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.model.ErrorResponse
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.http.*
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>enum</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorCodes</span>(<span style=color:#66d9ef>val</span> status: HttpStatusCode, <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> description: String) {
+</span></span><span style=display:flex><span>    USER_NOT_FOUND(<span style=color:#a6e22e>HttpStatusCode</span>.NotFound, <span style=color:#e6db74>&#34;user_not_found&#34;</span>, <span style=color:#e6db74>&#34;user not found&#34;</span>),
+</span></span><span style=display:flex><span>    USER_ALREADY_EXISTS(<span style=color:#a6e22e>HttpStatusCode</span>.BadRequest, <span style=color:#e6db74>&#34;user_already_exists&#34;</span>, <span style=color:#e6db74>&#34;user already exists&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toErrorResponse</span>(): ErrorResponse = ErrorResponse(code, description)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，如上代码定义了两个错误信息：用户不存在与用于已存在。刚刚在<code>UserRoute.kt</code>代码中，已看到了这些错误信息的使用。</p><h3 id=25-service-包下的代码>2.5 service 包下的代码</h3><p>Service 承载具体的业务逻辑实现，该示例项目只有一个 Service：<code>UserService.kt</code>，其负责具体的 User 增、删、改、查逻辑处理。</p><p>其代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.service
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.model.User
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserService</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User?
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DefaultUserServiceImpl</span> : UserService {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> fakeUsers = mutableListOf(
+</span></span><span style=display:flex><span>            User(id = <span style=color:#ae81ff>1L</span>, name = <span style=color:#e6db74>&#34;Larry&#34;</span>, age = <span style=color:#ae81ff>28</span>),
+</span></span><span style=display:flex><span>            User(id = <span style=color:#ae81ff>2L</span>, name = <span style=color:#e6db74>&#34;Stephen&#34;</span>, age = <span style=color:#ae81ff>19</span>),
+</span></span><span style=display:flex><span>            User(id = <span style=color:#ae81ff>3L</span>, name = <span style=color:#e6db74>&#34;Jacky&#34;</span>, age = <span style=color:#ae81ff>24</span>)
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt; {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> fakeUsers
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User? {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> fakeUsers.find { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User) {
+</span></span><span style=display:flex><span>        fakeUsers.filter { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> user.id }.forEach {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>it</span>.name = user.name
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>it</span>.age = user.age
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User) {
+</span></span><span style=display:flex><span>        getById(user.id) <span style=color:#f92672>?:</span> fakeUsers.add(user)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long) {
+</span></span><span style=display:flex><span>        fakeUsers.removeIf { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，如上代码中包含一个接口和一个实现类，负责具体的 User 增、删、改、查实现，其使用一个<code>mutableList</code>来充当存储功能，初始化时预置了三条数据。</p><h3 id=26-model-包下的代码>2.6 model 包下的代码</h3><p>Model 用于承载与传递数据，该示例项目的 model 包下有两个文件：<code>User.kt</code>与<code>ErrorResponse.kt</code>，分别为 User 数据类与错误信息数据类。</p><p><code>User.kt</code>的代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/User.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long, <span style=color:#66d9ef>var</span> name: String, <span style=color:#66d9ef>var</span> age: Int)
+</span></span></code></pre></div><p><code>ErrorResponse.kt</code>的代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/ErrorResponse.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorResponse</span>(<span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>val</span> description: String)
+</span></span></code></pre></div><p>可以看到，User 有三个字段：id、name 和 age；ErrorResponse 有两个字段：code 和 description。</p><h3 id=27-conf-包下的代码>2.7 conf 包下的代码</h3><p>该示例项目的 conf 包主要用于存放除了 Ktor 配置之外的其它配置信息，其下只有一个文件：<code>KodeinConf.kt</code>，为 Kodein 依赖注入相关的配置。</p><p>其源码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/conf/KodeinConf.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.conf
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.service.DefaultUserServiceImpl
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.service.UserService
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.kodein.di.DI
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.kodein.di.bind
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.kodein.di.singleton
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>val</span> kodein = DI {
+</span></span><span style=display:flex><span>    bind&lt;UserService&gt;() with singleton { DefaultUserServiceImpl() }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，如上代码声明了<code>kodein</code>变量，并指定了 Service 的接口与实现。</p><h3 id=28-程序入口代码>2.8 程序入口代码</h3><p><code>DemoApplication.kt</code>为程序的入口，其代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.plugin.configureRouting
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.plugin.configureSerialization
+</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> io.ktor.server.application.*
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>(args: Array&lt;String&gt;): Unit = io.ktor.server.netty.<span style=color:#a6e22e>EngineMain</span>.main(args)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>Application</span>.module() {
+</span></span><span style=display:flex><span>    configureRouting()
+</span></span><span style=display:flex><span>    configureSerialization()
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，该代码指定了 Server 引擎为 Netty；还为 Ktor<code>Application</code>编写了一个扩展函数<code>module</code>，该<code>module</code>调用了<code>plugin</code>下分别用于配置根路由与序列化的两个扩展函数<code>configureRouting</code>与<code>configureSerialization</code>；<code>module</code>的调用则在 Ktor 配置文件<code>application.conf</code>中作了指定。</p><h3 id=29-配置文件内容>2.9 配置文件内容</h3><p>该示例项目<code>src/main/resources</code>目录下有两个配置文件：<code>application.conf</code>和<code>logback.xml</code>，分别用于 Ktor Server 的配置与 Logback 日志输出的配置。</p><p><code>application.conf</code>内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span># src/main/resources/application.conf
+</span></span><span style=display:flex><span>ktor {
+</span></span><span style=display:flex><span>    deployment {
+</span></span><span style=display:flex><span>        port = 8080
+</span></span><span style=display:flex><span>        port = ${?PORT}
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    application {
+</span></span><span style=display:flex><span>        modules = [ com.example.demo.DemoApplicationKt.module ]
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，该文件采用 HOCON 格式，指定了服务的端口以及 module 的位置。</p><p><code>logback.xml</code>内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!-- src/main/resources/logback.xml --&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;configuration&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;appender</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span> <span style=color:#a6e22e>class=</span><span style=color:#e6db74>&#34;ch.qos.logback.core.ConsoleAppender&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;encoder&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;pattern&gt;</span>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n<span style=color:#f92672>&lt;/pattern&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/encoder&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/appender&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;root</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;INFO&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;appender-ref</span> <span style=color:#a6e22e>ref=</span><span style=color:#e6db74>&#34;STDOUT&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/root&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;logger</span> <span style=color:#a6e22e>name=</span><span style=color:#e6db74>&#34;io.netty&#34;</span> <span style=color:#a6e22e>level=</span><span style=color:#e6db74>&#34;INFO&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/configuration&gt;</span>
+</span></span></code></pre></div><p>可以看到该文件指定了日志的级别与输出格式。</p><h2 id=3-api-测试与验证>3 API 测试与验证</h2><p>概览了项目的整体结构和各个包下的源码，下面就将其启动，并使用 CURL 命名对各个 API 进行测试。</p><p>项目启动命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>./gradlew run
+</span></span></code></pre></div><p>启动完成后，即可以开始 API 验证了。</p><h3 id=31-查询所有-user>3.1 查询所有 User</h3><p>首先查询一下所有 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}]</span>
+</span></span></code></pre></div><p>可以看到三条预置数据正确返回。</p><h3 id=32-查询单个-user>3.2 查询单个 User</h3><p>下面查询一下 ID 为 1 的 User，CURL 命名如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/1
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>可以看到返回正确。</p><p>再尝试查询一个不存在的 User：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/100
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>可以看到，返回了我们在<code>ErrorCodes.kt</code>枚举类中定义的错误信息。</p><h3 id=33-更新-user>3.3 更新 User</h3><p>再尝试更新一下 ID 为 1 的 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X PATCH -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
+</span></span></code></pre></div><p>更新完成后，再次查询，发现更新成功：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/1
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry2&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>再尝试对一个不存在的 User 进行更新，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X PATCH -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 100, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>发现返回了我们设定的错误信息。</p><h3 id=34-新建-user>3.4 新建 User</h3><p>下面，尝试一下新建 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X POST -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 4, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
+</span></span></code></pre></div><p>然后，再次查询一下所有 User：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry2&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:4,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Lucy&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:16<span style=color:#f92672>}]</span>
+</span></span></code></pre></div><p>发现返回结果已包含刚刚新建的 User。</p><p>再尝试新建一个 ID 已存在的 User：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X POST -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_already_exists&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user already exists&#34;</span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>发现返回了设定的错误信息。</p><h3 id=35-删除单个-user>3.5 删除单个 User</h3><p>最后试一下删除 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#75715e># 删除已有 User</span>
+</span></span><span style=display:flex><span>curl -X DELETE http://localhost:8080/users/1
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#75715e># 删除不存在的 User</span>
+</span></span><span style=display:flex><span>curl -X DELETE http://localhost:8080/users/100
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>返回也是正确的。</p><p>综上，本文使用 Ktor 开发了一个针对 User 增、删、改、查的示例项目，并对项目结构和源码进行了分析，最后进行了 API 测试与验证，发现功能均是正常的。最后的结论是，使用 Ktor 开发 API 还是比较顺滑的。</p><p>本文整个示例项目的代码已托管至本人 <a href=https://github.com/olzhy/kotlin-exercises/tree/main/ktor-restful-service-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://ktor.io/docs/creating-http-apis.html>Creating HTTP APIs | Ktor Documentation - ktor.io</a></p><p>[2] <a href=https://github.com/ktorio/ktor-documentation/tree/2.3.4/codeSnippets/snippets/tutorial-http-api>A sample Ktor project showing how to create HTTP APIs using Ktor | GitHub - github.com</a></p><p>[3] <a href=https://medium.com/@billwixted/building-a-rest-api-with-ktor-4c322d31eb31>Building a REST API with Ktor | Medium - medium.com</a></p><p>[4] <a href=https://github.com/ktorio/ktor-samples/tree/main/di-kodein>Using Kodein Dependency Injection framework with Ktor | GitHub - github.com</a></p><p>[5] <a href=https://techkluster.com/kotlin/kodein-dependency-injection/>Kotlin Dependency Injection with Kodein | Techkluster - techkluster.com</a></p><p>[6] <a href=https://start.ktor.io/>Generate Ktor Project | Ktor Project Generator - start.ktor.io</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a>
+<a href=/tags/gradle/>#Gradle</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-http4k.html>如何使用 Kotlin HTTP 工具包 http4k 构建 RESTful API 服务？</a></li><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div align=center><table><tr><b style=color:#e8505b>创作不易，如果我的文章确实帮助到了您，请我喝点东西就是一种莫大的支持！<a href=/thanks>Thanks!</a></b></tr><tr><td align=center><b>微信</b></td><td></td><td></td><td></td><td></td><td align=center><b>支付宝</b></td></tr><tr><td><img src=/static/images/self/wechat.png style=width:120px;height:120px></td><td></td><td></td><td></td><td></td><td><img src=/static/images/self/alipay.png style=width:120px;height:120px></td></tr></table></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.com/index.json"</script><script src=https://leileiluoluo.com/js/jquery.min.js></script><script src=https://leileiluoluo.com/js/bootstrap.min.js></script><script src=https://leileiluoluo.com/js/fuse.min.js></script><script src=https://leileiluoluo.com/js/mark.js></script><script src=https://leileiluoluo.com/js/search.js></script><script src=https://leileiluoluo.com/js/script.min.js></script></body></html>
