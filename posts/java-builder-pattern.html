@@ -1,0 +1,189 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>Java 建造者模式（Builder Pattern）知多少？ - 磊磊落落</title>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,建造者,模式"><meta name=description content="本文首先举了一个真实的例子，引出构造器可选参数太多时应如何去处理的问题。然后，分析传统的伸缩式构造器模式与 JavaBeans 构造器模式在处理该问题时存在的不足；最后，引出了建造者模式，介绍了其设计思路与优点。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.com/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.com/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.com/css/larry-custom.css><link rel=stylesheet href=https://leileiluoluo.com/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.com/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.com/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.com/>磊磊落落</a>
+<button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.com/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.com//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Java 建造者模式（Builder Pattern）知多少？</h1><div class="mb-3 post-meta">2023年12月05日
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>因 Java 中没有命名参数的概念，当一个类的构造器可选参数太多的时候，代码可读性会变得很差。于是，建造者模式（Builder Pattern）应运而生。</p><p>本文首先举了一个真实的例子，引出构造器可选参数太多时应如何去处理的问题。然后，分析传统的伸缩式构造器模式与 JavaBeans 构造器模式在处理该问题时存在的不足；最后，引出了建造者模式，介绍了其设计思路与优点。</p><p>先看一个例子：假设我们要为一个 Redis 配置类（<code>RedisConfig</code>）设计构造器，该类仅有主机地址（<code>host</code>）是必填字段，其它字段（端口：<code>port</code>、最大连接数：<code>maxTotal</code>、最大闲置连接数：<code>maxIdle</code>、最长等待毫秒数：<code>maxWaitMillis</code>、获取连接前是否进行测试：<code>testOnBorrow</code>）均为可选字段且拥有默认值。</p><p>如何为该 Redis 配置类设计构造器呢？</p><h2 id=1-伸缩式构造器模式>1 伸缩式构造器模式</h2><p>针对可选参数太多的情形，传统的方案即是采用伸缩式构造器模式。该模式首先会创建一个只包含所有必填参数的构造器，然后创建仅包含一个可选参数的构造器，进而创建包含两个可选参数的构造器，直至创建包含所有可选参数的构造器。</p><p>下面即是 <code>RedisConfig</code> 采用伸缩式构造器模式的实现代码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.jupiter.api.Test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TelescopingConstructorPatternTest</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RedisConfig</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> String host; <span style=color:#75715e>// 必填</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer port <span style=color:#f92672>=</span> 6379; <span style=color:#75715e>// 可选，默认为 6379</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer maxTotal <span style=color:#f92672>=</span> 100; <span style=color:#75715e>// 可选，默认为 100</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer maxIdle <span style=color:#f92672>=</span> 10; <span style=color:#75715e>// 可选，默认为 10</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer maxWaitMillis <span style=color:#f92672>=</span> 60 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000; <span style=color:#75715e>// 可选，默认为 1 分钟</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Boolean testOnBorrow <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>; <span style=color:#75715e>// 可选，默认为 true</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>(String host) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>host</span> <span style=color:#f92672>=</span> host;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>(String host, Integer port) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>(host);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>port</span> <span style=color:#f92672>=</span> port;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>(String host, Integer port, Integer maxTotal) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>(host, port);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxTotal</span> <span style=color:#f92672>=</span> maxTotal;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>(String host, Integer port,
+</span></span><span style=display:flex><span>                           Integer maxTotal, Integer maxIdle) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>(host, port, maxTotal);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxIdle</span> <span style=color:#f92672>=</span> maxIdle;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>(String host, Integer port,
+</span></span><span style=display:flex><span>                           Integer maxTotal, Integer maxIdle,
+</span></span><span style=display:flex><span>                           Integer maxWaitMillis) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>(host, port, maxTotal, maxIdle);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxWaitMillis</span> <span style=color:#f92672>=</span> maxWaitMillis;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>(String host, Integer port,
+</span></span><span style=display:flex><span>                           Integer maxTotal, Integer maxIdle,
+</span></span><span style=display:flex><span>                           Integer maxWaitMillis, Boolean testOnBorrow) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>(host, port, maxTotal, maxIdle, maxWaitMillis);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>testOnBorrow</span> <span style=color:#f92672>=</span> testOnBorrow;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testConstruction</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// 设置某个字段时，需要找到包含该字段的最短参数列表来进行设置</span>
+</span></span><span style=display:flex><span>        RedisConfig config <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> RedisConfig(<span style=color:#e6db74>&#34;localhost&#34;</span>, 6379, 100, 10, 60 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000, <span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>针对可选参数太多的问题，伸缩式构造器模式是一个可用的方案，但用起来很蹩脚。比如这里需要将 <code>testOnBorrow</code> 设置为 <code>false</code>，就要找到包含该参数的最短参数列表来进行设置，哪怕该参数前面的值采用的都是默认值，我们也不得不对它们手动再设置一遍。</p><p>此外，如果两个紧挨着的参数类型是一样的，稍不注意，就容易设置错，从而造成很严重的 Bug。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// maxTotal 与 maxIdle 设置错了，容易引起问题</span>
+</span></span><span style=display:flex><span>RedisConfig config <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> RedisConfig(<span style=color:#e6db74>&#34;localhost&#34;</span>, 6379, 10, 100, 60 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000, <span style=color:#66d9ef>false</span>);
+</span></span></code></pre></div><h2 id=2-javabeans-构造器模式>2 JavaBeans 构造器模式</h2><p>解决可选参数太多的另一种方案是采用 JavaBeans 构造器模式。该模式仅包含一个空的构造器，其所有字段的设置均需通过调用 <code>Setters</code> 方法来进行。</p><p>下面即是 <code>RedisConfig</code> 采用 JavaBeans 构造器模式的实现代码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.jupiter.api.Test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JavaBeansPatternTest</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RedisConfig</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> String host; <span style=color:#75715e>// 必填</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer port <span style=color:#f92672>=</span> 6379; <span style=color:#75715e>// 可选，默认为 6379</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer maxTotal <span style=color:#f92672>=</span> 100; <span style=color:#75715e>// 可选，默认为 100</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer maxIdle <span style=color:#f92672>=</span> 10; <span style=color:#75715e>// 可选，默认为 10</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Integer maxWaitMillis <span style=color:#f92672>=</span> 60 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000; <span style=color:#75715e>// 可选，默认为 1 分钟</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> Boolean testOnBorrow <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>; <span style=color:#75715e>// 可选，默认为 true</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RedisConfig</span>() {
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setHost</span>(String host) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>host</span> <span style=color:#f92672>=</span> host;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setPort</span>(Integer port) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>port</span> <span style=color:#f92672>=</span> port;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMaxTotal</span>(Integer maxTotal) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxTotal</span> <span style=color:#f92672>=</span> maxTotal;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMaxIdle</span>(Integer maxIdle) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxIdle</span> <span style=color:#f92672>=</span> maxIdle;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setMaxWaitMillis</span>(Integer maxWaitMillis) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxWaitMillis</span> <span style=color:#f92672>=</span> maxWaitMillis;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>setTestOnBorrow</span>(Boolean testOnBorrow) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>testOnBorrow</span> <span style=color:#f92672>=</span> testOnBorrow;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testConstruction</span>() {
+</span></span><span style=display:flex><span>        RedisConfig config <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> RedisConfig();
+</span></span><span style=display:flex><span>        config.<span style=color:#a6e22e>setHost</span>(<span style=color:#e6db74>&#34;localhost&#34;</span>);
+</span></span><span style=display:flex><span>        config.<span style=color:#a6e22e>setPort</span>(6380);
+</span></span><span style=display:flex><span>        config.<span style=color:#a6e22e>setMaxTotal</span>(200);
+</span></span><span style=display:flex><span>        config.<span style=color:#a6e22e>setMaxIdle</span>(20);
+</span></span><span style=display:flex><span>        config.<span style=color:#a6e22e>setMaxWaitMillis</span>(120 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000);
+</span></span><span style=display:flex><span>        config.<span style=color:#a6e22e>setTestOnBorrow</span>(<span style=color:#66d9ef>false</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>JavaBeans 构造器模式解决了伸缩式构造器模式存在的问题：对一个字段进行设置时，无需对其前面的字段进行设置。但 JavaBeans 构造器模式又引入了别的问题：对象的构造由一次调用分散为多次调用，容易造成对象状态的不一致，从而引起问题。</p><h2 id=3-建造者模式>3 建造者模式</h2><p>下面介绍建造者模式（Builder Pattern），其兼具伸缩式模式的安全性与 JavaBeans 模式的可读性。其通过引入一个中间对象 Builder 来构造真正的对象，创建 Builder 时需要提供所有的必填参数；而对其它可选参数的设置则采用类似 <code>Setters</code> 的方式来进行；参数设置好后，最后调用一下 Builder 的 <code>build</code> 无参方法来一次性生成最终的不可变对象。</p><p>下面即是 <code>RedisConfig</code> 采用建造者模式的实现代码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.jupiter.api.Test;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>BuilderPatternTest</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RedisConfig</span> {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> String host;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> Integer port;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> Integer maxTotal;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> Integer maxIdle;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> Integer maxWaitMillis;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> Boolean testOnBorrow;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Builder</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>private</span> String host; <span style=color:#75715e>// 必填</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>private</span> Integer port <span style=color:#f92672>=</span> 6379; <span style=color:#75715e>// 可选，默认为 6379</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>private</span> Integer maxTotal <span style=color:#f92672>=</span> 100; <span style=color:#75715e>// 可选，默认为 100</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>private</span> Integer maxIdle <span style=color:#f92672>=</span> 10; <span style=color:#75715e>// 可选，默认为 10</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>private</span> Integer maxWaitMillis <span style=color:#f92672>=</span> 60 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000; <span style=color:#75715e>// 可选，默认为 1 分钟</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>private</span> Boolean testOnBorrow <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>; <span style=color:#75715e>// 可选，默认为 true</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>Builder</span>(String host) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>host</span> <span style=color:#f92672>=</span> host;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> Builder <span style=color:#a6e22e>port</span>(Integer port) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>port</span> <span style=color:#f92672>=</span> port;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> Builder <span style=color:#a6e22e>maxTotal</span>(Integer maxTotal) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxTotal</span> <span style=color:#f92672>=</span> maxTotal;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> Builder <span style=color:#a6e22e>maxIdle</span>(Integer maxIdle) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxIdle</span> <span style=color:#f92672>=</span> maxIdle;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> Builder <span style=color:#a6e22e>maxWaitMillis</span>(Integer maxWaitMillis) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxWaitMillis</span> <span style=color:#f92672>=</span> maxWaitMillis;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> Builder <span style=color:#a6e22e>testOnBorrow</span>(Boolean testOnBorrow) {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>testOnBorrow</span> <span style=color:#f92672>=</span> testOnBorrow;
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>this</span>;
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>public</span> RedisConfig <span style=color:#a6e22e>build</span>() {
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>new</span> RedisConfig(<span style=color:#66d9ef>this</span>);
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#a6e22e>RedisConfig</span>(Builder builder) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>host</span> <span style=color:#f92672>=</span> builder.<span style=color:#a6e22e>host</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>port</span> <span style=color:#f92672>=</span> builder.<span style=color:#a6e22e>port</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxTotal</span> <span style=color:#f92672>=</span> builder.<span style=color:#a6e22e>maxTotal</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxIdle</span> <span style=color:#f92672>=</span> builder.<span style=color:#a6e22e>maxIdle</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>maxWaitMillis</span> <span style=color:#f92672>=</span> builder.<span style=color:#a6e22e>maxWaitMillis</span>;
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>testOnBorrow</span> <span style=color:#f92672>=</span> builder.<span style=color:#a6e22e>testOnBorrow</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testConstruction</span>() {
+</span></span><span style=display:flex><span>        RedisConfig config <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> RedisConfig.<span style=color:#a6e22e>Builder</span>(<span style=color:#e6db74>&#34;localhost&#34;</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>port</span>(6380)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>maxTotal</span>(200)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>maxIdle</span>(20)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>maxWaitMillis</span>(120 <span style=color:#f92672>*</span> 1000 <span style=color:#f92672>*</span> 1000)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>testOnBorrow</span>(<span style=color:#66d9ef>false</span>)
+</span></span><span style=display:flex><span>                .<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>综上，本文探索了可选参数太多时应如何处理的问题。对比传统的伸缩式构造器模式、JavaBeans 构造器模式，以及新的建造者模式，发现前两者分别存在可读性差与安全性低的问题，而建造者模式兼具安全性高与可读性好的优点，更适合在日常编码中使用。</p><p>本文所涉及的全部示例代码已托管至本人 <a href=https://github.com/olzhy/java-exercises/tree/main/builder-pattern-demo/src/test/java>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/>Creating and Destroying Objects: Consider a builder when faced with many constructor parameters | Effective Java (3rd Edition), by Joshua Bloch</a></p><p>[2] <a href=https://blogs.oracle.com/javamagazine/post/exploring-joshua-blochs-builder-design-pattern-in-java>Exploring Joshua Bloch&rsquo;s Builder design pattern in Java | Java Magazine - blogs.oracle.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/java/>#Java</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/how-to-perform-api-testing-using-rest-assured.html>如何使用 REST Assured 做 API 测试？</a></li><li><a href=/posts/avoid-using-finalizers-in-java.html>Java 中为什么要避免使用 Finalizer？</a></li><li><a href=/posts/java-try-with-resources.html>Java try-with-resources 特性详解</a></li><li><a href=/posts/postgres-jdbc-driver-issue.html>PostgreSQL JDBC Driver 42.3.0 读取 BigDecimal 时发生抹 0 的 Bug</a></li><li><a href=/posts/java-instant-util.html>Java 8：如何设计一个 Instant 与 String 互转的工具类？</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div align=center><table><tr><b style=color:#e8505b>创作不易，如果我的文章确实帮助到了您，请我喝点东西就是一种莫大的支持！<a href=/thanks>Thanks!</a></b></tr><tr><td align=center><b>微信</b></td><td></td><td></td><td></td><td></td><td align=center><b>支付宝</b></td></tr><tr><td><img src=/static/images/self/wechat.png style=width:120px;height:120px></td><td></td><td></td><td></td><td></td><td><img src=/static/images/self/alipay.png style=width:120px;height:120px></td></tr></table></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.com/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.com/index.json"</script><script src=https://leileiluoluo.com/js/jquery.min.js></script><script src=https://leileiluoluo.com/js/bootstrap.min.js></script><script src=https://leileiluoluo.com/js/fuse.min.js></script><script src=https://leileiluoluo.com/js/mark.js></script><script src=https://leileiluoluo.com/js/search.js></script><script src=https://leileiluoluo.com/js/script.min.js></script></body></html>
