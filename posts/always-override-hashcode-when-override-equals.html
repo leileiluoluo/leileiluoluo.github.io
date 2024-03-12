@@ -2,110 +2,11 @@
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,hashCode,equals,重写"><meta name=description content="我是浩然，一名软件开发工程师，我的博客「磊磊落落」建立于 2017 年，是我用于记录内心波澜，分享读书感想，思考人生哲学，关注社会百态，梳理计算机专业知识的纯原创站点。目前我在技术上主要关注：Java、Golang、Python、前端开发、云原生、架构设计、DevOps 和自动化测试。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://olzhy.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://olzhy.github.io/css/themify-icons.css><link rel=stylesheet href=https://olzhy.github.io/css/larry-custom.css><link rel=stylesheet href=https://olzhy.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://olzhy.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://olzhy.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://olzhy.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://olzhy.github.io/></a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://olzhy.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Java：为什么重写 equals 时必须同时重写 hashCode？</h1><div class="mb-3 post-meta">2024年03月12日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> java.lang;
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p><code>Object</code> 类是所有类的父类，<code>hashCode</code> 与 <code>equals</code> 是 <code>Object</code> 类中定义的方法。</p><p>如下是</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> java.lang;
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * Class {@code Object} is the root of the class hierarchy.
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * Every class has {@code Object} as a superclass. All objects,
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * including arrays, implement the methods of this class.
-</span></span></span><span style=display:flex><span><span style=color:#75715e> *
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * @since   1.0
-</span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Object</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Returns a hash code value for the object. This method is
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * supported for the benefit of hash tables such as those provided by
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * {@link java.util.HashMap}.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;p&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * The general contract of {@code hashCode} is:
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;ul&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;Whenever it is invoked on the same object more than once during
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     an execution of a Java application, the {@code hashCode} method
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     must consistently return the same integer, provided no information
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     used in {@code equals} comparisons on the object is modified.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     This integer need not remain consistent from one execution of an
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     application to another execution of the same application.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;If two objects are equal according to the {@link
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     equals(Object) equals} method, then calling the {@code
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     hashCode} method on each of the two objects must produce the
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     same integer result.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;It is &lt;em&gt;not&lt;/em&gt; required that if two objects are unequal
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     according to the {@link equals(Object) equals} method, then
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     calling the {@code hashCode} method on each of the two objects
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     must produce distinct integer results.  However, the programmer
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     should be aware that producing distinct integer results for
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     unequal objects may improve the performance of hash tables.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;/ul&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @implSpec
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * As far as is reasonably practical, the {@code hashCode} method defined
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * by class {@code Object} returns distinct integers for distinct objects.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @return  a hash code value for this object.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see     java.lang.Object#equals(java.lang.Object)
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see     java.lang.System#identityHashCode
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>native</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>hashCode</span>();
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>/**
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * Indicates whether some other object is &#34;equal to&#34; this one.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;p&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * The {@code equals} method implements an equivalence relation
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * on non-null object references:
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;ul&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;It is &lt;i&gt;reflexive&lt;/i&gt;: for any non-null reference value
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x}, {@code x.equals(x)} should return
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code true}.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;It is &lt;i&gt;symmetric&lt;/i&gt;: for any non-null reference values
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x} and {@code y}, {@code x.equals(y)}
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     should return {@code true} if and only if
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code y.equals(x)} returns {@code true}.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;It is &lt;i&gt;transitive&lt;/i&gt;: for any non-null reference values
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x}, {@code y}, and {@code z}, if
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x.equals(y)} returns {@code true} and
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code y.equals(z)} returns {@code true}, then
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x.equals(z)} should return {@code true}.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;It is &lt;i&gt;consistent&lt;/i&gt;: for any non-null reference values
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x} and {@code y}, multiple invocations of
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x.equals(y)} consistently return {@code true}
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     or consistently return {@code false}, provided no
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     information used in {@code equals} comparisons on the
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     objects is modified.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;li&gt;For any non-null reference value {@code x},
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     {@code x.equals(null)} should return {@code false}.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;/ul&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * &lt;p&gt;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * An equivalence relation partitions the elements it operates on
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * into &lt;i&gt;equivalence classes&lt;/i&gt;; all the members of an
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * equivalence class are equal to each other. Members of an
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * equivalence class are substitutable for each other, at least
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * for some purposes.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @implSpec
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * The {@code equals} method for class {@code Object} implements
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * the most discriminating possible equivalence relation on objects;
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * that is, for any non-null reference values {@code x} and
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * {@code y}, this method returns {@code true} if and only
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * if {@code x} and {@code y} refer to the same object
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * ({@code x == y} has the value {@code true}).
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * In other words, under the reference equality equivalence
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * relation, each equivalence class only has a single element.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @apiNote
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * It is generally necessary to override the {@link hashCode hashCode}
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * method whenever this method is overridden, so as to maintain the
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * general contract for the {@code hashCode} method, which states
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * that equal objects must have equal hash codes.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @param   obj   the reference object with which to compare.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @return  {@code true} if this object is the same as the obj
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *          argument; {@code false} otherwise.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see     #hashCode()
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see     java.util.HashMap
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>equals</span>(Object obj) {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> (<span style=color:#66d9ef>this</span> <span style=color:#f92672>==</span> obj);
 </span></span><span style=display:flex><span>    }
