@@ -10,21 +10,21 @@
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * The general contract of `hashCode` is:
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     *
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * a) Whenever it is invoked on the same object more than once during
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     an execution of a Java application, the `hashCode` method must
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     consistently return the same integer, provided no information
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     used in {@code equals} comparisons on the object is modified.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     This integer need not remain consistent from one execution of an
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     application to another execution of the same application.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    an execution of a Java application, the `hashCode` method must
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    consistently return the same integer, provided no information
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    used in {@code equals} comparisons on the object is modified.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    This integer need not remain consistent from one execution of an
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    application to another execution of the same application.
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     *
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * b) If two objects are equal according to the `equals(Object)` method,
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     then calling the `hashCode` method on each of the two objects must
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     produce the same integer result.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    then calling the `hashCode` method on each of the two objects must
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    produce the same integer result.
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     *
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * c) It is not required that if two objects are unequal according to the
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     `equals(Object)` method, then calling the `hashCode` method on each of
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     the two objects must produce distinct integer results.
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     However, the programmer should be aware that producing distinct integer
-</span></span></span><span style=display:flex><span><span style=color:#75715e>     *     results for unequal objects may improve the performance of hash tables.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    `equals(Object)` method, then calling the `hashCode` method on each of
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    the two objects must produce distinct integer results.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    However, the programmer should be aware that producing distinct integer
+</span></span></span><span style=display:flex><span><span style=color:#75715e>     *    results for unequal objects may improve the performance of hash tables.
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
 </span></span><span style=display:flex><span>    <span style=color:#a6e22e>@IntrinsicCandidate</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>native</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>hashCode</span>();
