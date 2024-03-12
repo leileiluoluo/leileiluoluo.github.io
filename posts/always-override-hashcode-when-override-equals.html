@@ -9,10 +9,10 @@
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * Every class has {@code Object} as a superclass. All objects,
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * including arrays, implement the methods of this class.
 </span></span></span><span style=display:flex><span><span style=color:#75715e> *
-</span></span></span><span style=display:flex><span><span style=color:#75715e> * @see     java.lang.Class
 </span></span></span><span style=display:flex><span><span style=color:#75715e> * @since   1.0
 </span></span></span><span style=display:flex><span><span style=color:#75715e> */</span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Object</span> {
+</span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>    <span style=color:#75715e>/**
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * Returns a hash code value for the object. This method is
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * supported for the benefit of hash tables such as those provided by
@@ -46,7 +46,6 @@
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see     java.lang.Object#equals(java.lang.Object)
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     * @see     java.lang.System#identityHashCode
 </span></span></span><span style=display:flex><span><span style=color:#75715e>     */</span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@IntrinsicCandidate</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>native</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>hashCode</span>();
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>    <span style=color:#75715e>/**
