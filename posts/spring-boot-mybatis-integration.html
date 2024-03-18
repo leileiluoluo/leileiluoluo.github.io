@@ -7,7 +7,7 @@
 </span></span><span style=display:flex><span>Maven：3.9.2
 </span></span><span style=display:flex><span>Spring Boot：3.2.3
 </span></span><span style=display:flex><span>Mybatis Spring Boot Starter：3.0.3
-</span></span></code></pre></div><h2 id=1-准备测试数据>1 准备测试数据</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>DATABASE</span> test <span style=color:#66d9ef>DEFAULT</span> CHARSET utf8 <span style=color:#66d9ef>COLLATE</span> utf8_general_ci;
+</span></span></code></pre></div><p>接下来，我们以实现 User 的增、删、改、查为例来探索 MyBatis 的使用。</p><h2 id=1-准备测试数据>1 准备测试数据</h2><p>首先，在本地 MySQL 数据库执行如下 SQL 来创建一个测试数据库、创建一个 <code>user</code> 表，并在 <code>user</code> 表插入 3 条测试数据：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>DATABASE</span> test <span style=color:#66d9ef>DEFAULT</span> CHARSET utf8 <span style=color:#66d9ef>COLLATE</span> utf8_general_ci;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> <span style=color:#66d9ef>user</span>;
 </span></span><span style=display:flex><span><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>user</span> (
@@ -25,7 +25,8 @@
 </span></span><span style=display:flex><span>    (<span style=color:#e6db74>&#39;larry@larry.com&#39;</span>, <span style=color:#e6db74>&#39;Larry&#39;</span>, <span style=color:#e6db74>&#39;ADMIN&#39;</span>, <span style=color:#e6db74>&#39;I am Larry&#39;</span>, <span style=color:#e6db74>&#39;2024-01-01 08:00:00&#39;</span>, <span style=color:#e6db74>&#39;2024-01-01 08:00:00&#39;</span>, <span style=color:#66d9ef>false</span>),
 </span></span><span style=display:flex><span>    (<span style=color:#e6db74>&#39;jacky@jacky.com&#39;</span>, <span style=color:#e6db74>&#39;Jacky&#39;</span>, <span style=color:#e6db74>&#39;EDITOR&#39;</span>, <span style=color:#e6db74>&#39;I am Jacky&#39;</span>, <span style=color:#e6db74>&#39;2024-02-01 08:00:00&#39;</span>, <span style=color:#e6db74>&#39;2024-02-01 08:00:00&#39;</span>, <span style=color:#66d9ef>false</span>),
 </span></span><span style=display:flex><span>    (<span style=color:#e6db74>&#39;lucy@lucy.com&#39;</span>, <span style=color:#e6db74>&#39;Lucy&#39;</span>, <span style=color:#e6db74>&#39;VIEWER&#39;</span>, <span style=color:#e6db74>&#39;I am Lucy&#39;</span>, <span style=color:#e6db74>&#39;2024-03-01 08:00:00&#39;</span>, <span style=color:#e6db74>&#39;2024-03-01 08:00:00&#39;</span>, <span style=color:#66d9ef>false</span>);
-</span></span></code></pre></div><h2 id=2-开始使用-mybatis>2 开始使用 MyBatis</h2><h3 id=21-pom-依赖项>2.1 POM 依赖项</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span></code></pre></div><h2 id=2-开始使用-mybatis>2 开始使用 MyBatis</h2><p>测试数据准备好后，即可以尝试使用 MyBatis 了。</p><h3 id=21-pom-依赖项>2.1 POM 依赖项</h3><p>如下为本文示例工程 <code>pom.xml</code> 的配置信息：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!-- pom.xml --&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
 </span></span><span style=display:flex><span>         <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
@@ -91,7 +92,8 @@
 </span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/plugins&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/build&gt;</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
-</span></span></code></pre></div><h3 id=22-applicationyaml-配置>2.2 application.yaml 配置</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>spring</span>:
+</span></span></code></pre></div><p>可以看到，本工程基于 Java 17，使用的 Spring Boot 版本为 <code>3.2.3</code>，用到的依赖有 <code>spring-boot-starter-web</code>、<code>mybatis-spring-boot-starter</code>、<code>mysql-connector-j</code> 和 <code>lombok</code>。</p><h3 id=22-applicationyaml-配置>2.2 application.yaml 配置</h3><p>如下为 <code>application.yaml</code> 文件的配置信息：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#75715e># src/main/resources/application.xml</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>spring</span>:
 </span></span><span style=display:flex><span>  <span style=color:#f92672>datasource</span>:
 </span></span><span style=display:flex><span>    <span style=color:#f92672>url</span>: <span style=color:#ae81ff>jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>username</span>: <span style=color:#ae81ff>root</span>
@@ -101,7 +103,8 @@
 </span></span><span style=display:flex><span><span style=color:#f92672>logging</span>:
 </span></span><span style=display:flex><span>  <span style=color:#f92672>level</span>:
 </span></span><span style=display:flex><span>    <span style=color:#f92672>com.example.demo.dao.UserDaoMapper</span>: <span style=color:#ae81ff>DEBUG</span>
-</span></span></code></pre></div><h3 id=23-java-pojo-类>2.3 Java POJO 类</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.model;
+</span></span></code></pre></div><p>可以看到，我们使用了 Spring Boot 的标准配置方式来指定数据库的连接信息。针对 MyBatis 的配置部分，我们使用 <code>mybatis.mapper-locations</code> 指定了 MyBatis Mapper 文件的路径。此外，还将接下来要编写的 Mapper 接口的日志级别定义为了 <code>DEBUG</code>，以便在控制台打印对应的 SQL。</p><h3 id=23-java-pojo-类>2.3 Java POJO 类</h3><p>如下为 User Model 类的内容：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.model;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#f92672>import</span> lombok.Data;
 </span></span><span style=display:flex><span>
@@ -125,7 +128,8 @@
 </span></span><span style=display:flex><span>        VIEWER
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=24-mapper-接口>2.4 Mapper 接口</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
+</span></span></code></pre></div><p>可以看到，我们为数据库表 <code>user</code> 新建了对应的 Model 类 <code>User.java</code>，该类中各个字段的含义与类型与前面的建表语句一一对应。</p><h3 id=24-mapper-接口>2.4 Mapper 接口</h3><p>接下来我们定义一个接口 <code>UserDaoMapper.java</code>，针对 <code>User</code> 的增、删、改、查方法均定义于其中：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/main/java/com/example/demo/dao/UserDaoMapper.java</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
 </span></span><span style=display:flex><span>
@@ -151,7 +155,7 @@
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deleteById</span>(Long id);
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=25-mapper-xml-配置文件>2.5 Mapper XML 配置文件</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!DOCTYPE mapper
+</span></span></code></pre></div><p>可以看到，我们针对 <code>User</code> 定义了分页列表查询（<code>list()</code>）、总数查询（<code>count()</code>）、单条查询（<code>getById()</code>），以及判断是否存在、搜索、保存、更新、删除等各种常用方法。</p><h3 id=25-mapper-xml-配置文件>2.5 Mapper XML 配置文件</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!DOCTYPE mapper
 </span></span></span><span style=display:flex><span><span style=color:#75715e>        PUBLIC &#34;-//mybatis.org//DTD Mapper 3.0//EN&#34;
 </span></span></span><span style=display:flex><span><span style=color:#75715e>        &#34;https://mybatis.org/dtd/mybatis-3-mapper.dtd&#34;&gt;</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>&lt;mapper</span> <span style=color:#a6e22e>namespace=</span><span style=color:#e6db74>&#34;com.example.demo.dao.UserDaoMapper&#34;</span><span style=color:#f92672>&gt;</span>
