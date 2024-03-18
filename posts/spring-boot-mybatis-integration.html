@@ -3,9 +3,363 @@
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://olzhy.github.io/></a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://olzhy.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://olzhy.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Spring Boot 如何集成 MyBatis 进行数据库访问？</h1><div class="mb-3 post-meta">2024年03月17日
 <a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>MyBatis 是一个适用于 Java 语言的持久层框架。MyBatis 支持以注解或 XML 配置的方式来定义 SQL 查询，以及查询结果和 Java 对象的映射。MyBatis 相比于 Java 另一个流行持久层框架 JPA 来说（具体使用请参看「<a href=https://olzhy.github.io/posts/spring-data-jpa.html>如何使用 Spring Data JPA 进行数据库访问？
-</a>」），最大的特点是 MyBatis 具有更灵活的 SQL 控制能力。</p><p>本文以一个使用 Maven 管理的 Spring Boot 工程为示例，结合本地搭建的 MySQL 数据库（版本为 8.1.0）来演示 Spring Boot 与 MyBatis 的集成。</p><p>下面列出示例工程所使用的 JDK、Maven、Spring Boot 与 MyBatis Starter 的版本：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>JDK：Amazon Corretto 17.0.8
+</a>」），最大的特点是 MyBatis 具有更灵活的 SQL 控制能力。</p><p>本文以一个使用 Maven 管理的 Spring Boot 工程为例，结合本地搭建的 MySQL 数据库（版本为 8.1.0）来演示 Spring Boot 与 MyBatis 的集成。</p><p>下面列出示例工程所使用的 JDK、Maven、Spring Boot 与 MyBatis Starter 的版本：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>JDK：Amazon Corretto 17.0.8
 </span></span><span style=display:flex><span>Maven：3.9.2
 </span></span><span style=display:flex><span>Spring Boot：3.2.3
 </span></span><span style=display:flex><span>Mybatis Spring Boot Starter：3.0.3
+</span></span></code></pre></div><h2 id=1-准备测试数据>1 准备测试数据</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>DATABASE</span> test <span style=color:#66d9ef>DEFAULT</span> CHARSET utf8 <span style=color:#66d9ef>COLLATE</span> utf8_general_ci;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>DROP</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>IF</span> <span style=color:#66d9ef>EXISTS</span> <span style=color:#66d9ef>user</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#66d9ef>user</span> (
+</span></span><span style=display:flex><span>    id BIGINT AUTO_INCREMENT <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span>,
+</span></span><span style=display:flex><span>    email VARCHAR(<span style=color:#ae81ff>100</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,
+</span></span><span style=display:flex><span>    name VARCHAR(<span style=color:#ae81ff>100</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>role</span> ENUM(<span style=color:#e6db74>&#39;ADMIN&#39;</span>, <span style=color:#e6db74>&#39;EDITOR&#39;</span>, <span style=color:#e6db74>&#39;VIEWER&#39;</span>) <span style=color:#66d9ef>DEFAULT</span> <span style=color:#e6db74>&#39;VIEWER&#39;</span>,
+</span></span><span style=display:flex><span>    description VARCHAR(<span style=color:#ae81ff>300</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span>,
+</span></span><span style=display:flex><span>    created_at <span style=color:#66d9ef>TIMESTAMP</span> <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span> <span style=color:#66d9ef>DEFAULT</span> <span style=color:#e6db74>&#39;2024-01-01 00:00:00&#39;</span>,
+</span></span><span style=display:flex><span>    updated_at <span style=color:#66d9ef>TIMESTAMP</span> <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span> <span style=color:#66d9ef>DEFAULT</span> <span style=color:#e6db74>&#39;2024-01-01 00:00:00&#39;</span>,
+</span></span><span style=display:flex><span>    deleted BOOLEAN <span style=color:#66d9ef>DEFAULT</span> <span style=color:#66d9ef>FALSE</span>
+</span></span><span style=display:flex><span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>INSERT</span> <span style=color:#66d9ef>INTO</span> <span style=color:#66d9ef>user</span>(email, name, <span style=color:#66d9ef>role</span>, description, created_at, updated_at, deleted) <span style=color:#66d9ef>VALUES</span>
+</span></span><span style=display:flex><span>    (<span style=color:#e6db74>&#39;larry@larry.com&#39;</span>, <span style=color:#e6db74>&#39;Larry&#39;</span>, <span style=color:#e6db74>&#39;ADMIN&#39;</span>, <span style=color:#e6db74>&#39;I am Larry&#39;</span>, <span style=color:#e6db74>&#39;2024-01-01 08:00:00&#39;</span>, <span style=color:#e6db74>&#39;2024-01-01 08:00:00&#39;</span>, <span style=color:#66d9ef>false</span>),
+</span></span><span style=display:flex><span>    (<span style=color:#e6db74>&#39;jacky@jacky.com&#39;</span>, <span style=color:#e6db74>&#39;Jacky&#39;</span>, <span style=color:#e6db74>&#39;EDITOR&#39;</span>, <span style=color:#e6db74>&#39;I am Jacky&#39;</span>, <span style=color:#e6db74>&#39;2024-02-01 08:00:00&#39;</span>, <span style=color:#e6db74>&#39;2024-02-01 08:00:00&#39;</span>, <span style=color:#66d9ef>false</span>),
+</span></span><span style=display:flex><span>    (<span style=color:#e6db74>&#39;lucy@lucy.com&#39;</span>, <span style=color:#e6db74>&#39;Lucy&#39;</span>, <span style=color:#e6db74>&#39;VIEWER&#39;</span>, <span style=color:#e6db74>&#39;I am Lucy&#39;</span>, <span style=color:#e6db74>&#39;2024-03-01 08:00:00&#39;</span>, <span style=color:#e6db74>&#39;2024-03-01 08:00:00&#39;</span>, <span style=color:#66d9ef>false</span>);
+</span></span></code></pre></div><h2 id=2-开始使用-mybatis>2 开始使用 MyBatis</h2><h3 id=21-pom-依赖项>2.1 POM 依赖项</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;parent&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-parent<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>3.2.3<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;relativePath/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/parent&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>com.example<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-mybatis-integration-demo<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>0.0.1-SNAPSHOT<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;properties&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;java.version&gt;</span>17<span style=color:#f92672>&lt;/java.version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/properties&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.mybatis.spring.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>mybatis-spring-boot-starter<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>3.0.3<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>com.mysql<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>mysql-connector-j<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>8.3.0<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.projectlombok<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>lombok<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>1.18.30<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- testing --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.junit.jupiter<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>junit-jupiter-api<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;version&gt;</span>5.10.2<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;build&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;plugins&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;plugin&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>org.apache.maven.plugins<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>maven-compiler-plugin<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;configuration&gt;</span>
+</span></span><span style=display:flex><span>                    <span style=color:#f92672>&lt;source&gt;</span>17<span style=color:#f92672>&lt;/source&gt;</span>
+</span></span><span style=display:flex><span>                    <span style=color:#f92672>&lt;target&gt;</span>17<span style=color:#f92672>&lt;/target&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;/configuration&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/plugin&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/plugins&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/build&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
+</span></span></code></pre></div><h3 id=22-applicationyaml-配置>2.2 application.yaml 配置</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>spring</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>datasource</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>url</span>: <span style=color:#ae81ff>jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>username</span>: <span style=color:#ae81ff>root</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>password</span>: <span style=color:#ae81ff>root</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>mybatis</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>mapper-locations</span>: <span style=color:#ae81ff>classpath:mapper/*Mapper.xml</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>logging</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>level</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>com.example.demo.dao.UserDaoMapper</span>: <span style=color:#ae81ff>DEBUG</span>
+</span></span></code></pre></div><h3 id=23-java-pojo-类>2.3 Java POJO 类</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.model;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> lombok.Data;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.Date;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Data</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Long id;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String email;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String name;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Role role;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String description;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Date createdAt;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Date updatedAt;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Boolean deleted;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>enum</span> Role {
+</span></span><span style=display:flex><span>        ADMIN,
+</span></span><span style=display:flex><span>        EDITOR,
+</span></span><span style=display:flex><span>        VIEWER
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=24-mapper-接口>2.4 Mapper 接口</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.List;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserDaoMapper</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>list</span>(<span style=color:#66d9ef>int</span> offset, <span style=color:#66d9ef>int</span> rows);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>long</span> <span style=color:#a6e22e>count</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    User <span style=color:#a6e22e>getById</span>(Long id);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>boolean</span> <span style=color:#a6e22e>existsByEmail</span>(String email);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>searchByName</span>(String name);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>save</span>(User user);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>batchSave</span>(List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>update</span>(User user);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>deleteById</span>(Long id);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=25-mapper-xml-配置文件>2.5 Mapper XML 配置文件</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!DOCTYPE mapper
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        PUBLIC &#34;-//mybatis.org//DTD Mapper 3.0//EN&#34;
+</span></span></span><span style=display:flex><span><span style=color:#75715e>        &#34;https://mybatis.org/dtd/mybatis-3-mapper.dtd&#34;&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;mapper</span> <span style=color:#a6e22e>namespace=</span><span style=color:#e6db74>&#34;com.example.demo.dao.UserDaoMapper&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;sql</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;insert_columns&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        email,
+</span></span><span style=display:flex><span>        name,
+</span></span><span style=display:flex><span>        role,
+</span></span><span style=display:flex><span>        description,
+</span></span><span style=display:flex><span>        created_at,
+</span></span><span style=display:flex><span>        updated_at,
+</span></span><span style=display:flex><span>        deleted
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/sql&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;sql</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;select_columns&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        id,
+</span></span><span style=display:flex><span>        email,
+</span></span><span style=display:flex><span>        name,
+</span></span><span style=display:flex><span>        role,
+</span></span><span style=display:flex><span>        description,
+</span></span><span style=display:flex><span>        created_at as createdAt,
+</span></span><span style=display:flex><span>        updated_at as updatedAt,
+</span></span><span style=display:flex><span>        deleted
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/sql&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;select</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;list&#34;</span> <span style=color:#a6e22e>resultType=</span><span style=color:#e6db74>&#34;com.example.demo.model.User&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        SELECT
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;include</span> <span style=color:#a6e22e>refid=</span><span style=color:#e6db74>&#34;select_columns&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        FROM user
+</span></span><span style=display:flex><span>        WHERE deleted = false
+</span></span><span style=display:flex><span>        ORDER BY created_at DESC
+</span></span><span style=display:flex><span>        LIMIT #{offset}, #{rows}
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/select&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;select</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;count&#34;</span> <span style=color:#a6e22e>resultType=</span><span style=color:#e6db74>&#34;long&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        SELECT
+</span></span><span style=display:flex><span>        COUNT(*)
+</span></span><span style=display:flex><span>        FROM user
+</span></span><span style=display:flex><span>        WHERE deleted = false
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/select&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;select</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;getById&#34;</span> <span style=color:#a6e22e>resultType=</span><span style=color:#e6db74>&#34;com.example.demo.model.User&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        SELECT
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;include</span> <span style=color:#a6e22e>refid=</span><span style=color:#e6db74>&#34;select_columns&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        FROM user
+</span></span><span style=display:flex><span>        WHERE deleted = false
+</span></span><span style=display:flex><span>        AND id = #{id}
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/select&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;select</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;existsByEmail&#34;</span> <span style=color:#a6e22e>resultType=</span><span style=color:#e6db74>&#34;boolean&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        SELECT
+</span></span><span style=display:flex><span>        EXISTS (
+</span></span><span style=display:flex><span>        SELECT 1
+</span></span><span style=display:flex><span>        FROM user
+</span></span><span style=display:flex><span>        WHERE deleted = false
+</span></span><span style=display:flex><span>        AND email = #{email}
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/select&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;select</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;searchByName&#34;</span> <span style=color:#a6e22e>resultType=</span><span style=color:#e6db74>&#34;com.example.demo.model.User&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        SELECT
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;include</span> <span style=color:#a6e22e>refid=</span><span style=color:#e6db74>&#34;select_columns&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        FROM user
+</span></span><span style=display:flex><span>        WHERE deleted = false
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;if</span> <span style=color:#a6e22e>test=</span><span style=color:#e6db74>&#34;name != null and name != &#39;&#39;&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>            AND name LIKE CONCAT(&#39;%&#39;, #{name}, &#39;%&#39;)
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/if&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/select&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;insert</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;save&#34;</span> <span style=color:#a6e22e>useGeneratedKeys=</span><span style=color:#e6db74>&#34;true&#34;</span> <span style=color:#a6e22e>keyProperty=</span><span style=color:#e6db74>&#34;id&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        INSERT INTO user (
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;include</span> <span style=color:#a6e22e>refid=</span><span style=color:#e6db74>&#34;insert_columns&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        ) VALUES (
+</span></span><span style=display:flex><span>        #{email},
+</span></span><span style=display:flex><span>        #{name},
+</span></span><span style=display:flex><span>        #{role},
+</span></span><span style=display:flex><span>        #{description},
+</span></span><span style=display:flex><span>        now(),
+</span></span><span style=display:flex><span>        now(),
+</span></span><span style=display:flex><span>        false
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/insert&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;insert</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;batchSave&#34;</span> <span style=color:#a6e22e>useGeneratedKeys=</span><span style=color:#e6db74>&#34;true&#34;</span> <span style=color:#a6e22e>keyProperty=</span><span style=color:#e6db74>&#34;id&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        INSERT INTO user (
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;include</span> <span style=color:#a6e22e>refid=</span><span style=color:#e6db74>&#34;insert_columns&#34;</span><span style=color:#f92672>/&gt;</span>
+</span></span><span style=display:flex><span>        ) VALUES
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;foreach</span> <span style=color:#a6e22e>item=</span><span style=color:#e6db74>&#34;item&#34;</span> <span style=color:#a6e22e>collection=</span><span style=color:#e6db74>&#34;list&#34;</span> <span style=color:#a6e22e>separator=</span><span style=color:#e6db74>&#34;,&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>            (#{item.email}, #{item.name}, #{item.role}, #{item.description}, now(), now(), false)
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/foreach&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/insert&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;update</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;update&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        UPDATE user
+</span></span><span style=display:flex><span>        SET
+</span></span><span style=display:flex><span>        email = #{email},
+</span></span><span style=display:flex><span>        name = #{name},
+</span></span><span style=display:flex><span>        role = #{role},
+</span></span><span style=display:flex><span>        description = #{description},
+</span></span><span style=display:flex><span>        updated_at = now()
+</span></span><span style=display:flex><span>        WHERE id = #{id}
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/update&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;delete</span> <span style=color:#a6e22e>id=</span><span style=color:#e6db74>&#34;deleteById&#34;</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>        DELETE
+</span></span><span style=display:flex><span>        FROM user
+</span></span><span style=display:flex><span>        WHERE id = #{id}
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/delete&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/mapper&gt;</span>
+</span></span></code></pre></div><h3 id=26-单元测试>2.6 单元测试</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.jupiter.api.Test;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.beans.factory.annotation.Autowired;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.boot.test.context.SpringBootTest;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.List;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.junit.jupiter.api.Assertions.*;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@SpringBootTest</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserDaoMapperTest</span> {
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Autowired</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> UserDaoMapper userDaoMapper;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testList</span>() {
+</span></span><span style=display:flex><span>        List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users <span style=color:#f92672>=</span> userDaoMapper.<span style=color:#a6e22e>list</span>(2, 10);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        assertFalse(users.<span style=color:#a6e22e>isEmpty</span>());
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testCount</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>long</span> count <span style=color:#f92672>=</span> userDaoMapper.<span style=color:#a6e22e>count</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        assertTrue(count <span style=color:#f92672>&gt;</span> 0);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testGetById</span>() {
+</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> userDaoMapper.<span style=color:#a6e22e>getById</span>(1L);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        assertNotNull(user);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testExistsByEmail</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>boolean</span> exists <span style=color:#f92672>=</span> userDaoMapper.<span style=color:#a6e22e>existsByEmail</span>(<span style=color:#e6db74>&#34;larry@larry.com&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        assertTrue(exists);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testSearchByName</span>() {
+</span></span><span style=display:flex><span>        List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users <span style=color:#f92672>=</span> userDaoMapper.<span style=color:#a6e22e>searchByName</span>(<span style=color:#e6db74>&#34;La&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        assertFalse(users.<span style=color:#a6e22e>isEmpty</span>());
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testSave</span>() {
+</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> User();
+</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setEmail</span>(<span style=color:#e6db74>&#34;david@david.com&#34;</span>);
+</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setName</span>(<span style=color:#e6db74>&#34;David&#34;</span>);
+</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setRole</span>(User.<span style=color:#a6e22e>Role</span>.<span style=color:#a6e22e>VIEWER</span>);
+</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setDescription</span>(<span style=color:#e6db74>&#34;I am David&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// save</span>
+</span></span><span style=display:flex><span>        userDaoMapper.<span style=color:#a6e22e>save</span>(user);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        assertNotNull(user.<span style=color:#a6e22e>getId</span>());
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testBatchSave</span>() {
+</span></span><span style=display:flex><span>        User user1 <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> User();
+</span></span><span style=display:flex><span>        user1.<span style=color:#a6e22e>setEmail</span>(<span style=color:#e6db74>&#34;ross@ross.com&#34;</span>);
+</span></span><span style=display:flex><span>        user1.<span style=color:#a6e22e>setName</span>(<span style=color:#e6db74>&#34;Ross&#34;</span>);
+</span></span><span style=display:flex><span>        user1.<span style=color:#a6e22e>setRole</span>(User.<span style=color:#a6e22e>Role</span>.<span style=color:#a6e22e>EDITOR</span>);
+</span></span><span style=display:flex><span>        user1.<span style=color:#a6e22e>setDescription</span>(<span style=color:#e6db74>&#34;I am Ross&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        User user2 <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> User();
+</span></span><span style=display:flex><span>        user2.<span style=color:#a6e22e>setEmail</span>(<span style=color:#e6db74>&#34;linda@linda.com&#34;</span>);
+</span></span><span style=display:flex><span>        user2.<span style=color:#a6e22e>setName</span>(<span style=color:#e6db74>&#34;Linda&#34;</span>);
+</span></span><span style=display:flex><span>        user2.<span style=color:#a6e22e>setRole</span>(User.<span style=color:#a6e22e>Role</span>.<span style=color:#a6e22e>VIEWER</span>);
+</span></span><span style=display:flex><span>        user2.<span style=color:#a6e22e>setDescription</span>(<span style=color:#e6db74>&#34;I am Linda&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users <span style=color:#f92672>=</span> List.<span style=color:#a6e22e>of</span>(user1, user2);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// batch save</span>
+</span></span><span style=display:flex><span>        userDaoMapper.<span style=color:#a6e22e>batchSave</span>(users);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// assertion</span>
+</span></span><span style=display:flex><span>        users.<span style=color:#a6e22e>forEach</span>(user <span style=color:#f92672>-&gt;</span> assertNotNull(user.<span style=color:#a6e22e>getId</span>()));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testUpdate</span>() {
+</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> userDaoMapper.<span style=color:#a6e22e>getById</span>(1L);
+</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setRole</span>(User.<span style=color:#a6e22e>Role</span>.<span style=color:#a6e22e>EDITOR</span>);
+</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setDescription</span>(<span style=color:#e6db74>&#34;Hello, I am Larry!&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// update</span>
+</span></span><span style=display:flex><span>        userDaoMapper.<span style=color:#a6e22e>update</span>(user);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testDeleteById</span>() {
+</span></span><span style=display:flex><span>        userDaoMapper.<span style=color:#a6e22e>deleteById</span>(1L);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>完整示例工程已提交至本人 <a href=https://github.com/olzhy/java-exercises/tree/main/spring-boot-mybatis-integration-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] MyBatis 3 Reference Documentation - <a href=https://mybatis.org/mybatis-3/>https://mybatis.org/mybatis-3/</a></p><p>[2] What is MyBatis-Spring-Boot-Starter? - <a href=https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/>https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/spring/>#Spring</a>
 <a href=/tags/java/>#Java</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/spring-data-jpa.html>如何使用 Spring Data JPA 进行数据库访问？</a></li><li><a href=/posts/spring-jdbc.html>如何使用 Spring JDBC 进行数据库访问？</a></li><li><a href=/posts/spring-boot-input-validation.html>Spring Boot 如何使用 Validation 包进行输入参数校验？</a></li><li><a href=/posts/building-a-restful-web-service-with-spring-boot.html>如何使用 Spring Boot 构建一个 RESTful Web 服务</a></li><li><a href=/posts/spring-boot-quick-start.html>如何快速搭建一个 Spring Boot 项目</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div align=center><table><tr><b style=color:#e8505b>创作不易，如果我的文章确实帮助到了您，请我喝点东西就是一种莫大的支持！<a href=/thanks>Thanks!</a></b></tr><tr><td align=center><b>微信</b></td><td></td><td></td><td></td><td></td><td align=center><b>支付宝</b></td></tr><tr><td><img src=/static/images/self/wechat.png style=width:120px;height:120px></td><td></td><td></td><td></td><td></td><td><img src=/static/images/self/alipay.png style=width:120px;height:120px></td></tr></table></div></div><script src=https://utteranc.es/client.js repo=olzhy/olzhy.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/about>关于本站</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://olzhy.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/olzhy><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://olzhy.github.io/index.json"</script><script src=https://olzhy.github.io/js/jquery.min.js></script><script src=https://olzhy.github.io/js/bootstrap.min.js></script><script src=https://olzhy.github.io/js/fuse.min.js></script><script src=https://olzhy.github.io/js/mark.js></script><script src=https://olzhy.github.io/js/search.js></script><script src=https://olzhy.github.io/js/script.min.js></script></body></html>
