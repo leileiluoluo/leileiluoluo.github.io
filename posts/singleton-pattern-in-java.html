@@ -22,7 +22,7 @@
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>该种实现方式有一个缺点是类在初始化时就将其实例化了，但该实例也许并不会真正被使用。而一般单例类会用于全局的资源管理，其实例化会涉及比较多的资源创建，若能在真正使用时再进行实例化就更好了。</p><h2 id=1-延迟实例化实现>1 延迟实例化实现</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LazyInitializationSingleton</span> {
+</span></span></code></pre></div><p>该种实现方式有一个缺点是类在初始化时就将其实例化了，但该实例也许并不会真正被使用。而一般单例类会用于全局的资源管理，其实例化会涉及比较多的资源创建，若能在真正使用时再进行实例化就更好了。</p><h2 id=1-延迟实例化实现>1 延迟实例化实现</h2><p>下面尝试一种延迟实例化的实现。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LazyInitializationSingleton</span> {
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> LazyInitializationSingleton INSTANCE <span style=color:#f92672>=</span> <span style=color:#66d9ef>null</span>;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#a6e22e>LazyInitializationSingleton</span>() {
@@ -35,7 +35,7 @@
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> INSTANCE;
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LazyInitializationSingletonTest</span> {
+</span></span></code></pre></div><p>如上代码中，<code>INSTANCE</code> 在声明时被定义为了 <code>null</code>，且对象的实例化逻辑被放到了 <code>getInstance()</code> 方法，这样只有在客户端主动获取时才会进行实例化。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LazyInitializationSingletonTest</span> {
 </span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
 </span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testMultiThreadedAccessing</span>() {
 </span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> (<span style=color:#66d9ef>int</span> i <span style=color:#f92672>=</span> 0; i <span style=color:#f92672>&lt;</span> 10; i<span style=color:#f92672>++</span>) {
