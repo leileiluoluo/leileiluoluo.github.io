@@ -263,7 +263,7 @@
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>测试发现，包括自定义方法在内的各个增、删、改、查方法均是好用的。</p><h3 id=33-使用-mongotemplate>3.3 使用 MongoTemplate</h3><p>除了使用 <code>Repository</code> 来对 MongoDB 进行通用的增、删、改、查操作外，我们还可以使用更加灵活的 <code>MongoTemplate</code> 来对 MongoDB 进行操作。</p><p>下面即为 <code>MongoTemplate</code> 编写一个单元测试类来对其提供的功能进行简单测试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/test/java/com/example/demo/dao/MongoTemplateTest.java</span>
+</span></span></code></pre></div><p>测试发现，包括自定义方法在内的各个增、删、改、查方法均是好用的。</p><h3 id=33-使用-mongotemplate>3.3 使用 MongoTemplate</h3><p>除了通过定义 <code>Repository</code> 接口来对 MongoDB 进行通用的增、删、改、查操作外，我们还可以使用更加灵活的 <code>MongoTemplate</code> 来对 MongoDB 进行操作。</p><p>下面即为 <code>MongoTemplate</code> 编写一个单元测试类来对其提供的功能进行简单测试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/test/java/com/example/demo/dao/MongoTemplateTest.java</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
