@@ -181,7 +181,7 @@
 </span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>findByName</span>(String name);
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>可以看到，我们只在 <code>UserRepository</code> 增加了一个 <code>findByName</code> 自定义方法。</p><p>下面即在 <code>src/test/java</code> 文件夹下针对 <code>UserRepository</code> 编写一个单元测试类来对其提供的增、删、改、查方法进行测试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/test/java/com/example/demo/dao/UserRepositoryTest.java</span>
+</span></span></code></pre></div><p>可以看到，我们只在 <code>UserRepository</code> 接口增加了一个 <code>findByName</code> 自定义方法。</p><p>下面即在 <code>src/test/java</code> 文件夹下针对 <code>UserRepository</code> 编写一个单元测试类来对其提供的增、删、改、查方法进行测试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/test/java/com/example/demo/dao/UserRepositoryTest.java</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
