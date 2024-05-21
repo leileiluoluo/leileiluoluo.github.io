@@ -63,14 +63,6 @@
 </span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- cucumber reporting --&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>net.masterthought<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>cucumber-reporting<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>5.8.0<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- junit --&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
 </span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.junit.jupiter<span style=color:#f92672>&lt;/groupId&gt;</span>
@@ -79,7 +71,12 @@
 </span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependencies&gt;</span>
-</span></span></code></pre></div><p>可以看到，除了使用 Cucumber 的两个核心包 <code>cucumber-java</code>、<code>cucumber-junit</code> 以及 JUnit 5 外，还使用 <code>rest-assured</code> 作 API 的请求发起与响应收集，使用 <code>jackson-databind</code> 作 <code>rest-assured</code> 的请求体 JSON 序列化，使用 <code>cucumber-reporting</code> 作 HTML 报告生成。</p><h3 id=32-features-文件>3.2 Features 文件</h3><p>该示例工程针对 GitHub Issues API 的测试只有一个场景：新增一个 Issue。<code>github-issues.feature</code> 特性文件内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span># src/test/resources/features/github-issues.feature
+</span></span></code></pre></div><p>可以看到，除了使用 Cucumber 的两个核心包 <code>cucumber-java</code>、<code>cucumber-junit</code> 以及 JUnit 5 外，还使用 <code>rest-assured</code> 作 API 的请求发起与响应收集，使用 <code>jackson-databind</code> 作 <code>rest-assured</code> 的请求体 JSON 序列化。</p><p>此外，还使用一个插件 <code>maven-cucumber-reporting</code> 来作 HTML 报告生成。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;plugin&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>net.masterthought<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>maven-cucumber-reporting<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>5.8.1<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/plugin&gt;</span>
+</span></span></code></pre></div><h3 id=32-features-文件>3.2 Features 文件</h3><p>该示例工程针对 GitHub Issues API 的测试只有一个场景：新增一个 Issue。<code>github-issues.feature</code> 特性文件内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span># src/test/resources/features/github-issues.feature
 </span></span><span style=display:flex><span>Feature: GitHub Issues API 测试
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>  Scenario: 新增一个 Issue
