@@ -77,7 +77,7 @@
 </span></span><span style=display:flex><span>    Given 登录到 GitHub
 </span></span><span style=display:flex><span>    When 打开 Issues 页面并新增一个标题为 &#34;Cucumber UI Test&#34; 的 Issue
 </span></span><span style=display:flex><span>    Then Issue 新增成功且标题为 &#34;Cucumber UI Test&#34;
-</span></span></code></pre></div><p>可以看到，该文件只定义了一个场景：新增一个 Issue。<code>Given</code> 步骤为准备阶段，新建 Issue 前需要登录到 GitHub；<code>When</code> 步骤为实际的操作阶段，即打开页面并新建一个指定标题的 Issue；<code>Then</code> 步骤为验证阶段，即验证 Issue 新增成功且标题为指定的标题。</p><h2 id=3-step-definitions-类>3 Step Definitions 类</h2><p>Step Definition 类 <code>LoginStep.java</code> 的内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tests.stepdefs;
+</span></span></code></pre></div><p>可以看到，该文件只定义了一个场景：新增一个 Issue。<code>Given</code> 步骤为准备阶段，新建 Issue 前需要登录到 GitHub；<code>When</code> 步骤为实际的操作阶段，即打开页面并新建一个指定标题的 Issue；<code>Then</code> 步骤为验证阶段，即验证 Issue 新增成功且标题为指定的标题。</p><h2 id=3-step-definitions-类>3 Step Definitions 类</h2><p><code>stepdefs</code> 包用于放置特性文件中各个步骤对应的实现。该包下的 <code>LoginStep.java</code> 类的内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tests.stepdefs;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.pages.LoginPage;
 </span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.utils.WebDriverFactory;
@@ -126,6 +126,122 @@
 </span></span><span style=display:flex><span>        assertThat(issuesPage.<span style=color:#a6e22e>getTitle</span>(), startsWith(title));
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>该类的逻辑同样很简单，负责 <code>github-issues.feature</code> 特性文件中 <code>When</code> 部分和 <code>Then</code> 部分的实现。<code>When</code> 部分首先调用了 <code>IssuesPage</code> 实例的 <code>open()</code> 方法打开了 Issue 页面，接着调用了其 <code>createIssue()</code> 方法新建了 Issue。<code>Then</code> 部分负责校验，即新建完成后页面的标题是否与指定的一致。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2024/05/report-for-creating-github-issue-using-cucumber.png alt="在页面创建 GitHub Issue 的实现效果"></p><h2 id=4-小结>4 小结</h2><p>本文完整示例工程已提交至本人 <a href=https://github.com/leileiluoluo/java-exercises/tree/main/cucumber-ui-test-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] Cucumber Documentation: Browser Automation - <a href="https://cucumber.io/docs/guides/browser-automation/?lang=java">https://cucumber.io/docs/guides/browser-automation/?lang=java</a></p><p>[2] 磊磊落落：Selenium WebDriver 基础使用 - <a href=https://leileiluoluo.com/posts/selenium-webdriver.html>https://leileiluoluo.com/posts/selenium-webdriver.html</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/>#自动化测试</a>
+</span></span></code></pre></div><p>该类的逻辑同样很简单，负责 <code>github-issues.feature</code> 特性文件中 <code>When</code> 部分和 <code>Then</code> 部分的实现。<code>When</code> 部分首先调用了 <code>IssuesPage</code> 实例的 <code>open()</code> 方法打开了 Issue 页面，接着调用了其 <code>createIssue()</code> 方法新建了 Issue。<code>Then</code> 部分负责校验，即新建完成后页面的标题是否与指定的一致。</p><h2 id=4-页面对象类>4 页面对象类</h2><p><code>pages</code> 包用于放置页面对象类，负责调用 Selenium 进行真正的浏览器操作。该包下的 <code>LoginPage.java</code> 类的内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tests.pages;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.utils.ConfigUtil;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.utils.GoogleAuthenticatorUtil;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.By;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.WebDriver;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LoginPage</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> String LOGIN_URL <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://github.com/login&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By USERNAME_ELEM <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>xpath</span>(<span style=color:#e6db74>&#34;//input[@name=&#39;login&#39;]&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By PASSWORD_ELEM <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>xpath</span>(<span style=color:#e6db74>&#34;//input[@name=&#39;password&#39;]&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By SIGN_IN_BUTTON <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>xpath</span>(<span style=color:#e6db74>&#34;//input[@name=&#39;commit&#39;]&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By TOTP_ELEM <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>xpath</span>(<span style=color:#e6db74>&#34;//input[@name=&#39;app_otp&#39;]&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> WebDriver driver;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>LoginPage</span>(WebDriver driver) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>driver</span> <span style=color:#f92672>=</span> driver;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>login</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// open login url</span>
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>get</span>(LOGIN_URL);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// input username &amp; password</span>
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(USERNAME_ELEM).<span style=color:#a6e22e>sendKeys</span>(ConfigUtil.<span style=color:#a6e22e>getProperty</span>(<span style=color:#e6db74>&#34;GITHUB_USERNAME&#34;</span>));
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(PASSWORD_ELEM).<span style=color:#a6e22e>sendKeys</span>(ConfigUtil.<span style=color:#a6e22e>getProperty</span>(<span style=color:#e6db74>&#34;GITHUB_PASSWORD&#34;</span>));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// click &#34;Sign in&#34; button</span>
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(SIGN_IN_BUTTON).<span style=color:#a6e22e>click</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e>// input Authentication code</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>int</span> code <span style=color:#f92672>=</span> GoogleAuthenticatorUtil.<span style=color:#a6e22e>getTotpCode</span>(ConfigUtil.<span style=color:#a6e22e>getProperty</span>(<span style=color:#e6db74>&#34;GITHUB_TOTP_SECRET&#34;</span>));
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(TOTP_ELEM).<span style=color:#a6e22e>sendKeys</span>(<span style=color:#e6db74>&#34;&#34;</span> <span style=color:#f92672>+</span> code);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到，该类包含了登录页面的属性与行为。页面元素被定义为了属性，而方法表示该页面具备的行为。<code>login()</code> 方法包含了完整的 GitHub 登录行为：即包含打开登录页面、输入用户名和密码、点击登录按钮、输入鉴权码几个连续的动作。</p><p><code>IssuesPage</code> 类的内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tests.pages;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.utils.ConfigUtil;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.By;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.WebDriver;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.support.ui.ExpectedConditions;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.support.ui.WebDriverWait;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.time.Duration;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>IssuesPage</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> String ISSUES_URL <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/issues&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By CREATE_ISSUE_BUTTON <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>partialLinkText</span>(<span style=color:#e6db74>&#34;New issue&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By INPUT_TITLE_ELEM <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>xpath</span>(<span style=color:#e6db74>&#34;//input[@id=&#39;issue_title&#39;]&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>final</span> By SUBMIT_BUTTON <span style=color:#f92672>=</span> By.<span style=color:#a6e22e>xpath</span>(<span style=color:#e6db74>&#34;//button[contains(text(), &#39;Submit new issue&#39;)]&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>final</span> WebDriver driver;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>IssuesPage</span>(WebDriver driver) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.<span style=color:#a6e22e>driver</span> <span style=color:#f92672>=</span> driver;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>open</span>() {
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>get</span>(ConfigUtil.<span style=color:#a6e22e>getProperty</span>(<span style=color:#e6db74>&#34;GITHUB_REPO&#34;</span>) <span style=color:#f92672>+</span> ISSUES_URL);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>new</span> WebDriverWait(driver, Duration.<span style=color:#a6e22e>ofMinutes</span>(1)).<span style=color:#a6e22e>until</span>(ExpectedConditions.<span style=color:#a6e22e>elementToBeClickable</span>(CREATE_ISSUE_BUTTON));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>createIssue</span>(String title) {
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(CREATE_ISSUE_BUTTON).<span style=color:#a6e22e>click</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>new</span> WebDriverWait(driver, Duration.<span style=color:#a6e22e>ofMinutes</span>(1)).<span style=color:#a6e22e>until</span>(ExpectedConditions.<span style=color:#a6e22e>visibilityOfElementLocated</span>(INPUT_TITLE_ELEM));
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(INPUT_TITLE_ELEM).<span style=color:#a6e22e>sendKeys</span>(title);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        driver.<span style=color:#a6e22e>findElement</span>(SUBMIT_BUTTON).<span style=color:#a6e22e>click</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>getTitle</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> driver.<span style=color:#a6e22e>getTitle</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>该类有三个方法：<code>open()</code>，打开 Issues 页面；<code>createIssue()</code>，创建 Issue；<code>getTitle()</code>，获取当前页面标题。均是基于 Selenium WebDriver 的页面打开或元素操作。</p><h2 id=5-hooks-类>5 Hooks 类</h2><p>Cucumber 提供多个注解用于在步骤执行前或执行后添加额外的逻辑。本示例工程即使用了 <code>@AfterStep</code> 注解来为每一步执行完成后对页面进行截图。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tests.hooks;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.utils.WebDriverFactory;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> io.cucumber.java.AfterStep;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> io.cucumber.java.Scenario;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.OutputType;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.TakesScreenshot;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.openqa.selenium.WebDriver;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ScreenshotHook</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@AfterStep</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>attachScreenshot</span>(Scenario scenario) {
+</span></span><span style=display:flex><span>        WebDriver driver <span style=color:#f92672>=</span> WebDriverFactory.<span style=color:#a6e22e>getWebDriver</span>();
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>byte</span><span style=color:#f92672>[]</span> screenshot <span style=color:#f92672>=</span> ((TakesScreenshot) driver).<span style=color:#a6e22e>getScreenshotAs</span>(OutputType.<span style=color:#a6e22e>BYTES</span>);
+</span></span><span style=display:flex><span>        scenario.<span style=color:#a6e22e>attach</span>(screenshot, <span style=color:#e6db74>&#34;image/png&#34;</span>, driver.<span style=color:#a6e22e>getCurrentUrl</span>());
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>如上 <code>ScreenshotHook</code> 类的 <code>attachScreenshot()</code> 方法在每一步执行完成后进行了页面截图，并将图片附加到了最终报告对应的各个步骤里。</p><h2 id=6-工具类>6 工具类</h2><p>前面已介绍过 <code>utils</code> 包下的三个工具类 <code>ConfigUtil.java</code>、<code>GoogleAuthenticatorUtil.java</code> 与 <code>WebDriverFactory.java</code> 分别用于读取配置信息、生成双因子鉴权码与 Selenium <code>WebDriver</code> 的统一获取，这里就不再展开介绍了。</p><h2 id=7-程序入口类>7 程序入口类</h2><p>下面介绍一下本示例工程的入口 <code>TestRunner.java</code>，其内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> com.example.tests;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.tests.utils.WebDriverFactory;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> io.cucumber.junit.Cucumber;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> io.cucumber.junit.CucumberOptions;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.AfterClass;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.runner.RunWith;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@RunWith</span>(Cucumber.<span style=color:#a6e22e>class</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@CucumberOptions</span>(
+</span></span><span style=display:flex><span>        features <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;src/test/resources/features&#34;</span>,
+</span></span><span style=display:flex><span>        plugin <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#34;json:target/cucumber.json&#34;</span>}
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TestRunner</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@AfterClass</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>closeWebDriver</span>() {
+</span></span><span style=display:flex><span>        WebDriverFactory.<span style=color:#a6e22e>closeWebDriver</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到该类基于 JUnit 5，使用 <code>@RunWith</code> 注解指定了程序以 Cucumber 提供的运行器运行。使用 <code>@CucumberOptions</code> 注解指定了特性文件位置和生成的报告 JSON 文件位置。此外，还需注意，该类含有一个方法 <code>closeWebDriver()</code>，使用 <code>@AfterClass</code> 注解修饰，表示在程序运行完毕后，关闭浏览器。</p><h2 id=8-工程运行与报告查看>8 工程运行与报告查看</h2><p>因本示例工程使用的是 Chrome 浏览器，运行前，请确保您的机器含有 Chrome 浏览器，并且安装了对应的 ChromeDriver（请使用「<a href>这个地址</a>」下载对应您浏览器版本的 Chrome Driver，并将其解压地址配置到系统环境变量）。</p><p>本示例工程可以直接在 Intellij IDEA 中运行或使用如下 Maven 命名运行：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>mvn clean verify
+</span></span></code></pre></div><p>运行效果为文章开头的动图。</p><p>运行完成后，会在 <code>target/cucumer-report-html</code> 文件夹生成 HTML 测试报告。打开后，效果如下：</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2024/05/report-for-creating-github-issue-using-cucumber.png alt="在页面创建 GitHub Issue 的实现效果"></p><p>可以看到，对应特性文件中各个步骤的运行状态与页面截图均会在其中详细展示。</p><h2 id=9-小结>9 小结</h2><p>本文完整示例工程已提交至本人 <a href=https://github.com/leileiluoluo/java-exercises/tree/main/cucumber-ui-test-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] Cucumber Documentation: Browser Automation - <a href="https://cucumber.io/docs/guides/browser-automation/?lang=java">https://cucumber.io/docs/guides/browser-automation/?lang=java</a></p><p>[2] 磊磊落落：Selenium WebDriver 基础使用 - <a href=https://leileiluoluo.com/posts/selenium-webdriver.html>https://leileiluoluo.com/posts/selenium-webdriver.html</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/>#自动化测试</a>
 <a href=/tags/java/>#Java</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/cucumber-introduction.html>Cucumber 是什么？如何使用 Cucumber Java 进行 API 测试？</a></li><li><a href=/posts/how-to-perform-api-testing-using-rest-assured.html>如何使用 REST Assured 做 API 测试？</a></li><li><a href=/posts/comparable-and-comparator-in-java.html>Java 中的 Comparable 与 Comparator 接口使用详解</a></li><li><a href=/posts/spring-data-mongodb.html>如何使用 Spring Data MongoDB 访问 MongoDB 数据库？</a></li><li><a href=/posts/singleton-pattern-in-java.html>深入理解 Java 中的单例模式</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>
 <span>正在加载评论......</span></div><script>function handleMessage(e){if(e.origin!=="https://giscus.app")return;if(typeof e.data!="object"||!e.data.giscus)return;const t=document.getElementById("comment-loading");t.style.display="none"}window.addEventListener("message",handleMessage)</script><script src=https://giscus.app/client.js data-repo=leileiluoluo/leileiluoluo.github.io data-repo-id=R_kgDOJkLT8w data-category=General data-category-id=DIC_kwDOJkLT884CdtEh data-mapping=pathname data-strict=0 data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=preferred_color_scheme data-lang=zh-CN crossorigin=anonymous async></script></div></div></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/about>关于本博</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/leileiluoluo><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div style=text-align:center;font-size:18px;margin-bottom:22px><a style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-image:linear-gradient(to right,#14100f,#d55b5b,#4d14e6)" href=https://www.boyouquan.com/planet-shuttle>「博友圈 · 星球穿梭」</a></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.github.io/index.json"</script><script src=https://leileiluoluo.github.io/js/jquery.min.js></script><script src=https://leileiluoluo.github.io/js/bootstrap.min.js></script><script src=https://leileiluoluo.github.io/js/fuse.min.js></script><script src=https://leileiluoluo.github.io/js/mark.js></script><script src=https://leileiluoluo.github.io/js/search.js></script><script src=https://leileiluoluo.github.io/js/script.min.js></script></body></html>
