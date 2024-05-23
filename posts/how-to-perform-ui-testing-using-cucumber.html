@@ -9,19 +9,19 @@
 </span></span><span style=display:flex><span>├─ src/test
 </span></span><span style=display:flex><span>│   ├─ java
 </span></span><span style=display:flex><span>│   │    └─ com.example.tests
-</span></span><span style=display:flex><span>│   |       ├─ stepdefs
-</span></span><span style=display:flex><span>|   |       │   ├─ LoginStep.java
-</span></span><span style=display:flex><span>│   |       │   └─ CreateIssueStep.java
-</span></span><span style=display:flex><span>│   |       ├─ pages
-</span></span><span style=display:flex><span>|   |       │   ├─ LoginPage.java
-</span></span><span style=display:flex><span>│   |       │   └─ IssuesPage.java
-</span></span><span style=display:flex><span>│   |       ├─ utils
-</span></span><span style=display:flex><span>|   |       │   ├─ GoogleAuthenticatorUtil.java
-</span></span><span style=display:flex><span>│   |       │   └─ WebDriverFactory.java
-</span></span><span style=display:flex><span>│   |       │   └─ ConfigUtil.java
-</span></span><span style=display:flex><span>│   |       ├─ hooks
-</span></span><span style=display:flex><span>│   |       │   └─ ScreenshotHook.java
-</span></span><span style=display:flex><span>│   |       └─ TestRunner.java
+</span></span><span style=display:flex><span>│   │       ├─ stepdefs
+</span></span><span style=display:flex><span>│   │       │   ├─ LoginStep.java
+</span></span><span style=display:flex><span>│   │       │   └─ CreateIssueStep.java
+</span></span><span style=display:flex><span>│   │       ├─ pages
+</span></span><span style=display:flex><span>│   │       │   ├─ LoginPage.java
+</span></span><span style=display:flex><span>│   │       │   └─ IssuesPage.java
+</span></span><span style=display:flex><span>│   │       ├─ utils
+</span></span><span style=display:flex><span>│   │       │   ├─ GoogleAuthenticatorUtil.java
+</span></span><span style=display:flex><span>│   │       │   └─ WebDriverFactory.java
+</span></span><span style=display:flex><span>│   │       │   └─ ConfigUtil.java
+</span></span><span style=display:flex><span>│   │       ├─ hooks
+</span></span><span style=display:flex><span>│   │       │   └─ ScreenshotHook.java
+</span></span><span style=display:flex><span>│   │       └─ TestRunner.java
 </span></span><span style=display:flex><span>│   └─ resources
 </span></span><span style=display:flex><span>│       ├─ features
 </span></span><span style=display:flex><span>│       │   └─ github-issues.feature
@@ -66,7 +66,7 @@
 </span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependencies&gt;</span>
-</span></span></code></pre></div><p>同样，还使用一个插件 <code>maven-cucumber-reporting</code> 来生成 HTML 报告。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;plugin&gt;</span>
+</span></span></code></pre></div><p>可以看到，除了引入 JUnit、Cucumber 和 Selenium 几个主要依赖外，还引入 <code>googleauth</code> 来做双因子验证码生成。</p><p>同样，还使用一个插件 <code>maven-cucumber-reporting</code> 来生成 HTML 报告。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;plugin&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>net.masterthought<span style=color:#f92672>&lt;/groupId&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>maven-cucumber-reporting<span style=color:#f92672>&lt;/artifactId&gt;</span>
 </span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>5.8.1<span style=color:#f92672>&lt;/version&gt;</span>
