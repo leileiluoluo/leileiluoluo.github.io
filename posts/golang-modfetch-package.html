@@ -1,5 +1,5 @@
 <!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>Golang 模块获取包modfetch研读 - 磊磊落落</title>
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,Golang,Python,云原生,架构设计,DevOps,自动化测试,技术博客,生活博客"><meta name=description content="我是浩然，一名软件开发工程师，我的博客「磊磊落落」建立于 2017 年，是我用于记录内心波澜，分享读书感想，思考人生哲学，关注社会百态，梳理计算机专业知识的纯原创站点。目前我在技术上主要关注：Java、Golang、Python、前端开发、云原生、架构设计、DevOps 和自动化测试。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,Golang,Python,云原生,架构设计,DevOps,自动化测试,技术博客,生活博客"><meta name=description content="我是浩然，一名软件开发工程师，我的博客「磊磊落落」建立于 2017 年，是我用于记录内心波澜，分享读书感想，思考人生哲学，关注社会百态，梳理计算机专业知识的纯原创站点。目前我在技术上主要关注：Java、Golang、Python、前端开发、云原生、架构设计、DevOps 和自动化测试。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.0.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Golang 模块获取包modfetch研读</h1><div class="mb-3 post-meta">2019年06月12日
 <a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>自Go 1.11引入Modules以来，其内置命令已集成包查询、下载等功能。</p><p>之前专门写过一篇<a href=/posts/golang-modules.html>Golang Modules</a>的文章，介绍了Module的使用方式。</p><p>如一个Module工程，使用命令构建时会自动获取依赖，如：</p><pre tabindex=0><code>$ go build
@@ -46,67 +46,67 @@ go: extracting github.com/leileiluoluo/quote v1.0.0
      └ leileiluoluo
          └ test
              └ test.go
-</code></pre><p>因modfetch包是internal包，不可直接引用，需将其拷贝至当前模块目录（<code>github.com/leileiluoluo/test</code>）下，然后将codefetch包及其相关依赖拷贝进来，并将引用路径替换。</p><p>shell脚本<code>github.com/leileiluoluo/test/copy_replace.sh</code>内容如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#75715e>#!/bin/bash
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</code></pre><p>因modfetch包是internal包，不可直接引用，需将其拷贝至当前模块目录（<code>github.com/leileiluoluo/test</code>）下，然后将codefetch包及其相关依赖拷贝进来，并将引用路径替换。</p><p>shell脚本<code>github.com/leileiluoluo/test/copy_replace.sh</code>内容如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#999;font-weight:700;font-style:italic>#!/bin/bash
+</span></span></span><span style=display:flex><span><span style=color:#999;font-weight:700;font-style:italic></span>
 </span></span><span style=display:flex><span>mkdir internal
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># copy dependencies</span>
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/modfetch ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/modfile ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/modinfo ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/base ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/cache ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/lockedfile ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/module ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/par ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/renameio ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/semver ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/cfg ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/str ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/dirhash ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/get ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/web ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/web2 ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/load ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/search ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/go/internal/work ./internal/
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic># copy dependencies</span>
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/modfetch ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/modfile ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/modinfo ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/base ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/cache ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/lockedfile ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/module ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/par ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/renameio ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/semver ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/cfg ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/str ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/dirhash ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/get ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/web ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/web2 ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/load ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/search ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/go/internal/work ./internal/
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/internal/sys ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/internal/objabi ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/internal/buildid ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/cmd/internal/browser ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/internal/testenv ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/internal/singleflight ./internal/
-</span></span><span style=display:flex><span>cp -r $GOROOT/src/internal/xcoff ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/internal/sys ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/internal/objabi ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/internal/buildid ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/cmd/internal/browser ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/internal/testenv ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/internal/singleflight ./internal/
+</span></span><span style=display:flex><span>cp -r <span style=color:teal>$GOROOT</span>/src/internal/xcoff ./internal/
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># replace import paths</span>
-</span></span><span style=display:flex><span>find . -type f -name <span style=color:#e6db74>&#34;*.go&#34;</span> -exec sed -i <span style=color:#e6db74>&#39;&#39;</span> <span style=color:#e6db74>&#39;s#cmd/go/internal/#github.com/leileiluoluo/test/internal/#g&#39;</span> <span style=color:#f92672>{}</span> <span style=color:#ae81ff>\;</span> 
-</span></span><span style=display:flex><span>find . -type f -name <span style=color:#e6db74>&#34;*.go&#34;</span> -exec sed -i <span style=color:#e6db74>&#39;&#39;</span> <span style=color:#e6db74>&#39;s#cmd/internal/#github.com/leileiluoluo/test/internal/#g&#39;</span> <span style=color:#f92672>{}</span> <span style=color:#ae81ff>\;</span> 
-</span></span><span style=display:flex><span>find . -type f -name <span style=color:#e6db74>&#34;*.go&#34;</span> -exec sed -i <span style=color:#e6db74>&#39;&#39;</span> <span style=color:#e6db74>&#39;s#internal/testenv#github.com/leileiluoluo/test/internal/testenv#g&#39;</span> <span style=color:#f92672>{}</span> <span style=color:#ae81ff>\;</span> 
-</span></span><span style=display:flex><span>find . -type f -name <span style=color:#e6db74>&#34;*.go&#34;</span> -exec sed -i <span style=color:#e6db74>&#39;&#39;</span> <span style=color:#e6db74>&#39;s#internal/singleflight#github.com/leileiluoluo/test/internal/singleflight#g&#39;</span> <span style=color:#f92672>{}</span> <span style=color:#ae81ff>\;</span> 
-</span></span><span style=display:flex><span>find . -type f -name <span style=color:#e6db74>&#34;*.go&#34;</span> -exec sed -i <span style=color:#e6db74>&#39;&#39;</span> <span style=color:#e6db74>&#39;s#internal/xcoff#github.com/leileiluoluo/test/internal/xcoff#g&#39;</span> <span style=color:#f92672>{}</span> <span style=color:#ae81ff>\;</span>
-</span></span></code></pre></div><p>拷贝并替换完成后，我们在test.go（<code>github.com/leileiluoluo/test/test.go</code>）使用一下modfetch.Lookup，代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic># replace import paths</span>
+</span></span><span style=display:flex><span>find . -type f -name <span style=color:#d14>&#34;*.go&#34;</span> -exec sed -i <span style=color:#d14>&#39;&#39;</span> <span style=color:#d14>&#39;s#cmd/go/internal/#github.com/leileiluoluo/test/internal/#g&#39;</span> <span style=color:#000;font-weight:700>{}</span> <span style=color:#d14>\;</span> 
+</span></span><span style=display:flex><span>find . -type f -name <span style=color:#d14>&#34;*.go&#34;</span> -exec sed -i <span style=color:#d14>&#39;&#39;</span> <span style=color:#d14>&#39;s#cmd/internal/#github.com/leileiluoluo/test/internal/#g&#39;</span> <span style=color:#000;font-weight:700>{}</span> <span style=color:#d14>\;</span> 
+</span></span><span style=display:flex><span>find . -type f -name <span style=color:#d14>&#34;*.go&#34;</span> -exec sed -i <span style=color:#d14>&#39;&#39;</span> <span style=color:#d14>&#39;s#internal/testenv#github.com/leileiluoluo/test/internal/testenv#g&#39;</span> <span style=color:#000;font-weight:700>{}</span> <span style=color:#d14>\;</span> 
+</span></span><span style=display:flex><span>find . -type f -name <span style=color:#d14>&#34;*.go&#34;</span> -exec sed -i <span style=color:#d14>&#39;&#39;</span> <span style=color:#d14>&#39;s#internal/singleflight#github.com/leileiluoluo/test/internal/singleflight#g&#39;</span> <span style=color:#000;font-weight:700>{}</span> <span style=color:#d14>\;</span> 
+</span></span><span style=display:flex><span>find . -type f -name <span style=color:#d14>&#34;*.go&#34;</span> -exec sed -i <span style=color:#d14>&#39;&#39;</span> <span style=color:#d14>&#39;s#internal/xcoff#github.com/leileiluoluo/test/internal/xcoff#g&#39;</span> <span style=color:#000;font-weight:700>{}</span> <span style=color:#d14>\;</span>
+</span></span></code></pre></div><p>拷贝并替换完成后，我们在test.go（<code>github.com/leileiluoluo/test/test.go</code>）使用一下modfetch.Lookup，代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;os&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;path/filepath&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;os&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;path/filepath&#34;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;github.com/leileiluoluo/test/internal/modfetch&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;github.com/leileiluoluo/test/internal/modfetch/codehost&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;github.com/leileiluoluo/test/internal/modfetch&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;github.com/leileiluoluo/test/internal/modfetch/codehost&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// mod dir is $GOPATH/pkg/mod
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>PkgMod</span> = <span style=color:#a6e22e>filepath</span>.<span style=color:#a6e22e>Join</span>(<span style=color:#a6e22e>os</span>.<span style=color:#a6e22e>Getenv</span>(<span style=color:#e6db74>&#34;GOPATH&#34;</span>), <span style=color:#e6db74>&#34;pkg&#34;</span>, <span style=color:#e6db74>&#34;mod&#34;</span>)
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// work dir is $GOPATH/pkg/mod/cache/vcs
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>codehost</span>.<span style=color:#a6e22e>WorkRoot</span> = <span style=color:#a6e22e>filepath</span>.<span style=color:#a6e22e>Join</span>(<span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>PkgMod</span>, <span style=color:#e6db74>&#34;cache&#34;</span>, <span style=color:#e6db74>&#34;vcs&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// mod dir is $GOPATH/pkg/mod
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    modfetch.PkgMod = filepath.<span style=color:#900;font-weight:700>Join</span>(os.<span style=color:#900;font-weight:700>Getenv</span>(<span style=color:#d14>&#34;GOPATH&#34;</span>), <span style=color:#d14>&#34;pkg&#34;</span>, <span style=color:#d14>&#34;mod&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// work dir is $GOPATH/pkg/mod/cache/vcs
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    codehost.WorkRoot = filepath.<span style=color:#900;font-weight:700>Join</span>(modfetch.PkgMod, <span style=color:#d14>&#34;cache&#34;</span>, <span style=color:#d14>&#34;vcs&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>repo</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>Lookup</span>(<span style=color:#e6db74>&#34;github.com/leileiluoluo/quote&#34;</span>)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>nil</span> <span style=color:#f92672>!=</span> <span style=color:#a6e22e>err</span> {
-</span></span><span style=display:flex><span>        panic(<span style=color:#a6e22e>err</span>)
+</span></span><span style=display:flex><span>    repo, err <span style=color:#000;font-weight:700>:=</span> modfetch.<span style=color:#900;font-weight:700>Lookup</span>(<span style=color:#d14>&#34;github.com/leileiluoluo/quote&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>if</span> <span style=color:#000;font-weight:700>nil</span> <span style=color:#000;font-weight:700>!=</span> err {
+</span></span><span style=display:flex><span>        <span style=color:#0086b3>panic</span>(err)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#a6e22e>repo</span>.<span style=color:#a6e22e>Latest</span>())
+</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Println</span>(repo.<span style=color:#900;font-weight:700>Latest</span>())
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>使用modfetch.Lookup时需设置codehost.WorkRoot变量，即vcs下载的模块工作路径，一般为<code>$GOPATH/pkg/mod/cache/vcs</code>，如上代码获取“<code>github.com/leileiluoluo/quote</code>”模块的最新提交信息，运行test.go，输出为：</p><pre tabindex=0><code>go: finding github.com/leileiluoluo/quote latest
 &amp;{v0.0.0-20190515022821-f8e0536df3d4 2019-05-15 02:28:21 +0000 UTC  } 
@@ -147,30 +147,30 @@ quote@v1.0.0
 </code></pre><p>GoMod类似于Lookup(path).GoMod(rev)，但其不会解析仓库路径从而请求网络而从版本控制网站来获取，而会先看本地缓存有没有。</p><pre tabindex=0><code>func GoMod(path, rev string) ([]byte, error)
     GoMod is like Lookup(path).GoMod(rev) but avoids the repository path
     resolution in Lookup if the result is already cached on local disk.
-</code></pre><p>下面，我们使用其获取一下“<code>github.com/leileiluoluo/quote</code>”这个Module的go.mod内容。</p><p>test.go main函数如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// mod dir is $GOPATH/pkg/mod
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>PkgMod</span> = <span style=color:#a6e22e>filepath</span>.<span style=color:#a6e22e>Join</span>(<span style=color:#a6e22e>os</span>.<span style=color:#a6e22e>Getenv</span>(<span style=color:#e6db74>&#34;GOPATH&#34;</span>), <span style=color:#e6db74>&#34;pkg&#34;</span>, <span style=color:#e6db74>&#34;mod&#34;</span>)
+</code></pre><p>下面，我们使用其获取一下“<code>github.com/leileiluoluo/quote</code>”这个Module的go.mod内容。</p><p>test.go main函数如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// mod dir is $GOPATH/pkg/mod
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    modfetch.PkgMod = filepath.<span style=color:#900;font-weight:700>Join</span>(os.<span style=color:#900;font-weight:700>Getenv</span>(<span style=color:#d14>&#34;GOPATH&#34;</span>), <span style=color:#d14>&#34;pkg&#34;</span>, <span style=color:#d14>&#34;mod&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>mod</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>GoMod</span>(<span style=color:#e6db74>&#34;github.com/leileiluoluo/quote&#34;</span>, <span style=color:#e6db74>&#34;v1.0.0&#34;</span>)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>nil</span> <span style=color:#f92672>!=</span> <span style=color:#a6e22e>err</span> {
-</span></span><span style=display:flex><span>        panic(<span style=color:#a6e22e>err</span>)
+</span></span><span style=display:flex><span>    mod, err <span style=color:#000;font-weight:700>:=</span> modfetch.<span style=color:#900;font-weight:700>GoMod</span>(<span style=color:#d14>&#34;github.com/leileiluoluo/quote&#34;</span>, <span style=color:#d14>&#34;v1.0.0&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>if</span> <span style=color:#000;font-weight:700>nil</span> <span style=color:#000;font-weight:700>!=</span> err {
+</span></span><span style=display:flex><span>        <span style=color:#0086b3>panic</span>(err)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(string(<span style=color:#a6e22e>mod</span>))
+</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#0086b3>string</span>(mod))
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>输出为：</p><pre tabindex=0><code>module github.com/leileiluoluo/quote
 </code></pre><p>即该模块go.mod的内容。</p><p>最后看一下modfetch.DownloadZip的使用。</p><pre tabindex=0><code>$ go doc modfetch.DownloadZip
 </code></pre><p>DownloadZip有一个参数module.Version，其有两个属性Path与Version。</p><p>对于指定模块，传入模块路径及版本信息，DownloadZip首先会看本地有没有，本地有直接返回文件名，否则会下载该模块至本地缓存并返回文件名。</p><pre tabindex=0><code>func DownloadZip(mod module.Version) (zipfile string, err error)
     DownloadZip downloads the specific module version to the local zip cache and
     returns the name of the zip file.
-</code></pre><p>下面，我们使用其下载“<code>github.com/leileiluoluo/quote</code>”这个Module的在版本v1.0.0的zip文件。</p><p>test.go main函数如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// mod dir is $GOPATH/pkg/mod
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>PkgMod</span> = <span style=color:#a6e22e>filepath</span>.<span style=color:#a6e22e>Join</span>(<span style=color:#a6e22e>os</span>.<span style=color:#a6e22e>Getenv</span>(<span style=color:#e6db74>&#34;GOPATH&#34;</span>), <span style=color:#e6db74>&#34;pkg&#34;</span>, <span style=color:#e6db74>&#34;mod&#34;</span>)
+</code></pre><p>下面，我们使用其下载“<code>github.com/leileiluoluo/quote</code>”这个Module的在版本v1.0.0的zip文件。</p><p>test.go main函数如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// mod dir is $GOPATH/pkg/mod
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    modfetch.PkgMod = filepath.<span style=color:#900;font-weight:700>Join</span>(os.<span style=color:#900;font-weight:700>Getenv</span>(<span style=color:#d14>&#34;GOPATH&#34;</span>), <span style=color:#d14>&#34;pkg&#34;</span>, <span style=color:#d14>&#34;mod&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>zipfile</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>modfetch</span>.<span style=color:#a6e22e>DownloadZip</span>(<span style=color:#a6e22e>module</span>.<span style=color:#a6e22e>Version</span>{<span style=color:#a6e22e>Path</span>: <span style=color:#e6db74>&#34;github.com/leileiluoluo/quote&#34;</span>, <span style=color:#a6e22e>Version</span>: <span style=color:#e6db74>&#34;v1.0.0&#34;</span>})
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#66d9ef>nil</span> <span style=color:#f92672>!=</span> <span style=color:#a6e22e>err</span> {
-</span></span><span style=display:flex><span>        panic(<span style=color:#a6e22e>err</span>)
+</span></span><span style=display:flex><span>    zipfile, err <span style=color:#000;font-weight:700>:=</span> modfetch.<span style=color:#900;font-weight:700>DownloadZip</span>(module.Version{Path: <span style=color:#d14>&#34;github.com/leileiluoluo/quote&#34;</span>, Version: <span style=color:#d14>&#34;v1.0.0&#34;</span>})
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>if</span> <span style=color:#000;font-weight:700>nil</span> <span style=color:#000;font-weight:700>!=</span> err {
+</span></span><span style=display:flex><span>        <span style=color:#0086b3>panic</span>(err)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#a6e22e>zipfile</span>)
+</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Println</span>(zipfile)
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>输出为：</p><pre tabindex=0><code>/Users/larry/Documents/workspace/pkg/mod/cache/download/github.com/leileiluoluo/quote/@v/v1.0.0.zip
 </code></pre><blockquote><p>参考资料</p><p>[1] <a href=https://golang.org/pkg/cmd/go/internal/modfetch/ target=blank><a href=https://golang.org/pkg/cmd/go/internal/modfetch/>https://golang.org/pkg/cmd/go/internal/modfetch/</a></a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/golang/>#Golang</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/leetcode-insert-into-a-binary-search-tree.html>LeetCode 701 二叉搜索树插入</a></li><li><a href=/posts/leetcode-binary-tree-zigzag-level-order-traversal.html>LeetCode 103 二叉树Z字形层次遍历</a></li><li><a href=/posts/leetcode-construct-binary-search-tree-from-preorder-traversal.html>LeetCode 1008 以先序遍历构建二叉搜索树</a></li><li><a href=/posts/leetcode-construct-binary-tree-from-preorder-and-postorder-traversal.html>LeetCode 889 以先序及后序遍历构建二叉树</a></li><li><a href=/posts/leetcode-binary-tree-postorder-traversal.html>LeetCode 145 二叉树后序遍历</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>

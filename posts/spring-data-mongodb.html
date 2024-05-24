@@ -1,318 +1,318 @@
 <!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>如何使用 Spring Data MongoDB 访问 MongoDB 数据库？ - 磊磊落落</title>
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,Spring Data,MongoDB"><meta name=description content="本文以一个使用 Maven 管理的 Spring Boot 工程为例，结合本地搭建的 MongoDB（版本为 7.0.7）演示了 Spring Data MongoDB 的使用。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Java,Spring Data,MongoDB"><meta name=description content="本文以一个使用 Maven 管理的 Spring Boot 工程为例，结合本地搭建的 MongoDB（版本为 7.0.7）演示了 Spring Data MongoDB 的使用。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.0.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>如何使用 Spring Data MongoDB 访问 MongoDB 数据库？</h1><div class="mb-3 post-meta">2024年03月26日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Spring Data MongoDB 是 Spring 框架提供的一个访问 MongoDB 数据库的模块，该模块延续了 Spring Data 系列统一的数据库访问风格（通过 <code>Template</code> 的方式与定义 <code>Repository</code> 接口的方式），借助于该模块可以使 MongoDB 的访问变得简单又高效。</p><p>本文以一个使用 Maven 管理的 Spring Boot 工程为例，结合本地搭建的 MongoDB（版本为 7.0.7）来演示 Spring Data MongoDB 的使用。</p><p>在 Spring Boot 中使用 Spring Data MongoDB，只需要引入一个 <code>spring-boot-starter-data-mongodb</code> 依赖即可，该依赖会自动将 Spring Data MongoDB 及相关依赖一并引入，并已与 Spring Boot 进行了无缝集成。</p><p>如下为示例工程所使用的 JDK、Maven、Spring Boot 与 Spring Data MongoDB 的版本：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>JDK：Amazon Corretto 17.0.8
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Spring Data MongoDB 是 Spring 框架提供的一个访问 MongoDB 数据库的模块，该模块延续了 Spring Data 系列统一的数据库访问风格（通过 <code>Template</code> 的方式与定义 <code>Repository</code> 接口的方式），借助于该模块可以使 MongoDB 的访问变得简单又高效。</p><p>本文以一个使用 Maven 管理的 Spring Boot 工程为例，结合本地搭建的 MongoDB（版本为 7.0.7）来演示 Spring Data MongoDB 的使用。</p><p>在 Spring Boot 中使用 Spring Data MongoDB，只需要引入一个 <code>spring-boot-starter-data-mongodb</code> 依赖即可，该依赖会自动将 Spring Data MongoDB 及相关依赖一并引入，并已与 Spring Boot 进行了无缝集成。</p><p>如下为示例工程所使用的 JDK、Maven、Spring Boot 与 Spring Data MongoDB 的版本：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>JDK：Amazon Corretto 17.0.8
 </span></span><span style=display:flex><span>Maven：3.9.2
 </span></span><span style=display:flex><span>Spring Boot：3.2.4
 </span></span><span style=display:flex><span>Spring Data MongoDB：4.2.4
-</span></span></code></pre></div><p>本文将以 User 的增、删、改、查为例来演示 Spring Data MongoDB 的使用。开始前先让我们准备一下测试数据。</p><h2 id=1-测试数据准备>1 测试数据准备</h2><p>使用 MongoShell 连接本地 MongoDB 数据库 <code>mongodb://localhost:27017</code>。然后在 MongoShell 命令行执行如下语句来创建一个测试数据库 <code>test</code>，并在 <code>test</code> 库里创建一个集合 <code>users</code>，最后在 <code>users</code> 集合插入 3 条测试数据。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>use test
+</span></span></code></pre></div><p>本文将以 User 的增、删、改、查为例来演示 Spring Data MongoDB 的使用。开始前先让我们准备一下测试数据。</p><h2 id=1-测试数据准备>1 测试数据准备</h2><p>使用 MongoShell 连接本地 MongoDB 数据库 <code>mongodb://localhost:27017</code>。然后在 MongoShell 命令行执行如下语句来创建一个测试数据库 <code>test</code>，并在 <code>test</code> 库里创建一个集合 <code>users</code>，最后在 <code>users</code> 集合插入 3 条测试数据。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>use <span style=color:#0086b3>test</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>db.createCollection<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;users&#34;</span><span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>db.createCollection<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;users&#34;</span><span style=color:#000;font-weight:700>)</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>db.getCollection<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;users&#34;</span><span style=color:#f92672>)</span>.insertMany<span style=color:#f92672>(</span>
-</span></span><span style=display:flex><span>  <span style=color:#f92672>[</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>      email: <span style=color:#e6db74>&#34;larry@larry.com&#34;</span>,
-</span></span><span style=display:flex><span>      name: <span style=color:#e6db74>&#34;Larry&#34;</span>,
-</span></span><span style=display:flex><span>      role: <span style=color:#e6db74>&#34;ADMIN&#34;</span>,
-</span></span><span style=display:flex><span>      description: <span style=color:#e6db74>&#34;I am Larry&#34;</span>,
-</span></span><span style=display:flex><span>      created_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;2024-01-01T08:00:00+08:00&#34;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>      updated_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;2023-01-01T08:00:00+08:00&#34;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>      deleted: false
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>      email: <span style=color:#e6db74>&#34;jacky@jacky.com&#34;</span>,
-</span></span><span style=display:flex><span>      name: <span style=color:#e6db74>&#34;Jacky&#34;</span>,
-</span></span><span style=display:flex><span>      role: <span style=color:#e6db74>&#34;EDITOR&#34;</span>,
-</span></span><span style=display:flex><span>      description: <span style=color:#e6db74>&#34;I am Jacky&#34;</span>,
-</span></span><span style=display:flex><span>      created_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;2024-02-01T08:00:00+08:00&#34;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>      updated_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;2023-02-01T08:00:00+08:00&#34;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>      deleted: false
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>,
-</span></span><span style=display:flex><span>    <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>      email: <span style=color:#e6db74>&#34;lucy@lucy.com&#34;</span>,
-</span></span><span style=display:flex><span>      name: <span style=color:#e6db74>&#34;Lucy&#34;</span>,
-</span></span><span style=display:flex><span>      role: <span style=color:#e6db74>&#34;VIEWER&#34;</span>,
-</span></span><span style=display:flex><span>      description: <span style=color:#e6db74>&#34;I am Lucy&#34;</span>,
-</span></span><span style=display:flex><span>      created_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;2024-03-01T08:00:00+08:00&#34;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>      updated_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;2023-03-01T08:00:00+08:00&#34;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>      deleted: false
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
-</span></span><span style=display:flex><span>  <span style=color:#f92672>]</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>)</span>
-</span></span></code></pre></div><p>查询一下，发现 3 条数据均已插入，且自动生成了 ID。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>db.getCollection<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;users&#34;</span><span style=color:#f92672>)</span>.find<span style=color:#f92672>({})</span>
+</span></span><span style=display:flex><span>db.getCollection<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;users&#34;</span><span style=color:#000;font-weight:700>)</span>.insertMany<span style=color:#000;font-weight:700>(</span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>[</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>      email: <span style=color:#d14>&#34;larry@larry.com&#34;</span>,
+</span></span><span style=display:flex><span>      name: <span style=color:#d14>&#34;Larry&#34;</span>,
+</span></span><span style=display:flex><span>      role: <span style=color:#d14>&#34;ADMIN&#34;</span>,
+</span></span><span style=display:flex><span>      description: <span style=color:#d14>&#34;I am Larry&#34;</span>,
+</span></span><span style=display:flex><span>      created_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;2024-01-01T08:00:00+08:00&#34;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>      updated_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;2023-01-01T08:00:00+08:00&#34;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>      deleted: <span style=color:#0086b3>false</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>      email: <span style=color:#d14>&#34;jacky@jacky.com&#34;</span>,
+</span></span><span style=display:flex><span>      name: <span style=color:#d14>&#34;Jacky&#34;</span>,
+</span></span><span style=display:flex><span>      role: <span style=color:#d14>&#34;EDITOR&#34;</span>,
+</span></span><span style=display:flex><span>      description: <span style=color:#d14>&#34;I am Jacky&#34;</span>,
+</span></span><span style=display:flex><span>      created_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;2024-02-01T08:00:00+08:00&#34;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>      updated_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;2023-02-01T08:00:00+08:00&#34;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>      deleted: <span style=color:#0086b3>false</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>}</span>,
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>      email: <span style=color:#d14>&#34;lucy@lucy.com&#34;</span>,
+</span></span><span style=display:flex><span>      name: <span style=color:#d14>&#34;Lucy&#34;</span>,
+</span></span><span style=display:flex><span>      role: <span style=color:#d14>&#34;VIEWER&#34;</span>,
+</span></span><span style=display:flex><span>      description: <span style=color:#d14>&#34;I am Lucy&#34;</span>,
+</span></span><span style=display:flex><span>      created_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;2024-03-01T08:00:00+08:00&#34;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>      updated_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;2023-03-01T08:00:00+08:00&#34;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>      deleted: <span style=color:#0086b3>false</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>}</span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>]</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>)</span>
+</span></span></code></pre></div><p>查询一下，发现 3 条数据均已插入，且自动生成了 ID。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>db.getCollection<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;users&#34;</span><span style=color:#000;font-weight:700>)</span>.find<span style=color:#000;font-weight:700>({})</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>
-</span></span><span style=display:flex><span>  <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    _id: ObjectId<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;6607d1e438537258779f990a&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    email: <span style=color:#e6db74>&#39;larry@larry.com&#39;</span>,
-</span></span><span style=display:flex><span>    name: <span style=color:#e6db74>&#39;Larry&#39;</span>,
-</span></span><span style=display:flex><span>    role: <span style=color:#e6db74>&#39;ADMIN&#39;</span>,
-</span></span><span style=display:flex><span>    description: <span style=color:#e6db74>&#39;I am Larry&#39;</span>,
-</span></span><span style=display:flex><span>    created_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;2024-01-01T00:00:00.000Z&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    updated_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;2023-01-01T00:00:00.000Z&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    deleted: false
-</span></span><span style=display:flex><span>  <span style=color:#f92672>}</span>,
-</span></span><span style=display:flex><span>  <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    _id: ObjectId<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;6607d1e438537258779f990b&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    email: <span style=color:#e6db74>&#39;jacky@jacky.com&#39;</span>,
-</span></span><span style=display:flex><span>    name: <span style=color:#e6db74>&#39;Jacky&#39;</span>,
-</span></span><span style=display:flex><span>    role: <span style=color:#e6db74>&#39;EDITOR&#39;</span>,
-</span></span><span style=display:flex><span>    description: <span style=color:#e6db74>&#39;I am Jacky&#39;</span>,
-</span></span><span style=display:flex><span>    created_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;2024-02-01T00:00:00.000Z&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    updated_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;2023-02-01T00:00:00.000Z&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    deleted: false
-</span></span><span style=display:flex><span>  <span style=color:#f92672>}</span>,
-</span></span><span style=display:flex><span>  <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    _id: ObjectId<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;6607d1e438537258779f990c&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    email: <span style=color:#e6db74>&#39;lucy@lucy.com&#39;</span>,
-</span></span><span style=display:flex><span>    name: <span style=color:#e6db74>&#39;Lucy&#39;</span>,
-</span></span><span style=display:flex><span>    role: <span style=color:#e6db74>&#39;VIEWER&#39;</span>,
-</span></span><span style=display:flex><span>    description: <span style=color:#e6db74>&#39;I am Lucy&#39;</span>,
-</span></span><span style=display:flex><span>    created_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;2024-03-01T00:00:00.000Z&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    updated_at: ISODate<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;2023-03-01T00:00:00.000Z&#39;</span><span style=color:#f92672>)</span>,
-</span></span><span style=display:flex><span>    deleted: false
-</span></span><span style=display:flex><span>  <span style=color:#f92672>}</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>]</span>
-</span></span></code></pre></div><p>测试数据准备好后，下面看一下示例工程的依赖与配置。</p><h2 id=2-示例工程依赖与配置>2 示例工程依赖与配置</h2><h3 id=21-pomxml-依赖项>2.1 POM.xml 依赖项</h3><p>如下为示例工程 <code>spring-data-mongodb-demo</code> 的根目录文件 <code>pom.xml</code> 的内容，可以看到其使用了 <code>spring-boot-starter-parent</code>，并引入了 3 个依赖项：<code>spring-boot-starter-web</code>、<code>spring-boot-starter-data-mongodb</code> 和 <code>lombok</code>。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;!-- pom.xml --&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#a6e22e>xmlns=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:#a6e22e>xmlns:xsi=</span><span style=color:#e6db74>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
-</span></span><span style=display:flex><span>         <span style=color:#a6e22e>xsi:schemaLocation=</span><span style=color:#e6db74>&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;parent&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-parent<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>3.2.4<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;relativePath/&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/parent&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    _id: ObjectId<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;6607d1e438537258779f990a&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    email: <span style=color:#d14>&#39;larry@larry.com&#39;</span>,
+</span></span><span style=display:flex><span>    name: <span style=color:#d14>&#39;Larry&#39;</span>,
+</span></span><span style=display:flex><span>    role: <span style=color:#d14>&#39;ADMIN&#39;</span>,
+</span></span><span style=display:flex><span>    description: <span style=color:#d14>&#39;I am Larry&#39;</span>,
+</span></span><span style=display:flex><span>    created_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;2024-01-01T00:00:00.000Z&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    updated_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;2023-01-01T00:00:00.000Z&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    deleted: <span style=color:#0086b3>false</span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>}</span>,
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    _id: ObjectId<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;6607d1e438537258779f990b&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    email: <span style=color:#d14>&#39;jacky@jacky.com&#39;</span>,
+</span></span><span style=display:flex><span>    name: <span style=color:#d14>&#39;Jacky&#39;</span>,
+</span></span><span style=display:flex><span>    role: <span style=color:#d14>&#39;EDITOR&#39;</span>,
+</span></span><span style=display:flex><span>    description: <span style=color:#d14>&#39;I am Jacky&#39;</span>,
+</span></span><span style=display:flex><span>    created_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;2024-02-01T00:00:00.000Z&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    updated_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;2023-02-01T00:00:00.000Z&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    deleted: <span style=color:#0086b3>false</span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>}</span>,
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    _id: ObjectId<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;6607d1e438537258779f990c&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    email: <span style=color:#d14>&#39;lucy@lucy.com&#39;</span>,
+</span></span><span style=display:flex><span>    name: <span style=color:#d14>&#39;Lucy&#39;</span>,
+</span></span><span style=display:flex><span>    role: <span style=color:#d14>&#39;VIEWER&#39;</span>,
+</span></span><span style=display:flex><span>    description: <span style=color:#d14>&#39;I am Lucy&#39;</span>,
+</span></span><span style=display:flex><span>    created_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;2024-03-01T00:00:00.000Z&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    updated_at: ISODate<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#39;2023-03-01T00:00:00.000Z&#39;</span><span style=color:#000;font-weight:700>)</span>,
+</span></span><span style=display:flex><span>    deleted: <span style=color:#0086b3>false</span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>}</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>]</span>
+</span></span></code></pre></div><p>测试数据准备好后，下面看一下示例工程的依赖与配置。</p><h2 id=2-示例工程依赖与配置>2 示例工程依赖与配置</h2><h3 id=21-pomxml-依赖项>2.1 POM.xml 依赖项</h3><p>如下为示例工程 <code>spring-data-mongodb-demo</code> 的根目录文件 <code>pom.xml</code> 的内容，可以看到其使用了 <code>spring-boot-starter-parent</code>，并引入了 3 个依赖项：<code>spring-boot-starter-web</code>、<code>spring-boot-starter-data-mongodb</code> 和 <code>lombok</code>。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#998;font-style:italic>&lt;!-- pom.xml --&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#999;font-weight:700;font-style:italic>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;project</span> <span style=color:teal>xmlns=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:teal>xmlns:xsi=</span><span style=color:#d14>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:teal>xsi:schemaLocation=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span><span style=color:navy>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;modelVersion&gt;</span>4.0.0<span style=color:navy>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;parent&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-parent<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;version&gt;</span>3.2.4<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;relativePath/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/parent&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>com.example<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>spring-data-mongodb-demo<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;groupId&gt;</span>com.example<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;artifactId&gt;</span>spring-data-mongodb-demo<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:navy>&lt;/version&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;properties&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;java.version&gt;</span>17<span style=color:#f92672>&lt;/java.version&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/properties&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencies&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-data-mongodb<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.projectlombok<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>lombok<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;optional&gt;</span>true<span style=color:#f92672>&lt;/optional&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;properties&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;java.version&gt;</span>17<span style=color:navy>&lt;/java.version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/properties&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-data-mongodb<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.projectlombok<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>lombok<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;optional&gt;</span>true<span style=color:navy>&lt;/optional&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>&lt;!-- test --&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencies&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;build&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;plugins&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;plugin&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-maven-plugin<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/plugin&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/plugins&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/build&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
-</span></span></code></pre></div><h3 id=22-applicationyaml-配置>2.2 application.yaml 配置</h3><p>如下为 <code>application.yaml</code> 文件的内容，可以看到该文件配置了本地 MongoDB 的连接信息，并开启了 MongoDB 查询语句的打印。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#75715e># src/main/resources/application.yaml</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>spring</span>:
-</span></span><span style=display:flex><span>  <span style=color:#f92672>data</span>:
-</span></span><span style=display:flex><span>    <span style=color:#f92672>mongodb</span>:
-</span></span><span style=display:flex><span>      <span style=color:#f92672>host</span>: <span style=color:#ae81ff>localhost</span>
-</span></span><span style=display:flex><span>      <span style=color:#f92672>port</span>: <span style=color:#ae81ff>27017</span>
-</span></span><span style=display:flex><span>      <span style=color:#f92672>database</span>: <span style=color:#ae81ff>test</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>logging</span>:
-</span></span><span style=display:flex><span>  <span style=color:#f92672>level</span>:
-</span></span><span style=display:flex><span>    <span style=color:#f92672>org.springframework.data.mongodb.core</span>: <span style=color:#ae81ff>DEBUG</span>
-</span></span></code></pre></div><p>示例工程依赖和配置准备好后，即可以尝试对 Spring Data MongoDB 进行使用了。</p><h2 id=3-开始使用-spring-data-mongodb>3 开始使用 Spring Data MongoDB</h2><h3 id=31-编写-model-类>3.1 编写 Model 类</h3><p>首先需要编写一下 Model 类 <code>User.java</code>，其代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/main/java/com/example/demo/model/User.java</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.model;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> lombok.Data;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.annotation.Id;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.core.mapping.Document;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.core.mapping.Field;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.Date;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@Data</span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@Document</span>(<span style=color:#e6db74>&#34;users&#34;</span>)
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Id</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String id;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String email;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String name;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Role role;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> String description;
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Field</span>(<span style=color:#e6db74>&#34;created_at&#34;</span>)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Date createdAt;
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Field</span>(<span style=color:#e6db74>&#34;updated_at&#34;</span>)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Date updatedAt;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> Boolean deleted;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>enum</span> Role {
-</span></span><span style=display:flex><span>        ADMIN,
-</span></span><span style=display:flex><span>        EDITOR,
-</span></span><span style=display:flex><span>        VIEWER
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>可以看到，如上代码在类上使用了 <code>@Document</code> 注解，并指定了对应的 MongoDB 集合为 <code>users</code>；对主键字段使用了 <code>@Id</code> 注解；并对与 MongoDB 集合中命名不一致的属性使用了 <code>@Field</code> 注解指定了实际的字段名。此外还使用 Lombok 的 <code>@Data</code> 注解自动生成了 <code>Setters</code> 和 <code>Getters</code>。</p><h3 id=32-编写-repository>3.2 编写 Repository</h3><p>下面我们为 User Model 创建一个对应的 <code>Repository</code> 接口 <code>UserRepository</code>，并将其扩展 <code>MongoRepository</code> 接口。<code>MongoRepository</code> 接口已内置了常用的增、删、改、查方法，通常来说我们无需自己编写任何方法，使用这些默认方法就满足大多数需求了。但 Spring Data MongoDB 还支持在 <code>Repository</code> 接口中按照约定的命名规则添加自定义查询方法。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/main/java/com/example/demo/dao/UserRepository.java</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.repository.MongoRepository;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.List;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserRepository</span> <span style=color:#66d9ef>extends</span> MongoRepository<span style=color:#f92672>&lt;</span>User, String<span style=color:#f92672>&gt;</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>findByName</span>(String name);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>可以看到，我们只在 <code>UserRepository</code> 接口增加了一个 <code>findByName</code> 自定义方法。</p><p>下面即在 <code>src/test/java</code> 文件夹下针对 <code>UserRepository</code> 编写一个单元测试类来对其提供的增、删、改、查方法进行测试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/test/java/com/example/demo/dao/UserRepositoryTest.java</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.jupiter.api.Test;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.beans.factory.annotation.Autowired;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.boot.test.context.SpringBootTest;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.Date;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.List;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.Optional;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.junit.jupiter.api.Assertions.assertEquals;
-</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.junit.jupiter.api.Assertions.assertTrue;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@SpringBootTest</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserRepositoryTest</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Autowired</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> UserRepository userRepository;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testCount</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>long</span> count <span style=color:#f92672>=</span> userRepository.<span style=color:#a6e22e>count</span>();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        assertEquals(3, count);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testFindAll</span>() {
-</span></span><span style=display:flex><span>        List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users <span style=color:#f92672>=</span> userRepository.<span style=color:#a6e22e>findAll</span>();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        assertEquals(3, users.<span style=color:#a6e22e>size</span>());
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testFindById</span>() {
-</span></span><span style=display:flex><span>        Optional<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> optional <span style=color:#f92672>=</span> userRepository.<span style=color:#a6e22e>findById</span>(<span style=color:#e6db74>&#34;6607d1e438537258779f990a&#34;</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        assertTrue(optional.<span style=color:#a6e22e>isPresent</span>());
-</span></span><span style=display:flex><span>        assertEquals(<span style=color:#e6db74>&#34;Larry&#34;</span>, optional.<span style=color:#a6e22e>get</span>().<span style=color:#a6e22e>getName</span>());
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testFindByName</span>() {
-</span></span><span style=display:flex><span>        List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users <span style=color:#f92672>=</span> userRepository.<span style=color:#a6e22e>findByName</span>(<span style=color:#e6db74>&#34;Larry&#34;</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        assertEquals(1, users.<span style=color:#a6e22e>size</span>());
-</span></span><span style=display:flex><span>        assertEquals(<span style=color:#e6db74>&#34;Larry&#34;</span>, users.<span style=color:#a6e22e>get</span>(0).<span style=color:#a6e22e>getName</span>());
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testSave</span>() {
-</span></span><span style=display:flex><span>        Date now <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Date();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> User();
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setEmail</span>(<span style=color:#e6db74>&#34;linda@linda.com&#34;</span>);
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setName</span>(<span style=color:#e6db74>&#34;Linda&#34;</span>);
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setRole</span>(User.<span style=color:#a6e22e>Role</span>.<span style=color:#a6e22e>EDITOR</span>);
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setDescription</span>(<span style=color:#e6db74>&#34;I am Linda&#34;</span>);
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setCreatedAt</span>(now);
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setUpdatedAt</span>(now);
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setDeleted</span>(<span style=color:#66d9ef>false</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// save</span>
-</span></span><span style=display:flex><span>        userRepository.<span style=color:#a6e22e>save</span>(user);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testUpdate</span>() {
-</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> userRepository.<span style=color:#a6e22e>findById</span>(<span style=color:#e6db74>&#34;6607d1e438537258779f990a&#34;</span>).<span style=color:#a6e22e>get</span>();
-</span></span><span style=display:flex><span>        user.<span style=color:#a6e22e>setName</span>(<span style=color:#e6db74>&#34;Larry2&#34;</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        userRepository.<span style=color:#a6e22e>save</span>(user);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testDelete</span>() {
-</span></span><span style=display:flex><span>        userRepository.<span style=color:#a6e22e>deleteById</span>(<span style=color:#e6db74>&#34;6607d1e438537258779f990a&#34;</span>);
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>测试发现，包括自定义方法在内的各个增、删、改、查方法均是好用的。</p><h3 id=33-使用-mongotemplate>3.3 使用 MongoTemplate</h3><p>除了通过定义 <code>Repository</code> 接口来对 MongoDB 进行通用的增、删、改、查操作外，我们还可以使用更加灵活的 <code>MongoTemplate</code> 来对 MongoDB 进行操作。</p><p>下面即为 <code>MongoTemplate</code> 编写一个单元测试类来对其提供的功能进行简单测试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#75715e>// src/test/java/com/example/demo/dao/MongoTemplateTest.java</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>package</span> com.example.demo.dao;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.example.demo.model.User;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> com.mongodb.client.result.UpdateResult;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.junit.jupiter.api.Test;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.beans.factory.annotation.Autowired;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.boot.test.context.SpringBootTest;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.core.MongoTemplate;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.core.query.Criteria;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.core.query.Query;
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> org.springframework.data.mongodb.core.query.Update;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.util.List;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import static</span> org.junit.jupiter.api.Assertions.*;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>@SpringBootTest</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MongoTemplateTest</span> {
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Autowired</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> MongoTemplate mongoTemplate;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testFindAll</span>() {
-</span></span><span style=display:flex><span>        List<span style=color:#f92672>&lt;</span>User<span style=color:#f92672>&gt;</span> users <span style=color:#f92672>=</span> mongoTemplate.<span style=color:#a6e22e>findAll</span>(User.<span style=color:#a6e22e>class</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        assertFalse(users.<span style=color:#a6e22e>isEmpty</span>());
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testFindByName</span>() {
-</span></span><span style=display:flex><span>        Query query <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Query(Criteria.<span style=color:#a6e22e>where</span>(<span style=color:#e6db74>&#34;name&#34;</span>).<span style=color:#a6e22e>is</span>(<span style=color:#e6db74>&#34;Jacky&#34;</span>));
-</span></span><span style=display:flex><span>        User user <span style=color:#f92672>=</span> mongoTemplate.<span style=color:#a6e22e>findOne</span>(query, User.<span style=color:#a6e22e>class</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        assertNotNull(user);
-</span></span><span style=display:flex><span>        assertEquals(<span style=color:#e6db74>&#34;jacky@jacky.com&#34;</span>, user.<span style=color:#a6e22e>getEmail</span>());
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>testUpdateEmailByName</span>() {
-</span></span><span style=display:flex><span>        Query query <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Query(Criteria.<span style=color:#a6e22e>where</span>(<span style=color:#e6db74>&#34;name&#34;</span>).<span style=color:#a6e22e>is</span>(<span style=color:#e6db74>&#34;Jacky&#34;</span>));
-</span></span><span style=display:flex><span>        Update update <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Update().<span style=color:#a6e22e>set</span>(<span style=color:#e6db74>&#34;email&#34;</span>, <span style=color:#e6db74>&#34;jacky2@jacky.com&#34;</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        UpdateResult result <span style=color:#f92672>=</span> mongoTemplate.<span style=color:#a6e22e>updateMulti</span>(query, update, User.<span style=color:#a6e22e>class</span>);
-</span></span><span style=display:flex><span>        assertEquals(1, result.<span style=color:#a6e22e>getModifiedCount</span>());
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>可以看到，使用 <code>MongoTemplate</code> 时，我们可以新建一个 <code>Query</code> 对象来拼装任意复杂的查询条件，进而对 MongoDB 进行查询或更新。</p><p>综上，本文以示例工程的方式演示了 Spring Data MongoDB 提供的两种 MongoDB 的访问方式（通过定义 <code>Repository</code> 和使用 <code>MongoTemplate</code>），总体来说该模块保持了 Spring Data 系列通用的设计思路与实现模式，使用起来非常的直观简便。完整示例工程已提交至本人 <a href=https://github.com/leileiluoluo/java-exercises/tree/main/spring-data-mongodb-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] Spring: Spring Data MongoDB Reference Document - <a href=https://docs.spring.io/spring-data/mongodb/reference/4.2.4/index.html>https://docs.spring.io/spring-data/mongodb/reference/4.2.4/index.html</a></p><p>[2] MongoDB: Spring Boot Integration With MongoDB Tutorial - <a href=https://www.mongodb.com/compatibility/spring-boot>https://www.mongodb.com/compatibility/spring-boot</a></p><p>[3] DigitalOcean: Spring Boot MongoDB - <a href=https://www.digitalocean.com/community/tutorials/spring-boot-mongodb>https://www.digitalocean.com/community/tutorials/spring-boot-mongodb</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/spring/>#Spring</a>
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>&lt;!-- test --&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;scope&gt;</span>test<span style=color:navy>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;build&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;plugins&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;plugin&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-maven-plugin<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/plugin&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/plugins&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/build&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/project&gt;</span>
+</span></span></code></pre></div><h3 id=22-applicationyaml-配置>2.2 application.yaml 配置</h3><p>如下为 <code>application.yaml</code> 文件的内容，可以看到该文件配置了本地 MongoDB 的连接信息，并开启了 MongoDB 查询语句的打印。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#998;font-style:italic># src/main/resources/application.yaml</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:navy>spring</span>:<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>  </span><span style=color:navy>data</span>:<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:navy>mongodb</span>:<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>      </span><span style=color:navy>host</span>:<span style=color:#bbb> </span>localhost<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>      </span><span style=color:navy>port</span>:<span style=color:#bbb> </span><span style=color:#099>27017</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>      </span><span style=color:navy>database</span>:<span style=color:#bbb> </span>test<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:navy>logging</span>:<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>  </span><span style=color:navy>level</span>:<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:navy>org.springframework.data.mongodb.core</span>:<span style=color:#bbb> </span>DEBUG<span style=color:#bbb>
+</span></span></span></code></pre></div><p>示例工程依赖和配置准备好后，即可以尝试对 Spring Data MongoDB 进行使用了。</p><h2 id=3-开始使用-spring-data-mongodb>3 开始使用 Spring Data MongoDB</h2><h3 id=31-编写-model-类>3.1 编写 Model 类</h3><p>首先需要编写一下 Model 类 <code>User.java</code>，其代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/java/com/example/demo/model/User.java</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.model</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>lombok.Data</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.annotation.Id</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.core.mapping.Document</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.core.mapping.Field</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.util.Date</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Data</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Document</span>(<span style=color:#d14>&#34;users&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>User</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Id</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span>id;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span>email;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span>name;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>Role<span style=color:#bbb> </span>role;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span>description;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Field</span>(<span style=color:#d14>&#34;created_at&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>Date<span style=color:#bbb> </span>createdAt;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Field</span>(<span style=color:#d14>&#34;updated_at&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>Date<span style=color:#bbb> </span>updatedAt;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>Boolean<span style=color:#bbb> </span>deleted;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>enum</span><span style=color:#bbb> </span>Role<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>ADMIN,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>EDITOR,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>VIEWER<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>可以看到，如上代码在类上使用了 <code>@Document</code> 注解，并指定了对应的 MongoDB 集合为 <code>users</code>；对主键字段使用了 <code>@Id</code> 注解；并对与 MongoDB 集合中命名不一致的属性使用了 <code>@Field</code> 注解指定了实际的字段名。此外还使用 Lombok 的 <code>@Data</code> 注解自动生成了 <code>Setters</code> 和 <code>Getters</code>。</p><h3 id=32-编写-repository>3.2 编写 Repository</h3><p>下面我们为 User Model 创建一个对应的 <code>Repository</code> 接口 <code>UserRepository</code>，并将其扩展 <code>MongoRepository</code> 接口。<code>MongoRepository</code> 接口已内置了常用的增、删、改、查方法，通常来说我们无需自己编写任何方法，使用这些默认方法就满足大多数需求了。但 Spring Data MongoDB 还支持在 <code>Repository</code> 接口中按照约定的命名规则添加自定义查询方法。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/java/com/example/demo/dao/UserRepository.java</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.dao</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.model.User</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.repository.MongoRepository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.util.List</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>UserRepository</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>extends</span><span style=color:#bbb> </span>MongoRepository<span style=color:#000;font-weight:700>&lt;</span>User,<span style=color:#bbb> </span>String<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>List<span style=color:#000;font-weight:700>&lt;</span>User<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>findByName</span>(String<span style=color:#bbb> </span>name);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>可以看到，我们只在 <code>UserRepository</code> 接口增加了一个 <code>findByName</code> 自定义方法。</p><p>下面即在 <code>src/test/java</code> 文件夹下针对 <code>UserRepository</code> 编写一个单元测试类来对其提供的增、删、改、查方法进行测试。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#998;font-style:italic>// src/test/java/com/example/demo/dao/UserRepositoryTest.java</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.dao</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.model.User</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.junit.jupiter.api.Test</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.beans.factory.annotation.Autowired</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.boot.test.context.SpringBootTest</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.util.Date</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.util.List</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.util.Optional</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import static</span><span style=color:#bbb> </span><span style=color:#555>org.junit.jupiter.api.Assertions.assertEquals</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import static</span><span style=color:#bbb> </span><span style=color:#555>org.junit.jupiter.api.Assertions.assertTrue</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@SpringBootTest</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>UserRepositoryTest</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Autowired</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>UserRepository<span style=color:#bbb> </span>userRepository;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testCount</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#458;font-weight:700>long</span><span style=color:#bbb> </span>count<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>userRepository.<span style=color:teal>count</span>();<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(3,<span style=color:#bbb> </span>count);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testFindAll</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>List<span style=color:#000;font-weight:700>&lt;</span>User<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>users<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>userRepository.<span style=color:teal>findAll</span>();<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(3,<span style=color:#bbb> </span>users.<span style=color:teal>size</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testFindById</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>Optional<span style=color:#000;font-weight:700>&lt;</span>User<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>optional<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>userRepository.<span style=color:teal>findById</span>(<span style=color:#d14>&#34;6607d1e438537258779f990a&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertTrue(optional.<span style=color:teal>isPresent</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(<span style=color:#d14>&#34;Larry&#34;</span>,<span style=color:#bbb> </span>optional.<span style=color:teal>get</span>().<span style=color:teal>getName</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testFindByName</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>List<span style=color:#000;font-weight:700>&lt;</span>User<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>users<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>userRepository.<span style=color:teal>findByName</span>(<span style=color:#d14>&#34;Larry&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(1,<span style=color:#bbb> </span>users.<span style=color:teal>size</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(<span style=color:#d14>&#34;Larry&#34;</span>,<span style=color:#bbb> </span>users.<span style=color:teal>get</span>(0).<span style=color:teal>getName</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testSave</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>Date<span style=color:#bbb> </span>now<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>new</span><span style=color:#bbb> </span>Date();<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>User<span style=color:#bbb> </span>user<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>new</span><span style=color:#bbb> </span>User();<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setEmail</span>(<span style=color:#d14>&#34;linda@linda.com&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setName</span>(<span style=color:#d14>&#34;Linda&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setRole</span>(User.<span style=color:teal>Role</span>.<span style=color:teal>EDITOR</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setDescription</span>(<span style=color:#d14>&#34;I am Linda&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setCreatedAt</span>(now);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setUpdatedAt</span>(now);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setDeleted</span>(<span style=color:#000;font-weight:700>false</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#998;font-style:italic>// save</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>userRepository.<span style=color:teal>save</span>(user);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testUpdate</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>User<span style=color:#bbb> </span>user<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>userRepository.<span style=color:teal>findById</span>(<span style=color:#d14>&#34;6607d1e438537258779f990a&#34;</span>).<span style=color:teal>get</span>();<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>user.<span style=color:teal>setName</span>(<span style=color:#d14>&#34;Larry2&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>userRepository.<span style=color:teal>save</span>(user);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testDelete</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>userRepository.<span style=color:teal>deleteById</span>(<span style=color:#d14>&#34;6607d1e438537258779f990a&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>测试发现，包括自定义方法在内的各个增、删、改、查方法均是好用的。</p><h3 id=33-使用-mongotemplate>3.3 使用 MongoTemplate</h3><p>除了通过定义 <code>Repository</code> 接口来对 MongoDB 进行通用的增、删、改、查操作外，我们还可以使用更加灵活的 <code>MongoTemplate</code> 来对 MongoDB 进行操作。</p><p>下面即为 <code>MongoTemplate</code> 编写一个单元测试类来对其提供的功能进行简单测试。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#998;font-style:italic>// src/test/java/com/example/demo/dao/MongoTemplateTest.java</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.dao</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.model.User</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>com.mongodb.client.result.UpdateResult</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.junit.jupiter.api.Test</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.beans.factory.annotation.Autowired</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.boot.test.context.SpringBootTest</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.core.MongoTemplate</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.core.query.Criteria</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.core.query.Query</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.mongodb.core.query.Update</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.util.List</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import static</span><span style=color:#bbb> </span><span style=color:#555>org.junit.jupiter.api.Assertions.*</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@SpringBootTest</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>MongoTemplateTest</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Autowired</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>MongoTemplate<span style=color:#bbb> </span>mongoTemplate;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testFindAll</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>List<span style=color:#000;font-weight:700>&lt;</span>User<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>users<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>mongoTemplate.<span style=color:teal>findAll</span>(User.<span style=color:teal>class</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertFalse(users.<span style=color:teal>isEmpty</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testFindByName</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>Query<span style=color:#bbb> </span>query<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>new</span><span style=color:#bbb> </span>Query(Criteria.<span style=color:teal>where</span>(<span style=color:#d14>&#34;name&#34;</span>).<span style=color:teal>is</span>(<span style=color:#d14>&#34;Jacky&#34;</span>));<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>User<span style=color:#bbb> </span>user<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>mongoTemplate.<span style=color:teal>findOne</span>(query,<span style=color:#bbb> </span>User.<span style=color:teal>class</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertNotNull(user);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(<span style=color:#d14>&#34;jacky@jacky.com&#34;</span>,<span style=color:#bbb> </span>user.<span style=color:teal>getEmail</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Test</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>testUpdateEmailByName</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>Query<span style=color:#bbb> </span>query<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>new</span><span style=color:#bbb> </span>Query(Criteria.<span style=color:teal>where</span>(<span style=color:#d14>&#34;name&#34;</span>).<span style=color:teal>is</span>(<span style=color:#d14>&#34;Jacky&#34;</span>));<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>Update<span style=color:#bbb> </span>update<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>new</span><span style=color:#bbb> </span>Update().<span style=color:teal>set</span>(<span style=color:#d14>&#34;email&#34;</span>,<span style=color:#bbb> </span><span style=color:#d14>&#34;jacky2@jacky.com&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>UpdateResult<span style=color:#bbb> </span>result<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>mongoTemplate.<span style=color:teal>updateMulti</span>(query,<span style=color:#bbb> </span>update,<span style=color:#bbb> </span>User.<span style=color:teal>class</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>assertEquals(1,<span style=color:#bbb> </span>result.<span style=color:teal>getModifiedCount</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>可以看到，使用 <code>MongoTemplate</code> 时，我们可以新建一个 <code>Query</code> 对象来拼装任意复杂的查询条件，进而对 MongoDB 进行查询或更新。</p><p>综上，本文以示例工程的方式演示了 Spring Data MongoDB 提供的两种 MongoDB 的访问方式（通过定义 <code>Repository</code> 和使用 <code>MongoTemplate</code>），总体来说该模块保持了 Spring Data 系列通用的设计思路与实现模式，使用起来非常的直观简便。完整示例工程已提交至本人 <a href=https://github.com/leileiluoluo/java-exercises/tree/main/spring-data-mongodb-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] Spring: Spring Data MongoDB Reference Document - <a href=https://docs.spring.io/spring-data/mongodb/reference/4.2.4/index.html>https://docs.spring.io/spring-data/mongodb/reference/4.2.4/index.html</a></p><p>[2] MongoDB: Spring Boot Integration With MongoDB Tutorial - <a href=https://www.mongodb.com/compatibility/spring-boot>https://www.mongodb.com/compatibility/spring-boot</a></p><p>[3] DigitalOcean: Spring Boot MongoDB - <a href=https://www.digitalocean.com/community/tutorials/spring-boot-mongodb>https://www.digitalocean.com/community/tutorials/spring-boot-mongodb</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/spring/>#Spring</a>
 <a href=/tags/java/>#Java</a>
 <a href=/tags/mongodb/>#MongoDB</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/spring-boot-mybatis-integration.html>Spring Boot 如何集成 MyBatis 进行数据库访问？</a></li><li><a href=/posts/spring-data-jpa.html>如何使用 Spring Data JPA 进行数据库访问？</a></li><li><a href=/posts/spring-jdbc.html>如何使用 Spring JDBC 进行数据库访问？</a></li><li><a href=/posts/spring-boot-input-validation.html>Spring Boot 如何使用 Validation 包进行输入参数校验？</a></li><li><a href=/posts/building-a-restful-web-service-with-spring-boot.html>如何使用 Spring Boot 构建一个 RESTful Web 服务</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>
 <span>正在加载评论......</span></div><script>function handleMessage(e){if(e.origin!=="https://giscus.app")return;if(typeof e.data!="object"||!e.data.giscus)return;const t=document.getElementById("comment-loading");t.style.display="none"}window.addEventListener("message",handleMessage)</script><script src=https://giscus.app/client.js data-repo=leileiluoluo/leileiluoluo.github.io data-repo-id=R_kgDOJkLT8w data-category=General data-category-id=DIC_kwDOJkLT884CdtEh data-mapping=pathname data-strict=0 data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=preferred_color_scheme data-lang=zh-CN crossorigin=anonymous async></script></div></div></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/about>关于本博</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/leileiluoluo><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div style=text-align:center;font-size:18px;margin-bottom:22px><a style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-image:linear-gradient(to right,#14100f,#d55b5b,#4d14e6)" href=https://www.boyouquan.com/planet-shuttle>「博友圈 · 星球穿梭」</a></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.github.io/index.json"</script><script src=https://leileiluoluo.github.io/js/jquery.min.js></script><script src=https://leileiluoluo.github.io/js/bootstrap.min.js></script><script src=https://leileiluoluo.github.io/js/fuse.min.js></script><script src=https://leileiluoluo.github.io/js/mark.js></script><script src=https://leileiluoluo.github.io/js/search.js></script><script src=https://leileiluoluo.github.io/js/script.min.js></script></body></html>

@@ -1,12 +1,12 @@
 <!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>如何使用 Kotlin HTTP 工具包 http4k 构建 RESTful API 服务？ - 磊磊落落</title>
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="使用,Kotlin,HTTP,工具包,http4k,构建,RESTful,API,服务"><meta name=description content="本文以开发一个真实的 API 服务为例，演示了如何使用 http4k 开发 RESTful API。该项目使用 Gradle 作依赖管理，采用传统的 MVC 三层架构，使用 http4k 作 Controller 层的逻辑处理，无 DAO 层，无数据库操作，Service 层使用一个 List 来模拟数据的存储，支持 Swagger UI 的自动生成。全文主要有三个部分：模板项目搭建、业务代码编写，以及 API 测试与验证。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="使用,Kotlin,HTTP,工具包,http4k,构建,RESTful,API,服务"><meta name=description content="本文以开发一个真实的 API 服务为例，演示了如何使用 http4k 开发 RESTful API。该项目使用 Gradle 作依赖管理，采用传统的 MVC 三层架构，使用 http4k 作 Controller 层的逻辑处理，无 DAO 层，无数据库操作，Service 层使用一个 List 来模拟数据的存储，支持 Swagger UI 的自动生成。全文主要有三个部分：模板项目搭建、业务代码编写，以及 API 测试与验证。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.0.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>如何使用 Kotlin HTTP 工具包 http4k 构建 RESTful API 服务？</h1><div class="mb-3 post-meta">2023年09月23日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>上文「<a href=https://leileiluoluo.github.io/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a>」介绍了 Kotlin 可以无缝借用现有 Java Web 框架来开发 API 服务。除此之外，还有一些 Web 工具包是直接使用 Kotlin 开发的，如 Ktor、http4k 等，用这些原生 Kotlin 工具包开发 API 服务则可以充分使用 Kotlin 的语法和函数式编程的特性。本文即专门探索一下如何使用 http4k 来开发 RESTful API 服务。</p><p>先看一下 http4k 是什么？</p><p>http4k 是一个使用纯 Kotlin 编写的非常轻巧但功能齐全的函数式 HTTP 工具包，支持使用统一的方式来编写 HTTP 服务端、客户端，以及测试代码。</p><p>本文会以开发一个真实的 API 服务（User 的增、删、改、查）为例，演示如何使用 http4k 开发 RESTful API。该项目使用 Gradle 作依赖管理，采用传统的 MVC 三层架构，使用 http4k 作 Controller 层的逻辑处理，无 DAO 层，无数据库操作，Service 层使用一个 List 来模拟数据的存储，支持 Swagger UI 的自动生成。全文主要有三个部分：模板项目搭建、业务代码编写，以及 API 测试与验证。</p><p>下面列出写作本文时用到的依赖项及其版本：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>Gradle：8.3
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>上文「<a href=https://leileiluoluo.github.io/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a>」介绍了 Kotlin 可以无缝借用现有 Java Web 框架来开发 API 服务。除此之外，还有一些 Web 工具包是直接使用 Kotlin 开发的，如 Ktor、http4k 等，用这些原生 Kotlin 工具包开发 API 服务则可以充分使用 Kotlin 的语法和函数式编程的特性。本文即专门探索一下如何使用 http4k 来开发 RESTful API 服务。</p><p>先看一下 http4k 是什么？</p><p>http4k 是一个使用纯 Kotlin 编写的非常轻巧但功能齐全的函数式 HTTP 工具包，支持使用统一的方式来编写 HTTP 服务端、客户端，以及测试代码。</p><p>本文会以开发一个真实的 API 服务（User 的增、删、改、查）为例，演示如何使用 http4k 开发 RESTful API。该项目使用 Gradle 作依赖管理，采用传统的 MVC 三层架构，使用 http4k 作 Controller 层的逻辑处理，无 DAO 层，无数据库操作，Service 层使用一个 List 来模拟数据的存储，支持 Swagger UI 的自动生成。全文主要有三个部分：模板项目搭建、业务代码编写，以及 API 测试与验证。</p><p>下面列出写作本文时用到的依赖项及其版本：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>Gradle：8.3
 </span></span><span style=display:flex><span>Kotlin：1.9.10
 </span></span><span style=display:flex><span>JDK：Amazon Corretto 17.0.8
 </span></span><span style=display:flex><span>http4k：5.8.1.0
-</span></span></code></pre></div><h2 id=1-模板项目搭建>1 模板项目搭建</h2><p>本文使用 Gradle 作为项目的构建与依赖管理工具，由其搭建的空项目的整体目录结构如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>http4k-restful-service-demo
+</span></span></code></pre></div><h2 id=1-模板项目搭建>1 模板项目搭建</h2><p>本文使用 Gradle 作为项目的构建与依赖管理工具，由其搭建的空项目的整体目录结构如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>http4k-restful-service-demo
 </span></span><span style=display:flex><span>|--- gradle/
 </span></span><span style=display:flex><span>|--- src/main/
 </span></span><span style=display:flex><span>|    |--- resources/
@@ -17,45 +17,45 @@
 </span></span><span style=display:flex><span>|--- gradlew
 </span></span><span style=display:flex><span>|--- settings.gradle.kts
 </span></span><span style=display:flex><span>\--- build.gradle.kts
-</span></span></code></pre></div><p>可以看到这是一个标准的 Gradle 模板工程。</p><p>下面主要看一下 Gralde 描述文件的内容：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=display:flex><span><span style=color:#f92672>import</span> org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+</span></span></code></pre></div><p>可以看到这是一个标准的 Gradle 模板工程。</p><p>下面主要看一下 Gralde 描述文件的内容：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gradle data-lang=gradle><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.jetbrains.kotlin.gradle.tasks.KotlinCompile</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>plugins <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    kotlin<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;jvm&#34;</span><span style=color:#f92672>)</span> version <span style=color:#e6db74>&#34;1.9.10&#34;</span>
+</span></span><span style=display:flex><span>plugins <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    kotlin<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;jvm&#34;</span><span style=color:#000;font-weight:700>)</span> version <span style=color:#d14>&#34;1.9.10&#34;</span>
 </span></span><span style=display:flex><span>    application
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>java <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    sourceCompatibility <span style=color:#f92672>=</span> JavaVersion<span style=color:#f92672>.</span><span style=color:#a6e22e>VERSION_17</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>java <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    sourceCompatibility <span style=color:#000;font-weight:700>=</span> JavaVersion<span style=color:#000;font-weight:700>.</span><span style=color:teal>VERSION_17</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>repositories <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    mavenCentral<span style=color:#f92672>()</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>repositories <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    mavenCentral<span style=color:#000;font-weight:700>()</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>dependencies <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span>platform<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-bom:5.8.1.0&#34;</span><span style=color:#f92672>))</span>
-</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-core&#34;</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-contract&#34;</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-format-jackson&#34;</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;org.http4k:http4k-contract-ui-swagger&#34;</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span>    implementation<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.google.inject:guice:7.0.0&#34;</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>dependencies <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#000;font-weight:700>(</span>platform<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;org.http4k:http4k-bom:5.8.1.0&#34;</span><span style=color:#000;font-weight:700>))</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;org.http4k:http4k-core&#34;</span><span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;org.http4k:http4k-contract&#34;</span><span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;org.http4k:http4k-format-jackson&#34;</span><span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;org.http4k:http4k-contract-ui-swagger&#34;</span><span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span>    implementation<span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;com.google.inject:guice:7.0.0&#34;</span><span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>application <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    mainClass<span style=color:#f92672>.</span><span style=color:#a6e22e>set</span><span style=color:#f92672>(</span><span style=color:#e6db74>&#34;com.example.demo.DemoApplicationKt&#34;</span><span style=color:#f92672>)</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>application <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    mainClass<span style=color:#000;font-weight:700>.</span><span style=color:teal>set</span><span style=color:#000;font-weight:700>(</span><span style=color:#d14>&#34;com.example.demo.DemoApplicationKt&#34;</span><span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>KotlinCompile<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    kotlinOptions <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>        freeCompilerArgs <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#34;-Xjvm-default=all&#34;</span>
-</span></span><span style=display:flex><span>        jvmTarget <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;17&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>}</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>tasks<span style=color:#000;font-weight:700>.</span><span style=color:teal>withType</span><span style=color:#000;font-weight:700>&lt;</span>KotlinCompile<span style=color:#000;font-weight:700>&gt;</span> <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    kotlinOptions <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>        freeCompilerArgs <span style=color:#000;font-weight:700>+=</span> <span style=color:#d14>&#34;-Xjvm-default=all&#34;</span>
+</span></span><span style=display:flex><span>        jvmTarget <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;17&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>}</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>tasks<span style=color:#f92672>.</span><span style=color:#a6e22e>withType</span><span style=color:#f92672>&lt;</span>Test<span style=color:#f92672>&gt;</span> <span style=color:#f92672>{</span>
-</span></span><span style=display:flex><span>    useJUnitPlatform<span style=color:#f92672>()</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>可以看到，我们使用的 Kotlin 版本为 1.9.10，指定程序启动类为<code>com.example.demo.DemoApplication.kt</code>。</p><p>用到的 http4k 模块有：</p><ul><li><p>http4k-core</p><p>http4k 核心模块，诸如 HttpHandler、Filter 等基础功能都在里头了。</p></li><li><p>http4k-contract</p><p>支持更完善的参数配置，支持 OpenAPI 元信息描述、Swagger 配置等特性。</p></li><li><p>http4k-format-jackson</p><p>支持 JSON 和数据类的相互转换。</p></li><li><p>http4k-contract-ui-swagger</p><p>支持 Swagger UI 的生成以及 Swagger 静态资源的本地化。</p></li></ul><p>此外，我们还使用了 Guice 来做依赖注入（因其比较轻量，适合示例工程使用）。</p><h2 id=2-业务代码编写>2 业务代码编写</h2><p>该部分主要编写针对 User 增、删、改、查的业务代码。整个项目主要由 Controller 层、Service 层、Model 类、Error Codes 枚举类、程序入口类几个部分组成。</p><p>看一下开发完成后的项目结构：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>http4k-restful-service-demo
+</span></span><span style=display:flex><span>tasks<span style=color:#000;font-weight:700>.</span><span style=color:teal>withType</span><span style=color:#000;font-weight:700>&lt;</span>Test<span style=color:#000;font-weight:700>&gt;</span> <span style=color:#000;font-weight:700>{</span>
+</span></span><span style=display:flex><span>    useJUnitPlatform<span style=color:#000;font-weight:700>()</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
+</span></span></code></pre></div><p>可以看到，我们使用的 Kotlin 版本为 1.9.10，指定程序启动类为<code>com.example.demo.DemoApplication.kt</code>。</p><p>用到的 http4k 模块有：</p><ul><li><p>http4k-core</p><p>http4k 核心模块，诸如 HttpHandler、Filter 等基础功能都在里头了。</p></li><li><p>http4k-contract</p><p>支持更完善的参数配置，支持 OpenAPI 元信息描述、Swagger 配置等特性。</p></li><li><p>http4k-format-jackson</p><p>支持 JSON 和数据类的相互转换。</p></li><li><p>http4k-contract-ui-swagger</p><p>支持 Swagger UI 的生成以及 Swagger 静态资源的本地化。</p></li></ul><p>此外，我们还使用了 Guice 来做依赖注入（因其比较轻量，适合示例工程使用）。</p><h2 id=2-业务代码编写>2 业务代码编写</h2><p>该部分主要编写针对 User 增、删、改、查的业务代码。整个项目主要由 Controller 层、Service 层、Model 类、Error Codes 枚举类、程序入口类几个部分组成。</p><p>看一下开发完成后的项目结构：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>http4k-restful-service-demo
 </span></span><span style=display:flex><span>|--- src/main/
 </span></span><span style=display:flex><span>|    |--- resources/
 </span></span><span style=display:flex><span>|    \--- kotlin/
@@ -73,286 +73,286 @@
 </span></span><span style=display:flex><span>...
 </span></span><span style=display:flex><span>|--- gradlew
 </span></span><span style=display:flex><span>\--- build.gradle.kts
-</span></span></code></pre></div><p>下面逐一看一下各层的代码。</p><h3 id=21-controller-层代码>2.1 Controller 层代码</h3><p>Controller 层负责请求接收与响应返回，而具体的处理逻辑则在 Service 层内。</p><p>该项目的 Controller 层只有一个类<code>UserController.kt</code>，用于定义路由以及具体处理请求的<code>Handler</code>函数，<code>Handler</code>函数内部则调用<code>UserService</code>来处理业务。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/controller/UserController.kt
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.controller
+</span></span></code></pre></div><p>下面逐一看一下各层的代码。</p><h3 id=21-controller-层代码>2.1 Controller 层代码</h3><p>Controller 层负责请求接收与响应返回，而具体的处理逻辑则在 Service 层内。</p><p>该项目的 Controller 层只有一个类<code>UserController.kt</code>，用于定义路由以及具体处理请求的<code>Handler</code>函数，<code>Handler</code>函数内部则调用<code>UserService</code>来处理业务。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/kotlin/com/example/demo/controller/UserController.kt
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>package</span> <span style=color:#555>com.example.demo.controller</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.code.ErrorCodes
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.model.User
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.service.UserService
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> jakarta.inject.Inject
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.ContractRoute
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.div
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.meta
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Body
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Method.*
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Request
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Response
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Status.Companion.CREATED
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Status.Companion.NO_CONTENT
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Status.Companion.OK
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.with
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.format.Jackson.auto
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.lens.Path
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.lens.long
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.code.ErrorCodes</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.model.User</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.service.UserService</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>jakarta.inject.Inject</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.ContractRoute</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.div</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.meta</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Body</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Method.*</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Request</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Response</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Status.Companion.CREATED</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Status.Companion.NO_CONTENT</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Status.Companion.OK</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.with</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.format.Jackson.auto</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.lens.Path</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.lens.long</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>UserController</span> <span style=color:#a6e22e>@Inject</span> <span style=color:#66d9ef>constructor</span>(
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> userService: UserService
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>UserController</span> <span style=color:#3c5d5d;font-weight:700>@Inject</span> <span style=color:#000;font-weight:700>constructor</span>(
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>val</span> userService: UserService
 </span></span><span style=display:flex><span>) {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>companion</span> <span style=color:#66d9ef>object</span> {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> usersLens = <span style=color:#a6e22e>Body</span>.auto&lt;List&lt;User&gt;&gt;().toLens()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> userLens = <span style=color:#a6e22e>Body</span>.auto&lt;User&gt;().toLens()
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>companion</span> <span style=color:#000;font-weight:700>object</span> {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>val</span> usersLens = <span style=color:#458;font-weight:700>Body</span>.auto&lt;List&lt;User&gt;&gt;().toLens()
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>val</span> userLens = <span style=color:#458;font-weight:700>Body</span>.auto&lt;User&gt;().toLens()
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> routes: List&lt;ContractRoute&gt; = listOf(
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// listAll
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#e6db74>&#34;/users&#34;</span> meta {
-</span></span><span style=display:flex><span>                summary = <span style=color:#e6db74>&#34;list all users&#34;</span>
-</span></span><span style=display:flex><span>                returning(OK, usersLens to listOf(User(<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#34;Larry&#34;</span>, <span style=color:#ae81ff>28</span>)))
-</span></span><span style=display:flex><span>            } bindContract GET to <span style=color:#f92672>::</span>listAll,
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>val</span> routes: List&lt;ContractRoute&gt; = listOf(
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>// listAll
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>            <span style=color:#d14>&#34;/users&#34;</span> meta {
+</span></span><span style=display:flex><span>                summary = <span style=color:#d14>&#34;list all users&#34;</span>
+</span></span><span style=display:flex><span>                returning(OK, usersLens to listOf(User(<span style=color:#099>1</span>, <span style=color:#d14>&#34;Larry&#34;</span>, <span style=color:#099>28</span>)))
+</span></span><span style=display:flex><span>            } bindContract GET to <span style=color:#000;font-weight:700>::</span>listAll,
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// getById
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#e6db74>&#34;/users&#34;</span> / <span style=color:#a6e22e>Path</span>.long().of(<span style=color:#e6db74>&#34;id&#34;</span>) meta {
-</span></span><span style=display:flex><span>                summary = <span style=color:#e6db74>&#34;get user by id&#34;</span>
-</span></span><span style=display:flex><span>                returning(OK, userLens to User(<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#34;Larry&#34;</span>, <span style=color:#ae81ff>28</span>))
-</span></span><span style=display:flex><span>                returning(<span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.status, <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toSampleResponse())
-</span></span><span style=display:flex><span>            } bindContract GET to { id <span style=color:#f92672>-&gt;</span> { req <span style=color:#f92672>-&gt;</span> getById(req, id) } },
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>// getById
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>            <span style=color:#d14>&#34;/users&#34;</span> / <span style=color:#458;font-weight:700>Path</span>.long().of(<span style=color:#d14>&#34;id&#34;</span>) meta {
+</span></span><span style=display:flex><span>                summary = <span style=color:#d14>&#34;get user by id&#34;</span>
+</span></span><span style=display:flex><span>                returning(OK, userLens to User(<span style=color:#099>1</span>, <span style=color:#d14>&#34;Larry&#34;</span>, <span style=color:#099>28</span>))
+</span></span><span style=display:flex><span>                returning(<span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.status, <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.toSampleResponse())
+</span></span><span style=display:flex><span>            } bindContract GET to { id <span style=color:#000;font-weight:700>-&gt;</span> { req <span style=color:#000;font-weight:700>-&gt;</span> getById(req, id) } },
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// update
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#e6db74>&#34;/users&#34;</span> meta {
-</span></span><span style=display:flex><span>                summary = <span style=color:#e6db74>&#34;update user&#34;</span>
-</span></span><span style=display:flex><span>                receiving(userLens to User(<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#34;Larry&#34;</span>, <span style=color:#ae81ff>28</span>))
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>// update
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>            <span style=color:#d14>&#34;/users&#34;</span> meta {
+</span></span><span style=display:flex><span>                summary = <span style=color:#d14>&#34;update user&#34;</span>
+</span></span><span style=display:flex><span>                receiving(userLens to User(<span style=color:#099>1</span>, <span style=color:#d14>&#34;Larry&#34;</span>, <span style=color:#099>28</span>))
 </span></span><span style=display:flex><span>                returning(NO_CONTENT)
-</span></span><span style=display:flex><span>                returning(<span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.status, <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toSampleResponse())
-</span></span><span style=display:flex><span>            } bindContract PATCH to { req <span style=color:#f92672>-&gt;</span> update(req, userLens(req)) },
+</span></span><span style=display:flex><span>                returning(<span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.status, <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.toSampleResponse())
+</span></span><span style=display:flex><span>            } bindContract PATCH to { req <span style=color:#000;font-weight:700>-&gt;</span> update(req, userLens(req)) },
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// save
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#e6db74>&#34;/users&#34;</span> meta {
-</span></span><span style=display:flex><span>                summary = <span style=color:#e6db74>&#34;save user&#34;</span>
-</span></span><span style=display:flex><span>                receiving(userLens to User(<span style=color:#ae81ff>1</span>, <span style=color:#e6db74>&#34;Larry&#34;</span>, <span style=color:#ae81ff>28</span>))
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>// save
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>            <span style=color:#d14>&#34;/users&#34;</span> meta {
+</span></span><span style=display:flex><span>                summary = <span style=color:#d14>&#34;save user&#34;</span>
+</span></span><span style=display:flex><span>                receiving(userLens to User(<span style=color:#099>1</span>, <span style=color:#d14>&#34;Larry&#34;</span>, <span style=color:#099>28</span>))
 </span></span><span style=display:flex><span>                returning(CREATED)
-</span></span><span style=display:flex><span>                returning(<span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_ALREADY_EXISTS</span>.status, <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_ALREADY_EXISTS</span>.toSampleResponse())
-</span></span><span style=display:flex><span>            } bindContract POST to { req <span style=color:#f92672>-&gt;</span> save(req, userLens(req)) },
+</span></span><span style=display:flex><span>                returning(<span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_ALREADY_EXISTS</span>.status, <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_ALREADY_EXISTS</span>.toSampleResponse())
+</span></span><span style=display:flex><span>            } bindContract POST to { req <span style=color:#000;font-weight:700>-&gt;</span> save(req, userLens(req)) },
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// deleteById
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#e6db74>&#34;/users&#34;</span> / <span style=color:#a6e22e>Path</span>.long().of(<span style=color:#e6db74>&#34;id&#34;</span>) meta {
-</span></span><span style=display:flex><span>                summary = <span style=color:#e6db74>&#34;delete user by id&#34;</span>
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>// deleteById
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>            <span style=color:#d14>&#34;/users&#34;</span> / <span style=color:#458;font-weight:700>Path</span>.long().of(<span style=color:#d14>&#34;id&#34;</span>) meta {
+</span></span><span style=display:flex><span>                summary = <span style=color:#d14>&#34;delete user by id&#34;</span>
 </span></span><span style=display:flex><span>                returning(NO_CONTENT)
-</span></span><span style=display:flex><span>                returning(<span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.status, <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toSampleResponse())
-</span></span><span style=display:flex><span>            } bindContract DELETE to { id <span style=color:#f92672>-&gt;</span> { req <span style=color:#f92672>-&gt;</span> deleteById(req, id) } }
+</span></span><span style=display:flex><span>                returning(<span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.status, <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.toSampleResponse())
+</span></span><span style=display:flex><span>            } bindContract DELETE to { id <span style=color:#000;font-weight:700>-&gt;</span> { req <span style=color:#000;font-weight:700>-&gt;</span> deleteById(req, id) } }
 </span></span><span style=display:flex><span>    )
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(req: Request): Response {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> users = userService.listAll()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Response(OK).with(usersLens of users)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>listAll</span>(req: Request): Response {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>val</span> users = userService.listAll()
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> Response(OK).with(usersLens of users)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(req: Request, id: Long): Response {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> user = userService.getById(id)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> user<span style=color:#f92672>?.</span>let {
-</span></span><span style=display:flex><span>            Response(OK).with(userLens of <span style=color:#66d9ef>it</span>)
-</span></span><span style=display:flex><span>        } <span style=color:#f92672>?:</span> <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toResponse()
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>getById</span>(req: Request, id: Long): Response {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>val</span> user = userService.getById(id)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> user<span style=color:#000;font-weight:700>?.</span>let {
+</span></span><span style=display:flex><span>            Response(OK).with(userLens of <span style=color:#000;font-weight:700>it</span>)
+</span></span><span style=display:flex><span>        } <span style=color:#000;font-weight:700>?:</span> <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.toResponse()
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(req: Request, user: User): Response {
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// exists?
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        userService.getById(user.id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toResponse()
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>update</span>(req: Request, user: User): Response {
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>// exists?
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>        userService.getById(user.id) <span style=color:#000;font-weight:700>?:</span> <span style=color:#000;font-weight:700>return</span> <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.toResponse()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// update
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        userService.update(user)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Response(NO_CONTENT)
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>// update
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>        userService.update(user)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> Response(NO_CONTENT)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(req: Request, user: User): Response {
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// exists?
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>val</span> userStored = userService.getById(user.id)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>null</span> <span style=color:#f92672>!=</span> userStored) {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_ALREADY_EXISTS</span>.toResponse()
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>save</span>(req: Request, user: User): Response {
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>// exists?
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>        <span style=color:#000;font-weight:700>val</span> userStored = userService.getById(user.id)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> (<span style=color:#000;font-weight:700>null</span> <span style=color:#000;font-weight:700>!=</span> userStored) {
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>return</span> <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_ALREADY_EXISTS</span>.toResponse()
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// save
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        userService.save(user)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Response(CREATED)
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>// save
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>        userService.save(user)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> Response(CREATED)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(req: Request, id: Long): Response {
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// exists?
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        userService.getById(id) <span style=color:#f92672>?:</span> <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>ErrorCodes</span>.<span style=color:#a6e22e>USER_NOT_FOUND</span>.toResponse()
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>deleteById</span>(req: Request, id: Long): Response {
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>// exists?
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>        userService.getById(id) <span style=color:#000;font-weight:700>?:</span> <span style=color:#000;font-weight:700>return</span> <span style=color:#458;font-weight:700>ErrorCodes</span>.<span style=color:#458;font-weight:700>USER_NOT_FOUND</span>.toResponse()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// delete
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        userService.deleteById(id)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Response(NO_CONTENT)
+</span></span><span style=display:flex><span>        <span style=color:#998;font-style:italic>// delete
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>        userService.deleteById(id)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> Response(NO_CONTENT)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>下面浅析一下这段代码：</p><ul><li><p><code>UserController</code>依赖<code>UserService</code>，使用 Guice 来自动注入依赖；</p></li><li><p>http4k 使用透镜（Lens，如代码中的<code>Body.auto&lt;User>().toLens()</code>）来做 JSON 和 Model 的相互映射和转换；</p></li><li><p>http4k 可以定义一组路由（ContractRoute，如代码中的<code>"/users" meta {} bindContract GET to ::xxxHandler</code>）来指定请求路径、OpenAPI 元数据（用于生成 Swagger 文档）、HTTP 方法，以及处理请求的 Handler 函数；</p></li><li><p>http4k 中的 Handler 函数就是一个输入为<code>Request</code>，输出为<code>Response</code>的普通函数，业务逻辑都可以在这里边完成（本文的 Handler 函数做了自定义设计，将业务上用到的参数也放到了参数列表里，如：<code>fun getById(req: Request, id: Long): Response</code>）。</p></li></ul><h3 id=22-service-层代码>2.2 Service 层代码</h3><p>Service 层包含业务处理的主要部分，该项目 Service 层仅有一个类<code>UserService.kt</code>。</p><p>本文为了方便且专注于 http4k 的使用，没有引入 DAO 层和数据库，仅使用一个<code>MutableList</code>（<code>val fakeUsers = mutableListOf(...)</code>）来存储数据。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/service/UserService.kt
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.service
+</span></span></code></pre></div><p>下面浅析一下这段代码：</p><ul><li><p><code>UserController</code>依赖<code>UserService</code>，使用 Guice 来自动注入依赖；</p></li><li><p>http4k 使用透镜（Lens，如代码中的<code>Body.auto&lt;User>().toLens()</code>）来做 JSON 和 Model 的相互映射和转换；</p></li><li><p>http4k 可以定义一组路由（ContractRoute，如代码中的<code>"/users" meta {} bindContract GET to ::xxxHandler</code>）来指定请求路径、OpenAPI 元数据（用于生成 Swagger 文档）、HTTP 方法，以及处理请求的 Handler 函数；</p></li><li><p>http4k 中的 Handler 函数就是一个输入为<code>Request</code>，输出为<code>Response</code>的普通函数，业务逻辑都可以在这里边完成（本文的 Handler 函数做了自定义设计，将业务上用到的参数也放到了参数列表里，如：<code>fun getById(req: Request, id: Long): Response</code>）。</p></li></ul><h3 id=22-service-层代码>2.2 Service 层代码</h3><p>Service 层包含业务处理的主要部分，该项目 Service 层仅有一个类<code>UserService.kt</code>。</p><p>本文为了方便且专注于 http4k 的使用，没有引入 DAO 层和数据库，仅使用一个<code>MutableList</code>（<code>val fakeUsers = mutableListOf(...)</code>）来存储数据。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/kotlin/com/example/demo/service/UserService.kt
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>package</span> <span style=color:#555>com.example.demo.service</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.model.User
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.model.User</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>UserService</span> {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt;
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User?
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>UserService</span> {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>listAll</span>(): List&lt;User&gt;
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>getById</span>(id: Long): User?
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>update</span>(user: User)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>save</span>(user: User)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>deleteById</span>(id: Long)
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DefaultUserServiceImpl</span> : UserService {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> fakeUsers = mutableListOf(
-</span></span><span style=display:flex><span>            User(id = <span style=color:#ae81ff>1L</span>, name = <span style=color:#e6db74>&#34;Larry&#34;</span>, age = <span style=color:#ae81ff>28</span>),
-</span></span><span style=display:flex><span>            User(id = <span style=color:#ae81ff>2L</span>, name = <span style=color:#e6db74>&#34;Stephen&#34;</span>, age = <span style=color:#ae81ff>19</span>),
-</span></span><span style=display:flex><span>            User(id = <span style=color:#ae81ff>3L</span>, name = <span style=color:#e6db74>&#34;Jacky&#34;</span>, age = <span style=color:#ae81ff>24</span>)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>DefaultUserServiceImpl</span> : UserService {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>val</span> fakeUsers = mutableListOf(
+</span></span><span style=display:flex><span>            User(id = <span style=color:#099>1L</span>, name = <span style=color:#d14>&#34;Larry&#34;</span>, age = <span style=color:#099>28</span>),
+</span></span><span style=display:flex><span>            User(id = <span style=color:#099>2L</span>, name = <span style=color:#d14>&#34;Stephen&#34;</span>, age = <span style=color:#099>19</span>),
+</span></span><span style=display:flex><span>            User(id = <span style=color:#099>3L</span>, name = <span style=color:#d14>&#34;Jacky&#34;</span>, age = <span style=color:#099>24</span>)
 </span></span><span style=display:flex><span>    )
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>listAll</span>(): List&lt;User&gt; {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> fakeUsers
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>override</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>listAll</span>(): List&lt;User&gt; {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> fakeUsers
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>getById</span>(id: Long): User? {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> fakeUsers.find { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>override</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>getById</span>(id: Long): User? {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> fakeUsers.find { <span style=color:#000;font-weight:700>it</span>.id <span style=color:#000;font-weight:700>==</span> id }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>update</span>(user: User) {
-</span></span><span style=display:flex><span>        fakeUsers.filter { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> user.id }.forEach {
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>it</span>.name = user.name
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>it</span>.age = user.age
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>override</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>update</span>(user: User) {
+</span></span><span style=display:flex><span>        fakeUsers.filter { <span style=color:#000;font-weight:700>it</span>.id <span style=color:#000;font-weight:700>==</span> user.id }.forEach {
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>it</span>.name = user.name
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>it</span>.age = user.age
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>save</span>(user: User) {
-</span></span><span style=display:flex><span>        getById(user.id) <span style=color:#f92672>?:</span> fakeUsers.add(user)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>override</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>save</span>(user: User) {
+</span></span><span style=display:flex><span>        getById(user.id) <span style=color:#000;font-weight:700>?:</span> fakeUsers.add(user)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>deleteById</span>(id: Long) {
-</span></span><span style=display:flex><span>        fakeUsers.removeIf { <span style=color:#66d9ef>it</span>.id <span style=color:#f92672>==</span> id }
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>override</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>deleteById</span>(id: Long) {
+</span></span><span style=display:flex><span>        fakeUsers.removeIf { <span style=color:#000;font-weight:700>it</span>.id <span style=color:#000;font-weight:700>==</span> id }
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>如上代码中包含一个接口类和一个实现类，负责 User 的增、删、改、查。</p><h3 id=23-model-类代码>2.3 Model 类代码</h3><p>该项目包含两个 Model 类：<code>User.kt</code>和<code>ErrorResponse.kt</code>，前一个是 User 的模型类，后一个是标准的错误响应模型类。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/User.kt
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
+</span></span></code></pre></div><p>如上代码中包含一个接口类和一个实现类，负责 User 的增、删、改、查。</p><h3 id=23-model-类代码>2.3 Model 类代码</h3><p>该项目包含两个 Model 类：<code>User.kt</code>和<code>ErrorResponse.kt</code>，前一个是 User 的模型类，后一个是标准的错误响应模型类。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/kotlin/com/example/demo/model/User.kt
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>package</span> <span style=color:#555>com.example.demo.model</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(<span style=color:#66d9ef>val</span> id: Long, <span style=color:#66d9ef>var</span> name: String, <span style=color:#66d9ef>var</span> age: Int)
-</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/model/ErrorResponse.kt
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.model
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>data</span> <span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>User</span>(<span style=color:#000;font-weight:700>val</span> id: Long, <span style=color:#000;font-weight:700>var</span> name: String, <span style=color:#000;font-weight:700>var</span> age: Int)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/kotlin/com/example/demo/model/ErrorResponse.kt
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>package</span> <span style=color:#555>com.example.demo.model</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>data</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorResponse</span>(<span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>val</span> description: String)
-</span></span></code></pre></div><h3 id=24-error-codes-枚举类代码>2.4 Error Codes 枚举类代码</h3><p>该项目特别设计了一个枚举类（<code>ErrorCodes.kt</code>）来存放所有的错误响应信息。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/code/ErrorCodes.kt
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo.code
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>data</span> <span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>ErrorResponse</span>(<span style=color:#000;font-weight:700>val</span> code: String, <span style=color:#000;font-weight:700>val</span> description: String)
+</span></span></code></pre></div><h3 id=24-error-codes-枚举类代码>2.4 Error Codes 枚举类代码</h3><p>该项目特别设计了一个枚举类（<code>ErrorCodes.kt</code>）来存放所有的错误响应信息。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/kotlin/com/example/demo/code/ErrorCodes.kt
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>package</span> <span style=color:#555>com.example.demo.code</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.model.ErrorResponse
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Body
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Response
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.Status
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.with
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.format.Jackson.auto
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.lens.BiDiBodyLens
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.model.ErrorResponse</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Body</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Response</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.Status</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.with</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.format.Jackson.auto</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.lens.BiDiBodyLens</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>enum</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ErrorCodes</span>(<span style=color:#66d9ef>val</span> status: Status, <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> code: String, <span style=color:#66d9ef>private</span> <span style=color:#66d9ef>val</span> description: String) {
-</span></span><span style=display:flex><span>    USER_NOT_FOUND(<span style=color:#a6e22e>Status</span>.NOT_FOUND, <span style=color:#e6db74>&#34;user_not_found&#34;</span>, <span style=color:#e6db74>&#34;user not found&#34;</span>),
-</span></span><span style=display:flex><span>    USER_ALREADY_EXISTS(<span style=color:#a6e22e>Status</span>.BAD_REQUEST, <span style=color:#e6db74>&#34;user_already_exists&#34;</span>, <span style=color:#e6db74>&#34;user already exists&#34;</span>);
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>enum</span> <span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>ErrorCodes</span>(<span style=color:#000;font-weight:700>val</span> status: Status, <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>val</span> code: String, <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>val</span> description: String) {
+</span></span><span style=display:flex><span>    USER_NOT_FOUND(<span style=color:#458;font-weight:700>Status</span>.NOT_FOUND, <span style=color:#d14>&#34;user_not_found&#34;</span>, <span style=color:#d14>&#34;user not found&#34;</span>),
+</span></span><span style=display:flex><span>    USER_ALREADY_EXISTS(<span style=color:#458;font-weight:700>Status</span>.BAD_REQUEST, <span style=color:#d14>&#34;user_already_exists&#34;</span>, <span style=color:#d14>&#34;user already exists&#34;</span>);
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toResponse</span>(): Response =
-</span></span><span style=display:flex><span>            Response(status).with(<span style=color:#a6e22e>Body</span>.auto&lt;ErrorResponse&gt;().toLens() of ErrorResponse(code, description))
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>toResponse</span>(): Response =
+</span></span><span style=display:flex><span>            Response(status).with(<span style=color:#458;font-weight:700>Body</span>.auto&lt;ErrorResponse&gt;().toLens() of ErrorResponse(code, description))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>toSampleResponse</span>(): Pair&lt;BiDiBodyLens&lt;ErrorResponse&gt;, ErrorResponse&gt; =
-</span></span><span style=display:flex><span>            <span style=color:#a6e22e>Body</span>.auto&lt;ErrorResponse&gt;().toLens() to ErrorResponse(code, description)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>toSampleResponse</span>(): Pair&lt;BiDiBodyLens&lt;ErrorResponse&gt;, ErrorResponse&gt; =
+</span></span><span style=display:flex><span>            <span style=color:#458;font-weight:700>Body</span>.auto&lt;ErrorResponse&gt;().toLens() to ErrorResponse(code, description)
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h3 id=25-程序入口类代码>2.5 程序入口类代码</h3><p>下面看一下程序入口类<code>DemoApplication.kt</code>的代码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#75715e>// src/main/kotlin/com/example/demo/DemoApplication.kt
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>package</span> com.example.demo
+</span></span></code></pre></div><h3 id=25-程序入口类代码>2.5 程序入口类代码</h3><p>下面看一下程序入口类<code>DemoApplication.kt</code>的代码：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin><span style=display:flex><span><span style=color:#998;font-style:italic>// src/main/kotlin/com/example/demo/DemoApplication.kt
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>package</span> <span style=color:#555>com.example.demo</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.controller.UserController
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.service.DefaultUserServiceImpl
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.example.demo.service.UserService
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.google.inject.AbstractModule
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> com.google.inject.Guice
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.ContractRoute
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.ContractRoutingHttpHandler
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.contract
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.openapi.ApiInfo
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.openapi.v3.ApiServer
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.openapi.v3.OpenApi3
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.contract.ui.swagger.swaggerUiWebjar
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.core.*
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.filter.CachingFilters
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.format.Jackson
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.routing.bind
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.routing.routes
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.server.SunHttp
-</span></span><span style=display:flex><span><span style=color:#66d9ef>import</span> org.http4k.server.asServer
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.controller.UserController</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.service.DefaultUserServiceImpl</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.example.demo.service.UserService</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.google.inject.AbstractModule</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>com.google.inject.Guice</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.ContractRoute</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.ContractRoutingHttpHandler</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.contract</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.openapi.ApiInfo</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.openapi.v3.ApiServer</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.openapi.v3.OpenApi3</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.contract.ui.swagger.swaggerUiWebjar</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.core.*</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.filter.CachingFilters</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.format.Jackson</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.routing.bind</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.routing.routes</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.server.SunHttp</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#555>org.http4k.server.asServer</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MainGuiceModule</span> : AbstractModule() {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>override</span> <span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>configure</span>() {
-</span></span><span style=display:flex><span>        bind(UserService<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>.java).to(DefaultUserServiceImpl<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>.java)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>MainGuiceModule</span> : AbstractModule() {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>override</span> <span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>configure</span>() {
+</span></span><span style=display:flex><span>        bind(UserService<span style=color:#000;font-weight:700>::</span><span style=color:#000;font-weight:700>class</span>.java).to(DefaultUserServiceImpl<span style=color:#000;font-weight:700>::</span><span style=color:#000;font-weight:700>class</span>.java)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>createContractHandler</span>(routes: List&lt;ContractRoute&gt;, descriptionPath: String): ContractRoutingHttpHandler {
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> contract {
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.routes <span style=color:#f92672>+=</span> routes
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>createContractHandler</span>(routes: List&lt;ContractRoute&gt;, descriptionPath: String): ContractRoutingHttpHandler {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>return</span> contract {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>this</span>.routes <span style=color:#000;font-weight:700>+=</span> routes
 </span></span><span style=display:flex><span>        renderer = OpenApi3(
-</span></span><span style=display:flex><span>                ApiInfo(<span style=color:#e6db74>&#34;User API&#34;</span>, <span style=color:#e6db74>&#34;v1.0&#34;</span>),
+</span></span><span style=display:flex><span>                ApiInfo(<span style=color:#d14>&#34;User API&#34;</span>, <span style=color:#d14>&#34;v1.0&#34;</span>),
 </span></span><span style=display:flex><span>                Jackson,
-</span></span><span style=display:flex><span>                servers = listOf(ApiServer(<span style=color:#a6e22e>Uri</span>.of(<span style=color:#e6db74>&#34;http://localhost:8080/&#34;</span>), <span style=color:#e6db74>&#34;local server&#34;</span>))
+</span></span><span style=display:flex><span>                servers = listOf(ApiServer(<span style=color:#458;font-weight:700>Uri</span>.of(<span style=color:#d14>&#34;http://localhost:8080/&#34;</span>), <span style=color:#d14>&#34;local server&#34;</span>))
 </span></span><span style=display:flex><span>        )
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>this</span>.descriptionPath = descriptionPath
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>this</span>.descriptionPath = descriptionPath
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>val</span> timingFilter = Filter { next: HttpHandler <span style=color:#f92672>-&gt;</span>
-</span></span><span style=display:flex><span>    { req: Request <span style=color:#f92672>-&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> start = <span style=color:#a6e22e>System</span>.currentTimeMillis()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> resp: Response = next(req)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>val</span> timeElapsed = <span style=color:#a6e22e>System</span>.currentTimeMillis() - start
-</span></span><span style=display:flex><span>        println(<span style=color:#e6db74>&#34;[timing filter] request to </span><span style=color:#e6db74>${req.uri}</span><span style=color:#e6db74> took </span><span style=color:#e6db74>${timeElapsed}</span><span style=color:#e6db74>ms&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>val</span> timingFilter = Filter { next: HttpHandler <span style=color:#000;font-weight:700>-&gt;</span>
+</span></span><span style=display:flex><span>    { req: Request <span style=color:#000;font-weight:700>-&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>val</span> start = <span style=color:#458;font-weight:700>System</span>.currentTimeMillis()
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>val</span> resp: Response = next(req)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>val</span> timeElapsed = <span style=color:#458;font-weight:700>System</span>.currentTimeMillis() - start
+</span></span><span style=display:flex><span>        println(<span style=color:#d14>&#34;[timing filter] request to </span><span style=color:#d14>${req.uri}</span><span style=color:#d14> took </span><span style=color:#d14>${timeElapsed}</span><span style=color:#d14>ms&#34;</span>)
 </span></span><span style=display:flex><span>        resp
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>fun</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// guice
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> injector = <span style=color:#a6e22e>Guice</span>.createInjector(MainGuiceModule())
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>val</span> userController = injector.getInstance(UserController<span style=color:#f92672>::</span><span style=color:#66d9ef>class</span>.java)
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>fun</span> <span style=color:#900;font-weight:700>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// guice
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    <span style=color:#000;font-weight:700>val</span> injector = <span style=color:#458;font-weight:700>Guice</span>.createInjector(MainGuiceModule())
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>val</span> userController = injector.getInstance(UserController<span style=color:#000;font-weight:700>::</span><span style=color:#000;font-weight:700>class</span>.java)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// app
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> app: HttpHandler = routes(
-</span></span><span style=display:flex><span>            createContractHandler(userController.routes, <span style=color:#e6db74>&#34;/openapi.json&#34;</span>),
-</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;/swagger&#34;</span> bind swaggerUiWebjar {
-</span></span><span style=display:flex><span>                url = <span style=color:#e6db74>&#34;/openapi.json&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// app
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    <span style=color:#000;font-weight:700>val</span> app: HttpHandler = routes(
+</span></span><span style=display:flex><span>            createContractHandler(userController.routes, <span style=color:#d14>&#34;/openapi.json&#34;</span>),
+</span></span><span style=display:flex><span>            <span style=color:#d14>&#34;/swagger&#34;</span> bind swaggerUiWebjar {
+</span></span><span style=display:flex><span>                url = <span style=color:#d14>&#34;/openapi.json&#34;</span>
 </span></span><span style=display:flex><span>            }
 </span></span><span style=display:flex><span>    )
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// start
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#66d9ef>val</span> filteredApp: HttpHandler = <span style=color:#a6e22e>CachingFilters</span>.<span style=color:#a6e22e>Response</span>.NoCache().then(timingFilter).then(app)
-</span></span><span style=display:flex><span>    filteredApp.asServer(SunHttp(<span style=color:#ae81ff>8080</span>)).start().block()
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// start
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    <span style=color:#000;font-weight:700>val</span> filteredApp: HttpHandler = <span style=color:#458;font-weight:700>CachingFilters</span>.<span style=color:#458;font-weight:700>Response</span>.NoCache().then(timingFilter).then(app)
+</span></span><span style=display:flex><span>    filteredApp.asServer(SunHttp(<span style=color:#099>8080</span>)).start().block()
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>下面浅析一下这段代码：</p><ul><li><code>MainGuiceModule</code>类用于 Guice 的相关配置，这里指明了接口和实现；</li><li><code>createContractHandler</code>函数用于配置总路由和 OpenAPI 信息；</li><li><code>timingFilter</code>用于演示 http4k 中自定义<code>Filter</code>的写法，该<code>Filter</code>负责对每个请求打印请求路径和耗时信息；</li><li><code>main</code>函数首先配置了一下 Guice；然后配置了一下根 app 路由和 Swagger；最后在 app 上加了自定义 Filter 后将其启动（Server 类型使用了默认的<code>SunHttp</code>，http4k 还支持<code>Jetty</code>、<code>Undertow</code>等其它服务类型）。</li></ul><h2 id=4-api-测试与验证>4 API 测试与验证</h2><p>项目开发完成后，即可以启动和验证了。</p><p>启动命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>./gradlew run
-</span></span></code></pre></div><p>启动后，浏览器打开<code>http://localhost:8080/swagger</code>，即可以看到自动生成的 Swagger UI。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2023/09/http4k-swagger-ui.png#center alt="Kotlin Swagger UI"></p><h3 id=41-查询所有-user>4.1 查询所有 User</h3><p>下面验证一下各个 API。</p><p>首先查询一下所有 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users
+</span></span></code></pre></div><p>下面浅析一下这段代码：</p><ul><li><code>MainGuiceModule</code>类用于 Guice 的相关配置，这里指明了接口和实现；</li><li><code>createContractHandler</code>函数用于配置总路由和 OpenAPI 信息；</li><li><code>timingFilter</code>用于演示 http4k 中自定义<code>Filter</code>的写法，该<code>Filter</code>负责对每个请求打印请求路径和耗时信息；</li><li><code>main</code>函数首先配置了一下 Guice；然后配置了一下根 app 路由和 Swagger；最后在 app 上加了自定义 Filter 后将其启动（Server 类型使用了默认的<code>SunHttp</code>，http4k 还支持<code>Jetty</code>、<code>Undertow</code>等其它服务类型）。</li></ul><h2 id=4-api-测试与验证>4 API 测试与验证</h2><p>项目开发完成后，即可以启动和验证了。</p><p>启动命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>./gradlew run
+</span></span></code></pre></div><p>启动后，浏览器打开<code>http://localhost:8080/swagger</code>，即可以看到自动生成的 Swagger UI。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2023/09/http4k-swagger-ui.png#center alt="Kotlin Swagger UI"></p><h3 id=41-查询所有-user>4.1 查询所有 User</h3><p>下面验证一下各个 API。</p><p>首先查询一下所有 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>[{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:2,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Stephen&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>,<span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:3,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Jacky&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:24<span style=color:#f92672>}]</span>
-</span></span></code></pre></div><p>可以看到三条预置数据正确返回。</p><p>查询服务控制台，可以看到 Filter 打印了该请求的耗时信息：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[timing filter] GET /users took 6ms
-</span></span></code></pre></div><h3 id=42-查询单个-user>4.2 查询单个 User</h3><p>下面查询一下 ID 为 1 的 User，CURL 命名如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/1
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[{</span><span style=color:#d14>&#34;id&#34;</span>:1,<span style=color:#d14>&#34;name&#34;</span>:<span style=color:#d14>&#34;Larry&#34;</span>,<span style=color:#d14>&#34;age&#34;</span>:28<span style=color:#000;font-weight:700>}</span>,<span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;id&#34;</span>:2,<span style=color:#d14>&#34;name&#34;</span>:<span style=color:#d14>&#34;Stephen&#34;</span>,<span style=color:#d14>&#34;age&#34;</span>:19<span style=color:#000;font-weight:700>}</span>,<span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;id&#34;</span>:3,<span style=color:#d14>&#34;name&#34;</span>:<span style=color:#d14>&#34;Jacky&#34;</span>,<span style=color:#d14>&#34;age&#34;</span>:24<span style=color:#000;font-weight:700>}]</span>
+</span></span></code></pre></div><p>可以看到三条预置数据正确返回。</p><p>查询服务控制台，可以看到 Filter 打印了该请求的耗时信息：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[timing filter] GET /users took 6ms
+</span></span></code></pre></div><h3 id=42-查询单个-user>4.2 查询单个 User</h3><p>下面查询一下 ID 为 1 的 User，CURL 命名如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/1
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:28<span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>服务控制台同样打印了该请求的耗时信息：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[timing filter] GET /users/1 took 4ms
-</span></span></code></pre></div><p>尝试查询一个不存在的 User：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/100
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;id&#34;</span>:1,<span style=color:#d14>&#34;name&#34;</span>:<span style=color:#d14>&#34;Larry&#34;</span>,<span style=color:#d14>&#34;age&#34;</span>:28<span style=color:#000;font-weight:700>}</span>
+</span></span></code></pre></div><p>服务控制台同样打印了该请求的耗时信息：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[timing filter] GET /users/1 took 4ms
+</span></span></code></pre></div><p>尝试查询一个不存在的 User：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/100
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>可以看到，返回了我们在<code>ErrorCodes.kt</code>枚举类中定义的错误信息。</p><h3 id=43-更新-user>4.3 更新 User</h3><p>再尝试更新一下 ID 为 1 的 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X PATCH -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
-</span></span></code></pre></div><p>更新完成后，再次查询，发现更新成功：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/1
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;code&#34;</span>:<span style=color:#d14>&#34;user_not_found&#34;</span>,<span style=color:#d14>&#34;description&#34;</span>:<span style=color:#d14>&#34;user not found&#34;</span><span style=color:#000;font-weight:700>}</span>
+</span></span></code></pre></div><p>可以看到，返回了我们在<code>ErrorCodes.kt</code>枚举类中定义的错误信息。</p><h3 id=43-更新-user>4.3 更新 User</h3><p>再尝试更新一下 ID 为 1 的 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X PATCH -H <span style=color:#d14>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#d14>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
+</span></span></code></pre></div><p>更新完成后，再次查询，发现更新成功：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X GET http://localhost:8080/users/1
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;id&#34;</span>:1,<span style=color:#e6db74>&#34;name&#34;</span>:<span style=color:#e6db74>&#34;Larry2&#34;</span>,<span style=color:#e6db74>&#34;age&#34;</span>:19<span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>服务端控制台同样打印了该请求的耗时信息：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[timing filter] PATCH /users took 31ms
-</span></span></code></pre></div><p>再尝试对一个不存在的 User 进行更新，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X PATCH -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 100, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;id&#34;</span>:1,<span style=color:#d14>&#34;name&#34;</span>:<span style=color:#d14>&#34;Larry2&#34;</span>,<span style=color:#d14>&#34;age&#34;</span>:19<span style=color:#000;font-weight:700>}</span>
+</span></span></code></pre></div><p>服务端控制台同样打印了该请求的耗时信息：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[timing filter] PATCH /users took 31ms
+</span></span></code></pre></div><p>再尝试对一个不存在的 User 进行更新，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X PATCH -H <span style=color:#d14>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#d14>&#39;{&#34;id&#34;: 100, &#34;name&#34;: &#34;Larry2&#34;, &#34;age&#34;: 19}&#39;</span> http://localhost:8080/users
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>发现返回了我们设定的错误信息。</p><h3 id=44-新建-user>4.4 新建 User</h3><p>下面，尝试一下新建 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X POST -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 4, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
-</span></span></code></pre></div><p>再尝试新建一个 ID 已存在的 User：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X POST -H <span style=color:#e6db74>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#e6db74>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;code&#34;</span>:<span style=color:#d14>&#34;user_not_found&#34;</span>,<span style=color:#d14>&#34;description&#34;</span>:<span style=color:#d14>&#34;user not found&#34;</span><span style=color:#000;font-weight:700>}</span>
+</span></span></code></pre></div><p>发现返回了我们设定的错误信息。</p><h3 id=44-新建-user>4.4 新建 User</h3><p>下面，尝试一下新建 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X POST -H <span style=color:#d14>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#d14>&#39;{&#34;id&#34;: 4, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
+</span></span></code></pre></div><p>再尝试新建一个 ID 已存在的 User：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl -X POST -H <span style=color:#d14>&#39;Content-Type: application/json&#39;</span> -d <span style=color:#d14>&#39;{&#34;id&#34;: 1, &#34;name&#34;: &#34;Lucy&#34;, &#34;age&#34;: 16}&#39;</span> http://localhost:8080/users
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_already_exists&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user already exists&#34;</span><span style=color:#f92672>}</span>
-</span></span></code></pre></div><p>返回均是正确的。</p><h3 id=45-删除单个-user>4.5 删除单个 User</h3><p>最后试一下删除 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#75715e># 删除已有 User</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;code&#34;</span>:<span style=color:#d14>&#34;user_already_exists&#34;</span>,<span style=color:#d14>&#34;description&#34;</span>:<span style=color:#d14>&#34;user already exists&#34;</span><span style=color:#000;font-weight:700>}</span>
+</span></span></code></pre></div><p>返回均是正确的。</p><h3 id=45-删除单个-user>4.5 删除单个 User</h3><p>最后试一下删除 User，CURL 命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#998;font-style:italic># 删除已有 User</span>
 </span></span><span style=display:flex><span>curl -X DELETE http://localhost:8080/users/1
-</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#75715e># 删除不存在的 User</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#998;font-style:italic># 删除不存在的 User</span>
 </span></span><span style=display:flex><span>curl -X DELETE http://localhost:8080/users/100
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>{</span><span style=color:#e6db74>&#34;code&#34;</span>:<span style=color:#e6db74>&#34;user_not_found&#34;</span>,<span style=color:#e6db74>&#34;description&#34;</span>:<span style=color:#e6db74>&#34;user not found&#34;</span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span><span style=color:#d14>&#34;code&#34;</span>:<span style=color:#d14>&#34;user_not_found&#34;</span>,<span style=color:#d14>&#34;description&#34;</span>:<span style=color:#d14>&#34;user not found&#34;</span><span style=color:#000;font-weight:700>}</span>
 </span></span></code></pre></div><p>返回也是正确的。</p><p>综上，本文尝试使用 http4k 工具包开发了针对 User 增、删、改、查的通用 RESTful API，并进行了简单的测试，总体来看该包还是比较轻量，比较易于使用的。</p><p>本文涉及的整个样例项目代码已托管至本人 <a href=https://github.com/leileiluoluo/kotlin-exercises/tree/main/http4k-restful-service-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://www.http4k.org/documentation/>Introduction | http4k - www.http4k.org</a></p><p>[2] <a href=https://github.com/http4k/http4k-by-example>http4k Examples | GitHub - github.com</a></p><p>[3] <a href=https://github.com/dashfwd/kotlin-guice-examples>Kotlin Guice Examples | GitHub - GitHub.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/kotlin/>#Kotlin</a>
 <a href=/tags/gradle/>#Gradle</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/building-restful-api-with-ktor.html>如何使用 Kotlin Web 框架 Ktor 构建 RESTful API 服务？</a></li><li><a href=/posts/building-restful-api-with-spring-boot-and-kotlin.html>如何使用 Spring Boot 和 Kotlin 构建 RESTful API 服务？</a></li><li><a href=/posts/kotlin-idioms-and-best-practices.html>对比 Java 学习 Kotlin 中的惯用写法与最佳实践</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>
 <span>正在加载评论......</span></div><script>function handleMessage(e){if(e.origin!=="https://giscus.app")return;if(typeof e.data!="object"||!e.data.giscus)return;const t=document.getElementById("comment-loading");t.style.display="none"}window.addEventListener("message",handleMessage)</script><script src=https://giscus.app/client.js data-repo=leileiluoluo/leileiluoluo.github.io data-repo-id=R_kgDOJkLT8w data-category=General data-category-id=DIC_kwDOJkLT884CdtEh data-mapping=pathname data-strict=0 data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=preferred_color_scheme data-lang=zh-CN crossorigin=anonymous async></script></div></div></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/leetcode-golang-implementations>LeetCode</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/about>关于本博</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/leileiluoluo><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div style=text-align:center;font-size:18px;margin-bottom:22px><a style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-image:linear-gradient(to right,#14100f,#d55b5b,#4d14e6)" href=https://www.boyouquan.com/planet-shuttle>「博友圈 · 星球穿梭」</a></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.github.io/index.json"</script><script src=https://leileiluoluo.github.io/js/jquery.min.js></script><script src=https://leileiluoluo.github.io/js/bootstrap.min.js></script><script src=https://leileiluoluo.github.io/js/fuse.min.js></script><script src=https://leileiluoluo.github.io/js/mark.js></script><script src=https://leileiluoluo.github.io/js/search.js></script><script src=https://leileiluoluo.github.io/js/script.min.js></script></body></html>
