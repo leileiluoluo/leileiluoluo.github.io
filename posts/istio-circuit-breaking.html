@@ -2,73 +2,73 @@
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="工具使用,服务网格,Service Mesh,云原生,Istio"><meta name=description content="Istio流量管理之熔断 (Circuit Breaking of Istio Traffic Management)"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.2.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Istio 流量管理之熔断</h1><div class="mb-3 post-meta">2020年12月28日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>熔断是创建弹性微服务应用的重要特性，使用熔断可以对并发连接太多，请求过频等做出主动防御，避免服务链条因单一故障问题而出现雪崩效应。</p><p>因熔断设置针对的是具体的目标主机，所以 Istio 使用 Destination Rule 来进行配置。</p><p>本文使用 Istio 自带的 httpbin 样例来设定熔断配置，然后使用 fortio 客户端模拟并发请求来触发熔断。关于 Istio 安装等环境准备，请参阅“<a href=https://leileiluoluo.github.io/posts/istio-get-started.html>Istio 安装使用</a>”。</p><h3 id=1-httpbin-样例部署>1 httpbin 样例部署</h3><p>httpbin 是一个专门用来做 HTTP 请求测试的服务。</p><p>使用 samples 下自带的部署脚本将其部署。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#0086b3>cd</span> /usr/local/istio-1.8.1
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>熔断是创建弹性微服务应用的重要特性，使用熔断可以对并发连接太多，请求过频等做出主动防御，避免服务链条因单一故障问题而出现雪崩效应。</p><p>因熔断设置针对的是具体的目标主机，所以 Istio 使用 Destination Rule 来进行配置。</p><p>本文使用 Istio 自带的 httpbin 样例来设定熔断配置，然后使用 fortio 客户端模拟并发请求来触发熔断。关于 Istio 安装等环境准备，请参阅“<a href=https://leileiluoluo.github.io/posts/istio-get-started.html>Istio 安装使用</a>”。</p><h3 id=1-httpbin-样例部署>1 httpbin 样例部署</h3><p>httpbin 是一个专门用来做 HTTP 请求测试的服务。</p><p>使用 samples 下自带的部署脚本将其部署。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#111>cd</span> /usr/local/istio-1.8.1
 </span></span><span style=display:flex><span>$ kubectl apply -n istio-demo -f samples/httpbin/httpbin.yaml
-</span></span></code></pre></div><h3 id=2-fortio-客户端部署>2 fortio 客户端部署</h3><p>fortio 是一个专门用来做 HTTP 及 gRPC 测试的客户端。</p><p>使用 samples 下自带的部署脚本将其部署。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#0086b3>cd</span> /usr/local/istio-1.8.1
+</span></span></code></pre></div><h3 id=2-fortio-客户端部署>2 fortio 客户端部署</h3><p>fortio 是一个专门用来做 HTTP 及 gRPC 测试的客户端。</p><p>使用 samples 下自带的部署脚本将其部署。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#111>cd</span> /usr/local/istio-1.8.1
 </span></span><span style=display:flex><span>$ kubectl apply -n istio-demo -f samples/httpbin/sample-client/fortio-deploy.yaml
-</span></span></code></pre></div><p>查看 Pod，其已部署完成。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl get pods -n istio-demo | grep fortio
-</span></span></code></pre></div><p>在该 Pod 执行命令，对 httpbin 发起请求，响应显示请求成功。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#0086b3>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c fortio -n istio-demo -- /usr/bin/fortio curl -quiet http://httpbin:8000/get
+</span></span></code></pre></div><p>查看 Pod，其已部署完成。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl get pods -n istio-demo <span style=color:#111>|</span> grep fortio
+</span></span></code></pre></div><p>在该 Pod 执行命令，对 httpbin 发起请求，响应显示请求成功。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#111>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c fortio -n istio-demo -- /usr/bin/fortio curl -quiet http://httpbin:8000/get
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#099>200</span> OK
+</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#ae81ff>200</span> OK
 </span></span><span style=display:flex><span>server: envoy
-</span></span><span style=display:flex><span>date: Tue, <span style=color:#099>29</span> Dec <span style=color:#099>2020</span> 00:57:53 GMT
+</span></span><span style=display:flex><span>date: Tue, <span style=color:#ae81ff>29</span> Dec <span style=color:#ae81ff>2020</span> 00:57:53 GMT
 </span></span><span style=display:flex><span>content-type: application/json
-</span></span><span style=display:flex><span>content-length: <span style=color:#099>628</span>
+</span></span><span style=display:flex><span>content-length: <span style=color:#ae81ff>628</span>
 </span></span><span style=display:flex><span>access-control-allow-origin: *
-</span></span><span style=display:flex><span>access-control-allow-credentials: <span style=color:#0086b3>true</span>
-</span></span><span style=display:flex><span>x-envoy-upstream-service-time: <span style=color:#099>3</span>
+</span></span><span style=display:flex><span>access-control-allow-credentials: <span style=color:#111>true</span>
+</span></span><span style=display:flex><span>x-envoy-upstream-service-time: <span style=color:#ae81ff>3</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>{</span>
-</span></span><span style=display:flex><span>  <span style=color:#d14>&#34;args&#34;</span>: <span style=color:#000;font-weight:700>{}</span>,
-</span></span><span style=display:flex><span>  <span style=color:#d14>&#34;headers&#34;</span>: <span style=color:#000;font-weight:700>{</span>
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;Content-Length&#34;</span>: <span style=color:#d14>&#34;0&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;Host&#34;</span>: <span style=color:#d14>&#34;httpbin:8000&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;User-Agent&#34;</span>: <span style=color:#d14>&#34;fortio.org/fortio-1.11.3&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;X-B3-Parentspanid&#34;</span>: <span style=color:#d14>&#34;5eaef1e4a496b17b&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;X-B3-Sampled&#34;</span>: <span style=color:#d14>&#34;1&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;X-B3-Spanid&#34;</span>: <span style=color:#d14>&#34;39a6ff187e9d25f3&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;X-B3-Traceid&#34;</span>: <span style=color:#d14>&#34;cb07253ba49f9fb05eaef1e4a496b17b&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;X-Envoy-Attempt-Count&#34;</span>: <span style=color:#d14>&#34;1&#34;</span>,
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;X-Forwarded-Client-Cert&#34;</span>: <span style=color:#d14>&#34;By=spiffe://cluster.local/ns/istio-demo/sa/httpbin;Hash=d7126b5e272db10e8d7fc2e5a68d724fa01b7bd4fbbe3b21c830156d8ac0c647;Subject=\&#34;\&#34;;URI=spiffe://cluster.local/ns/istio-demo/sa/default&#34;</span>
-</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>}</span>,
-</span></span><span style=display:flex><span>  <span style=color:#d14>&#34;origin&#34;</span>: <span style=color:#d14>&#34;127.0.0.1&#34;</span>,
-</span></span><span style=display:flex><span>  <span style=color:#d14>&#34;url&#34;</span>: <span style=color:#d14>&#34;http://httpbin:8000/get&#34;</span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>}</span>
-</span></span></code></pre></div><p>设定并发连接数为 2（<code>-c 2</code>），一次发送 20 个请求（<code>-n 20</code>），报告显示 Code 均为 200。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#0086b3>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c fortio -n istio-demo -- /usr/bin/fortio load -c <span style=color:#099>2</span> -qps <span style=color:#099>0</span> -n <span style=color:#099>20</span> http://httpbin:8000/get
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>...
-</span></span><span style=display:flex><span>Code <span style=color:#099>200</span> : <span style=color:#099>20</span> <span style=color:#000;font-weight:700>(</span>100.0 %<span style=color:#000;font-weight:700>)</span>
-</span></span><span style=display:flex><span>...
-</span></span></code></pre></div><h3 id=3-熔断测试>3 熔断测试</h3><p>对 httpbin 配置 Destination Rule，设置熔断参数。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#d14>&lt;&lt;EOF
-</span></span></span><span style=display:flex><span><span style=color:#d14>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span></span></span><span style=display:flex><span><span style=color:#d14>kind: DestinationRule
-</span></span></span><span style=display:flex><span><span style=color:#d14>metadata:
-</span></span></span><span style=display:flex><span><span style=color:#d14>  name: httpbin
-</span></span></span><span style=display:flex><span><span style=color:#d14>spec:
-</span></span></span><span style=display:flex><span><span style=color:#d14>  host: httpbin
-</span></span></span><span style=display:flex><span><span style=color:#d14>  trafficPolicy:
-</span></span></span><span style=display:flex><span><span style=color:#d14>    connectionPool:
-</span></span></span><span style=display:flex><span><span style=color:#d14>      tcp:
-</span></span></span><span style=display:flex><span><span style=color:#d14>        maxConnections: 1
-</span></span></span><span style=display:flex><span><span style=color:#d14>      http:
-</span></span></span><span style=display:flex><span><span style=color:#d14>        http1MaxPendingRequests: 1
-</span></span></span><span style=display:flex><span><span style=color:#d14>        maxRequestsPerConnection: 1
-</span></span></span><span style=display:flex><span><span style=color:#d14>    outlierDetection:
-</span></span></span><span style=display:flex><span><span style=color:#d14>      consecutiveErrors: 1
-</span></span></span><span style=display:flex><span><span style=color:#d14>      interval: 1s
-</span></span></span><span style=display:flex><span><span style=color:#d14>      baseEjectionTime: 3m
-</span></span></span><span style=display:flex><span><span style=color:#d14>      maxEjectionPercent: 100
-</span></span></span><span style=display:flex><span><span style=color:#d14>heredoc&gt; EOF</span>
-</span></span></code></pre></div><p>重新使用 fortio 客户端进行测试：设定并发连接数为 2（<code>-c 2</code>），一次发送 20 个请求（<code>-n 20</code>），报告显示 25.0%的请求返回 Code 503。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#0086b3>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c fortio -n istio-demo -- /usr/bin/fortio load -c <span style=color:#099>2</span> -qps <span style=color:#099>0</span> -n <span style=color:#099>20</span> http://httpbin:8000/get
+</span></span><span style=display:flex><span><span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>  <span style=color:#d88200>&#34;args&#34;</span>: <span style=color:#f92672>{}</span>,
+</span></span><span style=display:flex><span>  <span style=color:#d88200>&#34;headers&#34;</span>: <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;Content-Length&#34;</span>: <span style=color:#d88200>&#34;0&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;Host&#34;</span>: <span style=color:#d88200>&#34;httpbin:8000&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;User-Agent&#34;</span>: <span style=color:#d88200>&#34;fortio.org/fortio-1.11.3&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;X-B3-Parentspanid&#34;</span>: <span style=color:#d88200>&#34;5eaef1e4a496b17b&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;X-B3-Sampled&#34;</span>: <span style=color:#d88200>&#34;1&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;X-B3-Spanid&#34;</span>: <span style=color:#d88200>&#34;39a6ff187e9d25f3&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;X-B3-Traceid&#34;</span>: <span style=color:#d88200>&#34;cb07253ba49f9fb05eaef1e4a496b17b&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;X-Envoy-Attempt-Count&#34;</span>: <span style=color:#d88200>&#34;1&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;X-Forwarded-Client-Cert&#34;</span>: <span style=color:#d88200>&#34;By=spiffe://cluster.local/ns/istio-demo/sa/httpbin;Hash=d7126b5e272db10e8d7fc2e5a68d724fa01b7bd4fbbe3b21c830156d8ac0c647;Subject=\&#34;\&#34;;URI=spiffe://cluster.local/ns/istio-demo/sa/default&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>}</span>,
+</span></span><span style=display:flex><span>  <span style=color:#d88200>&#34;origin&#34;</span>: <span style=color:#d88200>&#34;127.0.0.1&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#d88200>&#34;url&#34;</span>: <span style=color:#d88200>&#34;http://httpbin:8000/get&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>设定并发连接数为 2（<code>-c 2</code>），一次发送 20 个请求（<code>-n 20</code>），报告显示 Code 均为 200。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#111>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c fortio -n istio-demo -- /usr/bin/fortio load -c <span style=color:#ae81ff>2</span> -qps <span style=color:#ae81ff>0</span> -n <span style=color:#ae81ff>20</span> http://httpbin:8000/get
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>...
-</span></span><span style=display:flex><span>Code <span style=color:#099>200</span> : <span style=color:#099>15</span> <span style=color:#000;font-weight:700>(</span>75.0 %<span style=color:#000;font-weight:700>)</span>
-</span></span><span style=display:flex><span>Code <span style=color:#099>503</span> : <span style=color:#099>5</span> <span style=color:#000;font-weight:700>(</span>25.0 %<span style=color:#000;font-weight:700>)</span>
+</span></span><span style=display:flex><span>Code <span style=color:#ae81ff>200</span> : <span style=color:#ae81ff>20</span> <span style=color:#f92672>(</span>100.0 %<span style=color:#f92672>)</span>
 </span></span><span style=display:flex><span>...
-</span></span></code></pre></div><p>进入 fortio 的<code>istio-proxy</code> Sidecar，查看<code>pilot-agent</code>状态，显示有 5 个请求发生溢出。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#0086b3>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c istio-proxy -n istio-demo -- pilot-agent request GET stats | grep httpbin | grep pending
+</span></span></code></pre></div><h3 id=3-熔断测试>3 熔断测试</h3><p>对 httpbin 配置 Destination Rule，设置熔断参数。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#d88200>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#d88200>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#d88200>kind: DestinationRule
+</span></span></span><span style=display:flex><span><span style=color:#d88200>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>  name: httpbin
+</span></span></span><span style=display:flex><span><span style=color:#d88200>spec:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>  host: httpbin
+</span></span></span><span style=display:flex><span><span style=color:#d88200>  trafficPolicy:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>    connectionPool:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>      tcp:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>        maxConnections: 1
+</span></span></span><span style=display:flex><span><span style=color:#d88200>      http:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>        http1MaxPendingRequests: 1
+</span></span></span><span style=display:flex><span><span style=color:#d88200>        maxRequestsPerConnection: 1
+</span></span></span><span style=display:flex><span><span style=color:#d88200>    outlierDetection:
+</span></span></span><span style=display:flex><span><span style=color:#d88200>      consecutiveErrors: 1
+</span></span></span><span style=display:flex><span><span style=color:#d88200>      interval: 1s
+</span></span></span><span style=display:flex><span><span style=color:#d88200>      baseEjectionTime: 3m
+</span></span></span><span style=display:flex><span><span style=color:#d88200>      maxEjectionPercent: 100
+</span></span></span><span style=display:flex><span><span style=color:#d88200>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>重新使用 fortio 客户端进行测试：设定并发连接数为 2（<code>-c 2</code>），一次发送 20 个请求（<code>-n 20</code>），报告显示 25.0%的请求返回 Code 503。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#111>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c fortio -n istio-demo -- /usr/bin/fortio load -c <span style=color:#ae81ff>2</span> -qps <span style=color:#ae81ff>0</span> -n <span style=color:#ae81ff>20</span> http://httpbin:8000/get
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>cluster.outbound|8000<span style=color:#000;font-weight:700>||</span>httpbin.istio-demo.svc.cluster.local.upstream_rq_pending_overflow: <span style=color:#099>5</span>
-</span></span></code></pre></div><p>此即说明触发了 httpbin 的熔断设置。</p><h3 id=4-环境清理>4 环境清理</h3><p>测试完成，使用如下命令对 httpbin 及 fortio 进行卸载，删除临时 destinationrule。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl delete -n istio-demo -f samples/httpbin/httpbin.yaml
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>Code <span style=color:#ae81ff>200</span> : <span style=color:#ae81ff>15</span> <span style=color:#f92672>(</span>75.0 %<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>Code <span style=color:#ae81ff>503</span> : <span style=color:#ae81ff>5</span> <span style=color:#f92672>(</span>25.0 %<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>...
+</span></span></code></pre></div><p>进入 fortio 的<code>istio-proxy</code> Sidecar，查看<code>pilot-agent</code>状态，显示有 5 个请求发生溢出。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl <span style=color:#111>exec</span> fortio-deploy-576dbdfbc4-8gr9c -c istio-proxy -n istio-demo -- pilot-agent request GET stats <span style=color:#111>|</span> grep httpbin <span style=color:#111>|</span> grep pending
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>cluster.outbound<span style=color:#111>|</span>8000<span style=color:#f92672>||</span>httpbin.istio-demo.svc.cluster.local.upstream_rq_pending_overflow: <span style=color:#ae81ff>5</span>
+</span></span></code></pre></div><p>此即说明触发了 httpbin 的熔断设置。</p><h3 id=4-环境清理>4 环境清理</h3><p>测试完成，使用如下命令对 httpbin 及 fortio 进行卸载，删除临时 destinationrule。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl delete -n istio-demo -f samples/httpbin/httpbin.yaml
 </span></span><span style=display:flex><span>$ kubectl delete -n istio-demo -f samples/httpbin/sample-client/fortio-deploy.yaml
 </span></span><span style=display:flex><span>$ kubectl delete destinationrule/httpbin -n istio-demo
 </span></span></code></pre></div><p>总结本文，首先介绍了 Istio 支持在 Destination Rule 上配置熔断，然后对 httpbin 样例配置了熔断，并使用 fortio 客户端对其进行了测试。</p><blockquote><p>参考资料</p><p>[1] <a href=https://istio.io/latest/docs/tasks/traffic-management/circuit-breaking/>Istio Circuit Breaking</a></p><p>[2] <a href=https://istio.io/latest/docs/concepts/traffic-management/>Istio Traffic Management</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC/>#服务网格</a>

@@ -7,61 +7,61 @@
 目前Go编译器支持对一个包内的函数利用多核进行并行编译。</li></ul><p>之前Go命令已支持对不同包的并行编译。并行编译默认开启，若想关闭，可设置环境变量GO19CONCURRENTCOMPILATION为0。</p><ul><li>文档
 参数列表太长，会被截断，这样提升了某些自动生成代码的go doc可读性。</li></ul><p>目前支持结构体字段文档查看，如：go doc http.Client.Jar。</p><ul><li><p>环境信息
 使用go env -json可以将环境信息以json格式输出。</p></li><li><p>测试
-使用go test -list，然后跟一个正则表达式，可以列出与之匹配的测试名称。</p></li></ul><p><strong>3 运行时方面</strong></p><p>调用栈包含内联帧。</p><p>使用runtime.Caller可以获取单次调用的信息，使用runtime.CallersFrames可以获取调用栈完整视图。</p><p>不建议使用runtime.Callers查询PC slice，然后遍历其调用runtime.FuncForPC等来单独查询PC，这样可能丢失调用栈的内联帧。</p><p>接下来看一个使用的例子：</p><p>封装一个err函数，用于记录错误发生时的堆栈信息，其内部使用runtime.Callers、runtime.CallersFrames来获取调用栈的帧信息。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> main
+使用go test -list，然后跟一个正则表达式，可以列出与之匹配的测试名称。</p></li></ul><p><strong>3 运行时方面</strong></p><p>调用栈包含内联帧。</p><p>使用runtime.Caller可以获取单次调用的信息，使用runtime.CallersFrames可以获取调用栈完整视图。</p><p>不建议使用runtime.Callers查询PC slice，然后遍历其调用runtime.FuncForPC等来单独查询PC，这样可能丢失调用栈的内联帧。</p><p>接下来看一个使用的例子：</p><p>封装一个err函数，用于记录错误发生时的堆栈信息，其内部使用runtime.Callers、runtime.CallersFrames来获取调用栈的帧信息。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#75af00>main</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;runtime&#34;</span>
-</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>(</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;runtime&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#111>)</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>f2</span>() {
-</span></span><span style=display:flex><span>    f3 <span style=color:#000;font-weight:700>:=</span> <span style=color:#000;font-weight:700>func</span>() {
-</span></span><span style=display:flex><span>        <span style=color:#900;font-weight:700>err</span>(<span style=color:#d14>&#34;error&#34;</span>)
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#900;font-weight:700>f3</span>()
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>f2</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>f3</span> <span style=color:#f92672>:=</span> <span style=color:#00a8c8>func</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>err</span><span style=color:#111>(</span><span style=color:#d88200>&#34;error&#34;</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>f3</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>f1</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#900;font-weight:700>f2</span>()
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>f1</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>f2</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>err</span>(err <span style=color:#458;font-weight:700>string</span>) {
-</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;err: %s, call stack:\n&#34;</span>, err)
-</span></span><span style=display:flex><span>    ptrs <span style=color:#000;font-weight:700>:=</span> <span style=color:#0086b3>make</span>([]<span style=color:#458;font-weight:700>uintptr</span>, <span style=color:#099>32</span>)
-</span></span><span style=display:flex><span>    count <span style=color:#000;font-weight:700>:=</span> runtime.<span style=color:#900;font-weight:700>Callers</span>(<span style=color:#099>2</span>, ptrs)
-</span></span><span style=display:flex><span>    frames <span style=color:#000;font-weight:700>:=</span> runtime.<span style=color:#900;font-weight:700>CallersFrames</span>(ptrs[:count])
-</span></span><span style=display:flex><span>    blanks <span style=color:#000;font-weight:700>:=</span> <span style=color:#d14>&#34;  &#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>for</span> {
-</span></span><span style=display:flex><span>        frame, more <span style=color:#000;font-weight:700>:=</span> frames.<span style=color:#900;font-weight:700>Next</span>()
-</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> !more {
-</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>break</span>
-</span></span><span style=display:flex><span>        }
-</span></span><span style=display:flex><span>        fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;%s%s:%d, func: %s\n&#34;</span>, blanks, frame.File, frame.Line, frame.Function)
-</span></span><span style=display:flex><span>        blanks <span style=color:#000;font-weight:700>+=</span> <span style=color:#d14>&#34;  &#34;</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>err</span><span style=color:#111>(</span><span style=color:#75af00>err</span> <span style=color:#00a8c8>string</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;err: %s, call stack:\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>err</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>ptrs</span> <span style=color:#f92672>:=</span> <span style=color:#111>make</span><span style=color:#111>([]</span><span style=color:#00a8c8>uintptr</span><span style=color:#111>,</span> <span style=color:#ae81ff>32</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>count</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>runtime</span><span style=color:#111>.</span><span style=color:#75af00>Callers</span><span style=color:#111>(</span><span style=color:#ae81ff>2</span><span style=color:#111>,</span> <span style=color:#75af00>ptrs</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>frames</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>runtime</span><span style=color:#111>.</span><span style=color:#75af00>CallersFrames</span><span style=color:#111>(</span><span style=color:#75af00>ptrs</span><span style=color:#111>[:</span><span style=color:#75af00>count</span><span style=color:#111>])</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>blanks</span> <span style=color:#f92672>:=</span> <span style=color:#d88200>&#34;  &#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>for</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>frame</span><span style=color:#111>,</span> <span style=color:#75af00>more</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>frames</span><span style=color:#111>.</span><span style=color:#75af00>Next</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#111>!</span><span style=color:#75af00>more</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#00a8c8>break</span>
+</span></span><span style=display:flex><span>        <span style=color:#111>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;%s%s:%d, func: %s\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>blanks</span><span style=color:#111>,</span> <span style=color:#75af00>frame</span><span style=color:#111>.</span><span style=color:#75af00>File</span><span style=color:#111>,</span> <span style=color:#75af00>frame</span><span style=color:#111>.</span><span style=color:#75af00>Line</span><span style=color:#111>,</span> <span style=color:#75af00>frame</span><span style=color:#111>.</span><span style=color:#75af00>Function</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>blanks</span> <span style=color:#f92672>+=</span> <span style=color:#d88200>&#34;  &#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#900;font-weight:700>f1</span>()
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>main</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>f1</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span></code></pre></div><p>运行结果为：</p><pre tabindex=0><code>err: error, call stack:
   ~/workspace/src/github.com/larry/test/test.go:10, func: main.f2.func1
     ~/workspace/src/github.com/larry/test/test.go:12, func: main.f2
       ~/workspace/src/github.com/larry/test/test.go:16, func: main.f1
         ~/workspace/src/github.com/larry/test/test.go:36, func: main.main
           ~/go/src/runtime/proc.go:200, func: runtime.main
-</code></pre><p>若err函数使用不推荐的方式实现（使用runtime.Callers获取PC slice，再遍历其调用runtime.FuncForPC获取具体信息），代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>err</span>(err <span style=color:#458;font-weight:700>string</span>) {
-</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;err: %s, call stack:\n&#34;</span>, err)
-</span></span><span style=display:flex><span>    ptrs <span style=color:#000;font-weight:700>:=</span> <span style=color:#0086b3>make</span>([]<span style=color:#458;font-weight:700>uintptr</span>, <span style=color:#099>32</span>)
-</span></span><span style=display:flex><span>    count <span style=color:#000;font-weight:700>:=</span> runtime.<span style=color:#900;font-weight:700>Callers</span>(<span style=color:#099>2</span>, ptrs)
-</span></span><span style=display:flex><span>    blanks <span style=color:#000;font-weight:700>:=</span> <span style=color:#d14>&#34;  &#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>for</span> _, ptr <span style=color:#000;font-weight:700>:=</span> <span style=color:#000;font-weight:700>range</span> ptrs[:count] {
-</span></span><span style=display:flex><span>        funcForPC <span style=color:#000;font-weight:700>:=</span> runtime.<span style=color:#900;font-weight:700>FuncForPC</span>(ptr)
-</span></span><span style=display:flex><span>        f, line <span style=color:#000;font-weight:700>:=</span> funcForPC.<span style=color:#900;font-weight:700>FileLine</span>(ptr)
-</span></span><span style=display:flex><span>        fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;%s%s:%d, func: %s\n&#34;</span>, blanks, f, line, funcForPC.<span style=color:#900;font-weight:700>Name</span>())
-</span></span><span style=display:flex><span>        blanks <span style=color:#000;font-weight:700>+=</span> <span style=color:#d14>&#34;  &#34;</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
+</code></pre><p>若err函数使用不推荐的方式实现（使用runtime.Callers获取PC slice，再遍历其调用runtime.FuncForPC获取具体信息），代码如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>err</span><span style=color:#111>(</span><span style=color:#75af00>err</span> <span style=color:#00a8c8>string</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;err: %s, call stack:\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>err</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>ptrs</span> <span style=color:#f92672>:=</span> <span style=color:#111>make</span><span style=color:#111>([]</span><span style=color:#00a8c8>uintptr</span><span style=color:#111>,</span> <span style=color:#ae81ff>32</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>count</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>runtime</span><span style=color:#111>.</span><span style=color:#75af00>Callers</span><span style=color:#111>(</span><span style=color:#ae81ff>2</span><span style=color:#111>,</span> <span style=color:#75af00>ptrs</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>blanks</span> <span style=color:#f92672>:=</span> <span style=color:#d88200>&#34;  &#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>for</span> <span style=color:#75af00>_</span><span style=color:#111>,</span> <span style=color:#75af00>ptr</span> <span style=color:#f92672>:=</span> <span style=color:#00a8c8>range</span> <span style=color:#75af00>ptrs</span><span style=color:#111>[:</span><span style=color:#75af00>count</span><span style=color:#111>]</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>funcForPC</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>runtime</span><span style=color:#111>.</span><span style=color:#75af00>FuncForPC</span><span style=color:#111>(</span><span style=color:#75af00>ptr</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>f</span><span style=color:#111>,</span> <span style=color:#75af00>line</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>funcForPC</span><span style=color:#111>.</span><span style=color:#75af00>FileLine</span><span style=color:#111>(</span><span style=color:#75af00>ptr</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;%s%s:%d, func: %s\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>blanks</span><span style=color:#111>,</span> <span style=color:#75af00>f</span><span style=color:#111>,</span> <span style=color:#75af00>line</span><span style=color:#111>,</span> <span style=color:#75af00>funcForPC</span><span style=color:#111>.</span><span style=color:#75af00>Name</span><span style=color:#111>())</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>blanks</span> <span style=color:#f92672>+=</span> <span style=color:#d88200>&#34;  &#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span></code></pre></div><p>运行结果为：</p><pre tabindex=0><code>err: error, call stack:
   ~/workspace/src/github.com/larry/test/test.go:10, func: main.f2
     ~/workspace/src/github.com/larry/test/test.go:12, func: main.f2
@@ -71,48 +71,48 @@
             ~/go/src/runtime/asm_amd64.s:1338, func: runtime.goexit
 </code></pre><p>可以看到运行结果是不一样的。</p><p><strong>4 性能方面</strong></p><p>一如既往，因变动较广，所以较难对性能作精准陈述。因垃圾收集器优化、代码生成的更好以及核心库优化，绝大多数程序会运行的快一点。</p><p>用于触发“世界静止”的垃圾收集库函数，目前用于触发并发垃圾收集。特别地， runtime.GC、debug.SetGCPercent及debug.FreeOSMemory目前用于触发并发垃圾收集，仅会阻塞调用goroutine直至收集完成。</p><p>大对象的分配性能有较大提升。runtime.ReadMemStats函数目前即便对非常大的堆，耗时仍低于100µs。</p><p><strong>5 核心库方面</strong></p><ul><li><p>透明的单调时间支持
 time包目前透明地在每个Time值追踪单调时间，这样即便在时钟调整时，计算两个Time值的时间间隔是一个安全操作。</p></li><li><p>新的位操作包
-Go 1.9引入了一个新包math/bits，包含对位操作的优化实现。</p></li></ul><p>在多数体系结构上，该包的函数会被编译器特别对待，且被认为是内部指令，所以有很高的性能。</p><p>使用方式参看如下一个例子：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> main
+Go 1.9引入了一个新包math/bits，包含对位操作的优化实现。</p></li></ul><p>在多数体系结构上，该包的函数会被编译器特别对待，且被认为是内部指令，所以有很高的性能。</p><p>使用方式参看如下一个例子：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#75af00>main</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;math/bits&#34;</span>
-</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>(</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;math/bits&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#111>)</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
-</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;len: %d\n&#34;</span>, bits.<span style=color:#900;font-weight:700>Len</span>(<span style=color:#099>33</span>))
-</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;onesCount: %d\n&#34;</span>, bits.<span style=color:#900;font-weight:700>OnesCount</span>(<span style=color:#099>7</span>))
-</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;leadingZeros: %d\n&#34;</span>, bits.<span style=color:#900;font-weight:700>LeadingZeros</span>(<span style=color:#099>7</span>))
-</span></span><span style=display:flex><span>    fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;reverse: %d\n&#34;</span>, bits.<span style=color:#900;font-weight:700>Reverse8</span>(<span style=color:#099>1</span>))
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>main</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;len: %d\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>bits</span><span style=color:#111>.</span><span style=color:#75af00>Len</span><span style=color:#111>(</span><span style=color:#ae81ff>33</span><span style=color:#111>))</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;onesCount: %d\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>bits</span><span style=color:#111>.</span><span style=color:#75af00>OnesCount</span><span style=color:#111>(</span><span style=color:#ae81ff>7</span><span style=color:#111>))</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;leadingZeros: %d\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>bits</span><span style=color:#111>.</span><span style=color:#75af00>LeadingZeros</span><span style=color:#111>(</span><span style=color:#ae81ff>7</span><span style=color:#111>))</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;reverse: %d\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>bits</span><span style=color:#111>.</span><span style=color:#75af00>Reverse8</span><span style=color:#111>(</span><span style=color:#ae81ff>1</span><span style=color:#111>))</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span></code></pre></div><p>输出为：</p><pre tabindex=0><code>len: 6
 onesCount: 3
 leadingZeros: 61
 reverse: 128
 </code></pre><ul><li>并发Map
-sync.Map是一个并发map，存、取以及删仅使用常数时间。该Map的方法对多goroutine并发调用是安全的。</li></ul><p>使用方式参看如下一个例子：</p><p>该代码申明一个sync.Map类型的m，启动10个goroutine同时给m赋值，然后遍历将key，value打印。</p><p>并发赋值未报错误。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> main
+sync.Map是一个并发map，存、取以及删仅使用常数时间。该Map的方法对多goroutine并发调用是安全的。</li></ul><p>使用方式参看如下一个例子：</p><p>该代码申明一个sync.Map类型的m，启动10个goroutine同时给m赋值，然后遍历将key，value打印。</p><p>并发赋值未报错误。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#75af00>main</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;sync&#34;</span>
-</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>(</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;sync&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#111>)</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>var</span> m sync.Map
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>var</span> wg sync.WaitGroup
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>:=</span> <span style=color:#099>0</span>; i &lt; <span style=color:#099>10</span>; i<span style=color:#000;font-weight:700>++</span> {
-</span></span><span style=display:flex><span>        wg.<span style=color:#900;font-weight:700>Add</span>(<span style=color:#099>1</span>)
-</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>go</span> <span style=color:#000;font-weight:700>func</span>(k <span style=color:#458;font-weight:700>int</span>) {
-</span></span><span style=display:flex><span>            m.<span style=color:#900;font-weight:700>Store</span>(k, k)
-</span></span><span style=display:flex><span>            wg.<span style=color:#900;font-weight:700>Done</span>()
-</span></span><span style=display:flex><span>        }(i)
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    wg.<span style=color:#900;font-weight:700>Wait</span>()
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>main</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>var</span> <span style=color:#75af00>m</span> <span style=color:#75af00>sync</span><span style=color:#111>.</span><span style=color:#75af00>Map</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>var</span> <span style=color:#75af00>wg</span> <span style=color:#75af00>sync</span><span style=color:#111>.</span><span style=color:#75af00>WaitGroup</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>for</span> <span style=color:#75af00>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span> <span style=color:#75af00>i</span> <span style=color:#111>&lt;</span> <span style=color:#ae81ff>10</span><span style=color:#111>;</span> <span style=color:#75af00>i</span><span style=color:#f92672>++</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>wg</span><span style=color:#111>.</span><span style=color:#75af00>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>1</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#00a8c8>go</span> <span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>k</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#75af00>m</span><span style=color:#111>.</span><span style=color:#75af00>Store</span><span style=color:#111>(</span><span style=color:#75af00>k</span><span style=color:#111>,</span> <span style=color:#75af00>k</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>            <span style=color:#75af00>wg</span><span style=color:#111>.</span><span style=color:#75af00>Done</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span>        <span style=color:#111>}(</span><span style=color:#75af00>i</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>wg</span><span style=color:#111>.</span><span style=color:#75af00>Wait</span><span style=color:#111>()</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    m.<span style=color:#900;font-weight:700>Range</span>(<span style=color:#000;font-weight:700>func</span>(key, value <span style=color:#000;font-weight:700>interface</span>{}) <span style=color:#458;font-weight:700>bool</span> {
-</span></span><span style=display:flex><span>        fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;key: %v, value: %v\n&#34;</span>, key, value)
-</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> <span style=color:#000;font-weight:700>true</span>
-</span></span><span style=display:flex><span>    })
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>    <span style=color:#75af00>m</span><span style=color:#111>.</span><span style=color:#75af00>Range</span><span style=color:#111>(</span><span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>key</span><span style=color:#111>,</span> <span style=color:#75af00>value</span> <span style=color:#00a8c8>interface</span><span style=color:#111>{})</span> <span style=color:#00a8c8>bool</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;key: %v, value: %v\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>key</span><span style=color:#111>,</span> <span style=color:#75af00>value</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#00a8c8>return</span> <span style=color:#00a8c8>true</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>})</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span></code></pre></div><p>输出为：</p><pre tabindex=0><code>key: 0, value: 0
 key: 5, value: 5
 key: 3, value: 3
@@ -123,29 +123,29 @@ key: 6, value: 6
 key: 7, value: 7
 key: 8, value: 8
 key: 9, value: 9
-</code></pre><p>若该代码使用基础map类型，可以写作：</p><p>运行时，会报并发赋值错误。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> main
+</code></pre><p>若该代码使用基础map类型，可以写作：</p><p>运行时，会报并发赋值错误。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#75af00>main</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;sync&#34;</span>
-</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>(</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;sync&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#111>)</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
-</span></span><span style=display:flex><span>    m <span style=color:#000;font-weight:700>:=</span> <span style=color:#0086b3>make</span>(<span style=color:#000;font-weight:700>map</span>[<span style=color:#458;font-weight:700>int</span>]<span style=color:#458;font-weight:700>int</span>, <span style=color:#099>10</span>)
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>var</span> wg sync.WaitGroup
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>:=</span> <span style=color:#099>0</span>; i &lt; <span style=color:#099>10</span>; i<span style=color:#000;font-weight:700>++</span> {
-</span></span><span style=display:flex><span>        wg.<span style=color:#900;font-weight:700>Add</span>(<span style=color:#099>1</span>)
-</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>go</span> <span style=color:#000;font-weight:700>func</span>(k <span style=color:#458;font-weight:700>int</span>) {
-</span></span><span style=display:flex><span>            m[k] = k
-</span></span><span style=display:flex><span>            wg.<span style=color:#900;font-weight:700>Done</span>()
-</span></span><span style=display:flex><span>        }(i)
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    wg.<span style=color:#900;font-weight:700>Wait</span>()
+</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>main</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>m</span> <span style=color:#f92672>:=</span> <span style=color:#111>make</span><span style=color:#111>(</span><span style=color:#00a8c8>map</span><span style=color:#111>[</span><span style=color:#00a8c8>int</span><span style=color:#111>]</span><span style=color:#00a8c8>int</span><span style=color:#111>,</span> <span style=color:#ae81ff>10</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>var</span> <span style=color:#75af00>wg</span> <span style=color:#75af00>sync</span><span style=color:#111>.</span><span style=color:#75af00>WaitGroup</span>
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>for</span> <span style=color:#75af00>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span> <span style=color:#75af00>i</span> <span style=color:#111>&lt;</span> <span style=color:#ae81ff>10</span><span style=color:#111>;</span> <span style=color:#75af00>i</span><span style=color:#f92672>++</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>wg</span><span style=color:#111>.</span><span style=color:#75af00>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>1</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>        <span style=color:#00a8c8>go</span> <span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>k</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#75af00>m</span><span style=color:#111>[</span><span style=color:#75af00>k</span><span style=color:#111>]</span> <span style=color:#111>=</span> <span style=color:#75af00>k</span>
+</span></span><span style=display:flex><span>            <span style=color:#75af00>wg</span><span style=color:#111>.</span><span style=color:#75af00>Done</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span>        <span style=color:#111>}(</span><span style=color:#75af00>i</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#75af00>wg</span><span style=color:#111>.</span><span style=color:#75af00>Wait</span><span style=color:#111>()</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>:=</span> <span style=color:#099>0</span>; i &lt; <span style=color:#099>10</span>; i<span style=color:#000;font-weight:700>++</span> {
-</span></span><span style=display:flex><span>        fmt.<span style=color:#900;font-weight:700>Printf</span>(<span style=color:#d14>&#34;key: %v, value: %v\n&#34;</span>, i, m[i])
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>    <span style=color:#00a8c8>for</span> <span style=color:#75af00>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span> <span style=color:#75af00>i</span> <span style=color:#111>&lt;</span> <span style=color:#ae81ff>10</span><span style=color:#111>;</span> <span style=color:#75af00>i</span><span style=color:#f92672>++</span> <span style=color:#111>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Printf</span><span style=color:#111>(</span><span style=color:#d88200>&#34;key: %v, value: %v\n&#34;</span><span style=color:#111>,</span> <span style=color:#75af00>i</span><span style=color:#111>,</span> <span style=color:#75af00>m</span><span style=color:#111>[</span><span style=color:#75af00>i</span><span style=color:#111>])</span>
+</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#111>}</span>
 </span></span></code></pre></div><p>输出为：</p><pre tabindex=0><code>fatal error: concurrent map writes
 
 goroutine 19 [running]:
