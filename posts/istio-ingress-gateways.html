@@ -2,80 +2,80 @@
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="工具使用,服务网格,Service Mesh,云原生,Istio"><meta name=description content="Istio流量管理之Ingress Gateway (Ingress Gateways of Istio Traffic Management)"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.2.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Istio 流量管理之 Ingress Gateway</h1><div class="mb-3 post-meta">2021年01月01日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Istio Ingress Gateway 是允许外部流量进入 Istio 服务网格的边缘服务。其比 Kubernetes Ingress 更具扩展性。且使用 Istio Ingress Gateway，使得 Istio 对于入口流量同样具有策略控制能力及可观察性。</p><p>本文将使用 Istio 安装目录自带的 httpbin 样例来演示如何配置 Gateway 来实现外部访问。关于 Istio 安装等环境准备，请参阅“<a href=https://leileiluoluo.github.io/posts/istio-get-started.html>Istio 安装使用</a>”。</p><h3 id=1-httpbin-样例部署>1 httpbin 样例部署</h3><p>进入 Istio 安装目录，应用自带的 httpbin 部署文件，将其部署到<code>istio-demo</code> namespace。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#111>cd</span> /usr/local/istio-1.8.1
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Istio Ingress Gateway 是允许外部流量进入 Istio 服务网格的边缘服务。其比 Kubernetes Ingress 更具扩展性。且使用 Istio Ingress Gateway，使得 Istio 对于入口流量同样具有策略控制能力及可观察性。</p><p>本文将使用 Istio 安装目录自带的 httpbin 样例来演示如何配置 Gateway 来实现外部访问。关于 Istio 安装等环境准备，请参阅“<a href=https://leileiluoluo.github.io/posts/istio-get-started.html>Istio 安装使用</a>”。</p><h3 id=1-httpbin-样例部署>1 httpbin 样例部署</h3><p>进入 Istio 安装目录，应用自带的 httpbin 部署文件，将其部署到<code>istio-demo</code> namespace。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#0086b3>cd</span> /usr/local/istio-1.8.1
 </span></span><span style=display:flex><span>$ kubectl apply -n istio-demo -f samples/httpbin/httpbin.yaml
-</span></span></code></pre></div><h3 id=2-httpbin-配置-gateway>2 httpbin 配置 Gateway</h3><p>为 httpbin 创建 Gateway。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#d88200>&lt;&lt;EOF
-</span></span></span><span style=display:flex><span><span style=color:#d88200>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span></span></span><span style=display:flex><span><span style=color:#d88200>kind: Gateway
-</span></span></span><span style=display:flex><span><span style=color:#d88200>metadata:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  name: httpbin-gateway
-</span></span></span><span style=display:flex><span><span style=color:#d88200>spec:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  selector:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    istio: ingressgateway # use Istio default gateway implementation
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  servers:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  - port:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>      number: 80
-</span></span></span><span style=display:flex><span><span style=color:#d88200>      name: http
-</span></span></span><span style=display:flex><span><span style=color:#d88200>      protocol: HTTP
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    hosts:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    - &#34;httpbin.example.com&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>heredoc&gt; EOF</span>
-</span></span></code></pre></div><p>为 httpbin 配置 Virtual Service。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#d88200>&lt;&lt;EOF
-</span></span></span><span style=display:flex><span><span style=color:#d88200>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
-</span></span></span><span style=display:flex><span><span style=color:#d88200>kind: VirtualService
-</span></span></span><span style=display:flex><span><span style=color:#d88200>metadata:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  name: httpbin
-</span></span></span><span style=display:flex><span><span style=color:#d88200>spec:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  hosts:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  - &#34;httpbin.example.com&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  gateways:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  - httpbin-gateway
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  http:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>  - match:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    - uri:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        prefix: /status
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    route:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    - destination:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        port:
-</span></span></span><span style=display:flex><span><span style=color:#d88200>          number: 8000
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        host: httpbin
-</span></span></span><span style=display:flex><span><span style=color:#d88200>heredoc&gt; EOF</span>
-</span></span></code></pre></div><p>上述命令为 httpbin 配置 Gateway 与 VirtualService，将其暴露给集群外部访问。且指定访问 httpbin 的 Host 须为<code>httpbin.example.com</code>，且只可访问前缀为<code>/status</code>的 REST 资源。同时我们可以看到，Istio Gateway 与 Kubernetes Ingress 不同的是，无须在 Gateway 部署文件配置路由，而将路由配置移到了 VirtualService。</p><p>下面通过查询用于外部访问的 INGRESS_HOST 与 INGRESS_PORT 来测试我们的配置。</p><h3 id=3-httpbin-外部访问>3 httpbin 外部访问</h3><p>查询用于外部访问的 INGRESS_HOST 与 INGRESS_PORT。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl get svc istio-ingressgateway -n istio-system
+</span></span></code></pre></div><h3 id=2-httpbin-配置-gateway>2 httpbin 配置 Gateway</h3><p>为 httpbin 创建 Gateway。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#d14>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#d14>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#d14>kind: Gateway
+</span></span></span><span style=display:flex><span><span style=color:#d14>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  name: httpbin-gateway
+</span></span></span><span style=display:flex><span><span style=color:#d14>spec:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  selector:
+</span></span></span><span style=display:flex><span><span style=color:#d14>    istio: ingressgateway # use Istio default gateway implementation
+</span></span></span><span style=display:flex><span><span style=color:#d14>  servers:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  - port:
+</span></span></span><span style=display:flex><span><span style=color:#d14>      number: 80
+</span></span></span><span style=display:flex><span><span style=color:#d14>      name: http
+</span></span></span><span style=display:flex><span><span style=color:#d14>      protocol: HTTP
+</span></span></span><span style=display:flex><span><span style=color:#d14>    hosts:
+</span></span></span><span style=display:flex><span><span style=color:#d14>    - &#34;httpbin.example.com&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>为 httpbin 配置 Virtual Service。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - <span style=color:#d14>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#d14>heredoc&gt; apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span style=display:flex><span><span style=color:#d14>kind: VirtualService
+</span></span></span><span style=display:flex><span><span style=color:#d14>metadata:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  name: httpbin
+</span></span></span><span style=display:flex><span><span style=color:#d14>spec:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  hosts:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  - &#34;httpbin.example.com&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>  gateways:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  - httpbin-gateway
+</span></span></span><span style=display:flex><span><span style=color:#d14>  http:
+</span></span></span><span style=display:flex><span><span style=color:#d14>  - match:
+</span></span></span><span style=display:flex><span><span style=color:#d14>    - uri:
+</span></span></span><span style=display:flex><span><span style=color:#d14>        prefix: /status
+</span></span></span><span style=display:flex><span><span style=color:#d14>    route:
+</span></span></span><span style=display:flex><span><span style=color:#d14>    - destination:
+</span></span></span><span style=display:flex><span><span style=color:#d14>        port:
+</span></span></span><span style=display:flex><span><span style=color:#d14>          number: 8000
+</span></span></span><span style=display:flex><span><span style=color:#d14>        host: httpbin
+</span></span></span><span style=display:flex><span><span style=color:#d14>heredoc&gt; EOF</span>
+</span></span></code></pre></div><p>上述命令为 httpbin 配置 Gateway 与 VirtualService，将其暴露给集群外部访问。且指定访问 httpbin 的 Host 须为<code>httpbin.example.com</code>，且只可访问前缀为<code>/status</code>的 REST 资源。同时我们可以看到，Istio Gateway 与 Kubernetes Ingress 不同的是，无须在 Gateway 部署文件配置路由，而将路由配置移到了 VirtualService。</p><p>下面通过查询用于外部访问的 INGRESS_HOST 与 INGRESS_PORT 来测试我们的配置。</p><h3 id=3-httpbin-外部访问>3 httpbin 外部访问</h3><p>查询用于外部访问的 INGRESS_HOST 与 INGRESS_PORT。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl get svc istio-ingressgateway -n istio-system
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span style=color:#f92672>(</span>S<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span style=color:#000;font-weight:700>(</span>S<span style=color:#000;font-weight:700>)</span>
 </span></span><span style=display:flex><span>istio-ingressgateway   LoadBalancer   10.102.158.234   localhost     ...80:30841/TCP...
-</span></span></code></pre></div><p>本文使用的是 Docker Desktop 自带的 Kubernetes，可以看到 INGRESS_HOST 即为 localhost，INGRESS_PORT 为 80。</p><p>亦可以使用如下命令查看 INGRESS_HOST 与 INGRESS_PORT，得到同样的结果。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl get svc istio-ingressgateway -n istio-system -o <span style=color:#111>jsonpath</span><span style=color:#f92672>=</span><span style=color:#d88200>&#39;{.status.loadBalancer.ingress[0].hostname}&#39;</span>
-</span></span><span style=display:flex><span>$ kubectl get svc istio-ingressgateway -n istio-system -o <span style=color:#111>jsonpath</span><span style=color:#f92672>=</span><span style=color:#d88200>&#39;{.spec.ports[?(@.name==&#34;http2&#34;)].port}&#39;</span>
-</span></span></code></pre></div><p>下面，分别尝试通过 curl 命令及浏览器来访问 httpbin 的 status 接口。</p><p><strong>curl 命令访问</strong></p><p>通过如下命令访问 httpbin 的 status 接口时，发现报 404 错误。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -s -I http://localhost/status/200
+</span></span></code></pre></div><p>本文使用的是 Docker Desktop 自带的 Kubernetes，可以看到 INGRESS_HOST 即为 localhost，INGRESS_PORT 为 80。</p><p>亦可以使用如下命令查看 INGRESS_HOST 与 INGRESS_PORT，得到同样的结果。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl get svc istio-ingressgateway -n istio-system -o <span style=color:teal>jsonpath</span><span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;{.status.loadBalancer.ingress[0].hostname}&#39;</span>
+</span></span><span style=display:flex><span>$ kubectl get svc istio-ingressgateway -n istio-system -o <span style=color:teal>jsonpath</span><span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;{.spec.ports[?(@.name==&#34;http2&#34;)].port}&#39;</span>
+</span></span></code></pre></div><p>下面，分别尝试通过 curl 命令及浏览器来访问 httpbin 的 status 接口。</p><p><strong>curl 命令访问</strong></p><p>通过如下命令访问 httpbin 的 status 接口时，发现报 404 错误。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -s -I http://localhost/status/200
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#ae81ff>404</span> Not Found
-</span></span><span style=display:flex><span>date: Fri, <span style=color:#ae81ff>01</span> Jan <span style=color:#ae81ff>2021</span> 08:27:57 GMT
+</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#099>404</span> Not Found
+</span></span><span style=display:flex><span>date: Fri, <span style=color:#099>01</span> Jan <span style=color:#099>2021</span> 08:27:57 GMT
 </span></span><span style=display:flex><span>server: istio-envoy
 </span></span><span style=display:flex><span>transfer-encoding: chunked
-</span></span></code></pre></div><p>原因是我们在第 2 步的 Gateway 中指定访问 Host 必须为<code>httpbin.example.com</code>，加上 Header 后重新访问，发现状态码为 200，访问成功。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -s -I -H <span style=color:#d88200>&#34;Host: httpbin.example.com&#34;</span> http://localhost/status/200
-</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#ae81ff>200</span> OK
+</span></span></code></pre></div><p>原因是我们在第 2 步的 Gateway 中指定访问 Host 必须为<code>httpbin.example.com</code>，加上 Header 后重新访问，发现状态码为 200，访问成功。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ curl -s -I -H <span style=color:#d14>&#34;Host: httpbin.example.com&#34;</span> http://localhost/status/200
+</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#099>200</span> OK
 </span></span><span style=display:flex><span>server: istio-envoy
-</span></span><span style=display:flex><span>date: Fri, <span style=color:#ae81ff>01</span> Jan <span style=color:#ae81ff>2021</span> 08:28:02 GMT
-</span></span><span style=display:flex><span>content-type: text/html<span style=color:#111>;</span> <span style=color:#111>charset</span><span style=color:#f92672>=</span>utf-8
+</span></span><span style=display:flex><span>date: Fri, <span style=color:#099>01</span> Jan <span style=color:#099>2021</span> 08:28:02 GMT
+</span></span><span style=display:flex><span>content-type: text/html; <span style=color:teal>charset</span><span style=color:#000;font-weight:700>=</span>utf-8
 </span></span><span style=display:flex><span>access-control-allow-origin: *
-</span></span><span style=display:flex><span>access-control-allow-credentials: <span style=color:#111>true</span>
-</span></span><span style=display:flex><span>content-length: <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>x-envoy-upstream-service-time: <span style=color:#ae81ff>20</span>
-</span></span></code></pre></div><p><strong>Web 浏览器访问</strong></p><p>使用浏览器直接打开<code>http://localhost/status/200</code>时，发现同样报 404 错误。因我们仅是在做测试，未真正配置域名解析，所以尝试将 Gateway 与 VirtualService 中 hosts 由<code>httpbin.example.com</code>改为通配符<code>*</code>来实现访问。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - &lt;&lt;EOF
+</span></span><span style=display:flex><span>access-control-allow-credentials: <span style=color:#0086b3>true</span>
+</span></span><span style=display:flex><span>content-length: <span style=color:#099>0</span>
+</span></span><span style=display:flex><span>x-envoy-upstream-service-time: <span style=color:#099>20</span>
+</span></span></code></pre></div><p><strong>Web 浏览器访问</strong></p><p>使用浏览器直接打开<code>http://localhost/status/200</code>时，发现同样报 404 错误。因我们仅是在做测试，未真正配置域名解析，所以尝试将 Gateway 与 VirtualService 中 hosts 由<code>httpbin.example.com</code>改为通配符<code>*</code>来实现访问。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl apply -n istio-demo -f - &lt;&lt;EOF
 </span></span><span style=display:flex><span>apiVersion: networking.istio.io/v1alpha3
 </span></span><span style=display:flex><span>kind: Gateway
 </span></span><span style=display:flex><span>metadata:
 </span></span><span style=display:flex><span>  name: httpbin-gateway
 </span></span><span style=display:flex><span>spec:
 </span></span><span style=display:flex><span>  selector:
-</span></span><span style=display:flex><span>    istio: ingressgateway <span style=color:#75715e># use Istio default gateway implementation</span>
+</span></span><span style=display:flex><span>    istio: ingressgateway <span style=color:#998;font-style:italic># use Istio default gateway implementation</span>
 </span></span><span style=display:flex><span>  servers:
 </span></span><span style=display:flex><span>  - port:
-</span></span><span style=display:flex><span>      number: <span style=color:#ae81ff>80</span>
+</span></span><span style=display:flex><span>      number: <span style=color:#099>80</span>
 </span></span><span style=display:flex><span>      name: http
 </span></span><span style=display:flex><span>      protocol: HTTP
 </span></span><span style=display:flex><span>    hosts:
-</span></span><span style=display:flex><span>    - <span style=color:#d88200>&#34;*&#34;</span>
+</span></span><span style=display:flex><span>    - <span style=color:#d14>&#34;*&#34;</span>
 </span></span><span style=display:flex><span>---
 </span></span><span style=display:flex><span>apiVersion: networking.istio.io/v1alpha3
 </span></span><span style=display:flex><span>kind: VirtualService
@@ -83,7 +83,7 @@
 </span></span><span style=display:flex><span>  name: httpbin
 </span></span><span style=display:flex><span>spec:
 </span></span><span style=display:flex><span>  hosts:
-</span></span><span style=display:flex><span>  - <span style=color:#d88200>&#34;*&#34;</span>
+</span></span><span style=display:flex><span>  - <span style=color:#d14>&#34;*&#34;</span>
 </span></span><span style=display:flex><span>  gateways:
 </span></span><span style=display:flex><span>  - httpbin-gateway
 </span></span><span style=display:flex><span>  http:
@@ -93,11 +93,11 @@
 </span></span><span style=display:flex><span>    route:
 </span></span><span style=display:flex><span>    - destination:
 </span></span><span style=display:flex><span>        port:
-</span></span><span style=display:flex><span>          number: <span style=color:#ae81ff>8000</span>
+</span></span><span style=display:flex><span>          number: <span style=color:#099>8000</span>
 </span></span><span style=display:flex><span>        host: httpbin
-</span></span></code></pre></div><p>这样，再次访问<code>http://localhost/status/200</code>时，发现返回 200 状态码。</p><h3 id=4-环境清理>4 环境清理</h3><p>测试完成，使用如下命令清除 httpbin 的 Gateway 及 VirtualService 配置。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl delete gateway httpbin-gateway -n istio-demo
+</span></span></code></pre></div><p>这样，再次访问<code>http://localhost/status/200</code>时，发现返回 200 状态码。</p><h3 id=4-环境清理>4 环境清理</h3><p>测试完成，使用如下命令清除 httpbin 的 Gateway 及 VirtualService 配置。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ kubectl delete gateway httpbin-gateway -n istio-demo
 </span></span><span style=display:flex><span>$ kubectl delete virtualservice httpbin -n istio-demo
-</span></span></code></pre></div><p>卸载 httpbin。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#111>cd</span> /usr/local/istio-1.8.1
+</span></span></code></pre></div><p>卸载 httpbin。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ <span style=color:#0086b3>cd</span> /usr/local/istio-1.8.1
 </span></span><span style=display:flex><span>$ kubectl delete -n istio-demo -f samples/httpbin/httpbin.yaml
 </span></span></code></pre></div><p>总结本文，首先介绍了使用 Istio Gateway 可以实现外部流量进入服务网格，然后为 httpbin 样例配置了 Gateway 并做了外部访问演示。</p><blockquote><p>参考资料</p><p>[1] <a href=https://istio.io/latest/docs/tasks/traffic-management/ingress/ingress-control/>Istio Ingress Gateways</a></p><p>[2] <a href=https://istio.io/latest/docs/concepts/traffic-management/>Istio Traffic Management</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC/>#服务网格</a>
 <a href=/tags/istio/>#Istio</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/istio-plug-in-ca-certificates.html>Istio 证书管理之植入 CA 证书</a></li><li><a href=/posts/istio-secure-gateways.html>Istio 流量管理之安全 Gateway</a></li><li><a href=/posts/istio-mirroring.html>Istio 流量管理之流量镜像</a></li><li><a href=/posts/istio-circuit-breaking.html>Istio 流量管理之熔断</a></li><li><a href=/posts/istio-request-timeouts.html>Istio 流量管理之请求超时</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>

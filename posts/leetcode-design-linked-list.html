@@ -2,270 +2,270 @@
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="LeetCode,Golang,Python,链表"><meta name=description content="LeetCode 设计链表，Golang实现，Python实现。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.2.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>LeetCode 707 设计链表</h1><div class="mb-3 post-meta">2020年10月05日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><h3 id=1-题目描述>1 题目描述</h3><p>设计链表的实现。您可以选择使用单链表或者双链表来实现。</p><p>单链表中的节点应有val和next两个属性，val为当前节点的值，next为下一个节点的指针或引用。</p><p>若使用双链表实现，则需要一个额外的属性prev来指向当前节点的前一个节点。</p><p>假定链表中节点的索引是从0开始的。现在请实现MyLinkedList类：</p><ul><li><code>MyLinkedList()</code> 用于实例化一个MyLinkedList对象。</li><li><code>int get(int index)</code> 用于获取链表中第index个节点的值，若index不合法，返回-1。</li><li><code>void addAtHead(int val)</code> 用于在链表的第一个节点前插入一个值为val的节点。插入后，新的节点将成为链表的第一个节点。</li><li><code>void addAtTail(int val)</code> 用于在链表的最后一个节点后增加一个值为val的节点。</li><li><code>void addAtIndex(int index, int val)</code> 用于在链表的第index个节点前新增一个值为val的节点。若index等于链表的长度，该节点将会被加到链表的最后。若index大于链表长度，该节点将不会被插入。</li><li><code>void deleteAtIndex(int index)</code> 用于在index合法的情况下删除链表的第index个节点。</li></ul><p>说明：</p><ul><li>0 &lt;= index, val &lt;= 1000</li><li>请勿使用内置链表函数或类库</li><li>如下方法最多会调用2000遍 （get，addAtHead，addAtTail，addAtIndex，deleteAtIndex）</li></ul><p>例如：</p><ul><li>输入</li></ul><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[&#34;MyLinkedList&#34;, &#34;addAtHead&#34;, &#34;addAtTail&#34;, &#34;addAtIndex&#34;, &#34;get&#34;, &#34;deleteAtIndex&#34;, &#34;get&#34;]
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><h3 id=1-题目描述>1 题目描述</h3><p>设计链表的实现。您可以选择使用单链表或者双链表来实现。</p><p>单链表中的节点应有val和next两个属性，val为当前节点的值，next为下一个节点的指针或引用。</p><p>若使用双链表实现，则需要一个额外的属性prev来指向当前节点的前一个节点。</p><p>假定链表中节点的索引是从0开始的。现在请实现MyLinkedList类：</p><ul><li><code>MyLinkedList()</code> 用于实例化一个MyLinkedList对象。</li><li><code>int get(int index)</code> 用于获取链表中第index个节点的值，若index不合法，返回-1。</li><li><code>void addAtHead(int val)</code> 用于在链表的第一个节点前插入一个值为val的节点。插入后，新的节点将成为链表的第一个节点。</li><li><code>void addAtTail(int val)</code> 用于在链表的最后一个节点后增加一个值为val的节点。</li><li><code>void addAtIndex(int index, int val)</code> 用于在链表的第index个节点前新增一个值为val的节点。若index等于链表的长度，该节点将会被加到链表的最后。若index大于链表长度，该节点将不会被插入。</li><li><code>void deleteAtIndex(int index)</code> 用于在index合法的情况下删除链表的第index个节点。</li></ul><p>说明：</p><ul><li>0 &lt;= index, val &lt;= 1000</li><li>请勿使用内置链表函数或类库</li><li>如下方法最多会调用2000遍 （get，addAtHead，addAtTail，addAtIndex，deleteAtIndex）</li></ul><p>例如：</p><ul><li>输入</li></ul><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[&#34;MyLinkedList&#34;, &#34;addAtHead&#34;, &#34;addAtTail&#34;, &#34;addAtIndex&#34;, &#34;get&#34;, &#34;deleteAtIndex&#34;, &#34;get&#34;]
 </span></span><span style=display:flex><span>[[], [1], [3], [1, 2], [1], [1], [1]]
-</span></span></code></pre></div><ul><li>输出</li></ul><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[null, null, null, null, 2, null, 3]
-</span></span></code></pre></div><ul><li>释义</li></ul><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>MyLinkedList myLinkedList = new MyLinkedList();
+</span></span></code></pre></div><ul><li>输出</li></ul><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>[null, null, null, null, 2, null, 3]
+</span></span></code></pre></div><ul><li>释义</li></ul><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>MyLinkedList myLinkedList = new MyLinkedList();
 </span></span><span style=display:flex><span>myLinkedList.addAtHead(1);
 </span></span><span style=display:flex><span>myLinkedList.addAtTail(3);
 </span></span><span style=display:flex><span>myLinkedList.addAtIndex(1, 2);    // linked list becomes 1-&gt;2-&gt;3
 </span></span><span style=display:flex><span>myLinkedList.get(1);              // return 2
 </span></span><span style=display:flex><span>myLinkedList.deleteAtIndex(1);    // now the linked list is 1-&gt;3
 </span></span><span style=display:flex><span>myLinkedList.get(1);              // return 3
-</span></span></code></pre></div><p>题目出处：<a href=https://leetcode.com/problems/design-linked-list/>LeetCode</a></p><h3 id=2-解决思路>2 解决思路</h3><p>本文采用单链表实现，但为了优化尾部节点添加效率，链表结构体除了用head记录链表头外，新加一个tail记录链表尾。而且为了判断<code>addAtIndex</code>及<code>deleteAtIndex</code>的合法性，使用len变量记录链表的长度。</p><p>下面看一下针对各个方法的具体实现逻辑：</p><ul><li><code>MyLinkedList()</code> 初始化一个空链表（head，tail为空，len为0）。</li><li><code>int get(int index)</code> 若index不合法（index &lt; 0 || index >= list.len），返回-1；否则从头往后找到第index个节点，返回其值。</li><li><code>void addAtHead(int val)</code> 新增节点的next指向现在的头，新的头指向新增的节点；注意在空链表第一次新增的情形，须头尾均指向新增节点。最后将链表长度加1。</li><li><code>void addAtTail(int val)</code> 现在的尾的next指向新增节点，新的尾指向新增的节点；同样须注意在空链表第一次新增的情形，须头尾均指向新增节点。最后将链表长度加1。</li><li><code>void addAtIndex(int index, int val)</code> 若index不合法（index &lt; 0 || index > list.len），直接退出；首先判断是否在头前新增，若是，则将新增节点的next指向现在的头，新的头指向新增的节点（若在空链表第一次新增，须同时将尾也指向新增的节点）；其次，需要判断是否在尾部追加（index == list.len），若是，则将现在的尾的next指向新增节点，新的尾指向新增的节点；再次，若是在链表中间某处新增，则找到新增位置的前一个节点，将新增的节点插入并建立新的连接关系。最后将链表长度加1。</li><li><code>void deleteAtIndex(int index)</code> 若index不合法（index &lt; 0 || index >= list.len），直接退出；首先判断是否删除的是第一个节点，若是，则将头指向当前头的下一个节点（若链表仅有一个节点，须同时将尾也指向空）；其它情形，则找到待删除节点的前一个节点，然后将待删节点删除并建立新的连接关系（若删除的是最后一个节点，须同时将尾指向待删除节点的前一个节点）。最后将链表长度减1。</li></ul><h3 id=3-golang实现代码>3 Golang实现代码</h3><p><a href=https://github.com/leileiluoluo/leetcode/blob/master/707_Design_Linked_List/test.go>https://github.com/leileiluoluo</a></p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#75715e>// MyLinkedList is a struct of singly linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>type</span> <span style=color:#75af00>MyLinkedList</span> <span style=color:#00a8c8>struct</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>head</span> <span style=color:#f92672>*</span><span style=color:#75af00>Node</span> <span style=color:#75715e>// the head of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#75af00>tail</span> <span style=color:#f92672>*</span><span style=color:#75af00>Node</span> <span style=color:#75715e>// the tail of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#75af00>len</span>  <span style=color:#00a8c8>int</span>   <span style=color:#75715e>// length of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#111>}</span>
+</span></span></code></pre></div><p>题目出处：<a href=https://leetcode.com/problems/design-linked-list/>LeetCode</a></p><h3 id=2-解决思路>2 解决思路</h3><p>本文采用单链表实现，但为了优化尾部节点添加效率，链表结构体除了用head记录链表头外，新加一个tail记录链表尾。而且为了判断<code>addAtIndex</code>及<code>deleteAtIndex</code>的合法性，使用len变量记录链表的长度。</p><p>下面看一下针对各个方法的具体实现逻辑：</p><ul><li><code>MyLinkedList()</code> 初始化一个空链表（head，tail为空，len为0）。</li><li><code>int get(int index)</code> 若index不合法（index &lt; 0 || index >= list.len），返回-1；否则从头往后找到第index个节点，返回其值。</li><li><code>void addAtHead(int val)</code> 新增节点的next指向现在的头，新的头指向新增的节点；注意在空链表第一次新增的情形，须头尾均指向新增节点。最后将链表长度加1。</li><li><code>void addAtTail(int val)</code> 现在的尾的next指向新增节点，新的尾指向新增的节点；同样须注意在空链表第一次新增的情形，须头尾均指向新增节点。最后将链表长度加1。</li><li><code>void addAtIndex(int index, int val)</code> 若index不合法（index &lt; 0 || index > list.len），直接退出；首先判断是否在头前新增，若是，则将新增节点的next指向现在的头，新的头指向新增的节点（若在空链表第一次新增，须同时将尾也指向新增的节点）；其次，需要判断是否在尾部追加（index == list.len），若是，则将现在的尾的next指向新增节点，新的尾指向新增的节点；再次，若是在链表中间某处新增，则找到新增位置的前一个节点，将新增的节点插入并建立新的连接关系。最后将链表长度加1。</li><li><code>void deleteAtIndex(int index)</code> 若index不合法（index &lt; 0 || index >= list.len），直接退出；首先判断是否删除的是第一个节点，若是，则将头指向当前头的下一个节点（若链表仅有一个节点，须同时将尾也指向空）；其它情形，则找到待删除节点的前一个节点，然后将待删节点删除并建立新的连接关系（若删除的是最后一个节点，须同时将尾指向待删除节点的前一个节点）。最后将链表长度减1。</li></ul><h3 id=3-golang实现代码>3 Golang实现代码</h3><p><a href=https://github.com/leileiluoluo/leetcode/blob/master/707_Design_Linked_List/test.go>https://github.com/leileiluoluo</a></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#998;font-style:italic>// MyLinkedList is a struct of singly linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>type</span> MyLinkedList <span style=color:#000;font-weight:700>struct</span> {
+</span></span><span style=display:flex><span>	head <span style=color:#000;font-weight:700>*</span>Node <span style=color:#998;font-style:italic>// the head of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>	tail <span style=color:#000;font-weight:700>*</span>Node <span style=color:#998;font-style:italic>// the tail of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>	len  <span style=color:#458;font-weight:700>int</span>   <span style=color:#998;font-style:italic>// length of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// Node is used to construct linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>type</span> <span style=color:#75af00>Node</span> <span style=color:#00a8c8>struct</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>val</span>  <span style=color:#00a8c8>int</span>   <span style=color:#75715e>// value of current node
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#75af00>next</span> <span style=color:#f92672>*</span><span style=color:#75af00>Node</span> <span style=color:#75715e>// point to next node
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// Node is used to construct linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>type</span> Node <span style=color:#000;font-weight:700>struct</span> {
+</span></span><span style=display:flex><span>	val  <span style=color:#458;font-weight:700>int</span>   <span style=color:#998;font-style:italic>// value of current node
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>	next <span style=color:#000;font-weight:700>*</span>Node <span style=color:#998;font-style:italic>// point to next node
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// Constructor is used to construct a empty list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>func</span> <span style=color:#75af00>Constructor</span><span style=color:#111>()</span> <span style=color:#75af00>MyLinkedList</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>return</span> <span style=color:#75af00>MyLinkedList</span><span style=color:#111>{}</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// Constructor is used to construct a empty list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>Constructor</span>() MyLinkedList {
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>return</span> MyLinkedList{}
+</span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// Get is used to get the vaule of index-th node
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// If index is invalid, -1 will be returned
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// Otherwise, It returns the vaule of index-th node in the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>func</span> <span style=color:#111>(</span><span style=color:#75af00>list</span> <span style=color:#f92672>*</span><span style=color:#75af00>MyLinkedList</span><span style=color:#111>)</span> <span style=color:#75af00>Get</span><span style=color:#111>(</span><span style=color:#75af00>index</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#00a8c8>int</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#75af00>index</span> <span style=color:#111>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> <span style=color:#75af00>index</span> <span style=color:#f92672>&gt;=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// Get is used to get the vaule of index-th node
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// If index is invalid, -1 will be returned
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// Otherwise, It returns the vaule of index-th node in the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>func</span> (list <span style=color:#000;font-weight:700>*</span>MyLinkedList) <span style=color:#900;font-weight:700>Get</span>(index <span style=color:#458;font-weight:700>int</span>) <span style=color:#458;font-weight:700>int</span> {
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> index &lt; <span style=color:#099>0</span> <span style=color:#000;font-weight:700>||</span> index <span style=color:#000;font-weight:700>&gt;=</span> list.len {
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>return</span> <span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>p</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>for</span> <span style=color:#75af00>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span> <span style=color:#75af00>i</span> <span style=color:#111>&lt;</span> <span style=color:#75af00>index</span><span style=color:#111>;</span> <span style=color:#75af00>i</span><span style=color:#f92672>++</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>p</span> <span style=color:#111>=</span> <span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>return</span> <span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>val</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	p <span style=color:#000;font-weight:700>:=</span> list.head
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>:=</span> <span style=color:#099>0</span>; i &lt; index; i<span style=color:#000;font-weight:700>++</span> {
+</span></span><span style=display:flex><span>		p = p.next
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>return</span> p.val
+</span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// AddAtHead is used to add a node of val at the head of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>func</span> <span style=color:#111>(</span><span style=color:#75af00>list</span> <span style=color:#f92672>*</span><span style=color:#75af00>MyLinkedList</span><span style=color:#111>)</span> <span style=color:#75af00>AddAtHead</span><span style=color:#111>(</span><span style=color:#75af00>val</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>node</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#75af00>Node</span><span style=color:#111>{</span><span style=color:#75af00>val</span><span style=color:#111>,</span> <span style=color:#00a8c8>nil</span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// AddAtHead is used to add a node of val at the head of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>func</span> (list <span style=color:#000;font-weight:700>*</span>MyLinkedList) <span style=color:#900;font-weight:700>AddAtHead</span>(val <span style=color:#458;font-weight:700>int</span>) {
+</span></span><span style=display:flex><span>	node <span style=color:#000;font-weight:700>:=</span> <span style=color:#000;font-weight:700>&amp;</span>Node{val, <span style=color:#000;font-weight:700>nil</span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>node</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> list.len {
+</span></span><span style=display:flex><span>		list.head = node
+</span></span><span style=display:flex><span>		list.tail = node
+</span></span><span style=display:flex><span>	} <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>		node.next = list.head
+</span></span><span style=display:flex><span>		list.head = node
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span><span style=color:#f92672>++</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	list.len<span style=color:#000;font-weight:700>++</span>
+</span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// AddAtTail is used to add a node of val at the tail of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>func</span> <span style=color:#111>(</span><span style=color:#75af00>list</span> <span style=color:#f92672>*</span><span style=color:#75af00>MyLinkedList</span><span style=color:#111>)</span> <span style=color:#75af00>AddAtTail</span><span style=color:#111>(</span><span style=color:#75af00>val</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>node</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#75af00>Node</span><span style=color:#111>{</span><span style=color:#75af00>val</span><span style=color:#111>,</span> <span style=color:#00a8c8>nil</span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// AddAtTail is used to add a node of val at the tail of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>func</span> (list <span style=color:#000;font-weight:700>*</span>MyLinkedList) <span style=color:#900;font-weight:700>AddAtTail</span>(val <span style=color:#458;font-weight:700>int</span>) {
+</span></span><span style=display:flex><span>	node <span style=color:#000;font-weight:700>:=</span> <span style=color:#000;font-weight:700>&amp;</span>Node{val, <span style=color:#000;font-weight:700>nil</span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> list.len {
+</span></span><span style=display:flex><span>		list.head = node
+</span></span><span style=display:flex><span>		list.tail = node
+</span></span><span style=display:flex><span>	} <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>		list.tail.next = node
+</span></span><span style=display:flex><span>		list.tail = node
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span><span style=color:#f92672>++</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	list.len<span style=color:#000;font-weight:700>++</span>
+</span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// AddAtIndex is used to add a node of value val bofore the index-th node of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// If index equals the length of the linked list, the node be added will be the tail of the list
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// If index is invalid, do nothing
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>func</span> <span style=color:#111>(</span><span style=color:#75af00>list</span> <span style=color:#f92672>*</span><span style=color:#75af00>MyLinkedList</span><span style=color:#111>)</span> <span style=color:#75af00>AddAtIndex</span><span style=color:#111>(</span><span style=color:#75af00>index</span> <span style=color:#00a8c8>int</span><span style=color:#111>,</span> <span style=color:#75af00>val</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#75af00>index</span> <span style=color:#111>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> <span style=color:#75af00>index</span> <span style=color:#111>&gt;</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>return</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// AddAtIndex is used to add a node of value val bofore the index-th node of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// If index equals the length of the linked list, the node be added will be the tail of the list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// If index is invalid, do nothing
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>func</span> (list <span style=color:#000;font-weight:700>*</span>MyLinkedList) <span style=color:#900;font-weight:700>AddAtIndex</span>(index <span style=color:#458;font-weight:700>int</span>, val <span style=color:#458;font-weight:700>int</span>) {
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> index &lt; <span style=color:#099>0</span> <span style=color:#000;font-weight:700>||</span> index &gt; list.len {
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>node</span> <span style=color:#f92672>:=</span> <span style=color:#f92672>&amp;</span><span style=color:#75af00>Node</span><span style=color:#111>{</span><span style=color:#75af00>val</span><span style=color:#111>,</span> <span style=color:#00a8c8>nil</span><span style=color:#111>}</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#75af00>index</span> <span style=color:#111>{</span> <span style=color:#75715e>// add at head
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#75af00>node</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>			<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>		<span style=color:#111>}</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#f92672>==</span> <span style=color:#75af00>index</span> <span style=color:#111>{</span> <span style=color:#75715e>// add at tail
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>p</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>for</span> <span style=color:#75af00>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span> <span style=color:#75af00>i</span> <span style=color:#111>&lt;</span> <span style=color:#75af00>index</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#111>;</span> <span style=color:#75af00>i</span><span style=color:#f92672>++</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>			<span style=color:#75af00>p</span> <span style=color:#111>=</span> <span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span>
-</span></span><span style=display:flex><span>		<span style=color:#111>}</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>node</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>node</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	node <span style=color:#000;font-weight:700>:=</span> <span style=color:#000;font-weight:700>&amp;</span>Node{val, <span style=color:#000;font-weight:700>nil</span>}
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> index { <span style=color:#998;font-style:italic>// add at head
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>		node.next = list.head
+</span></span><span style=display:flex><span>		list.head = node
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> list.len {
+</span></span><span style=display:flex><span>			list.tail = node
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	} <span style=color:#000;font-weight:700>else</span> <span style=color:#000;font-weight:700>if</span> list.len <span style=color:#000;font-weight:700>==</span> index { <span style=color:#998;font-style:italic>// add at tail
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>		list.tail.next = node
+</span></span><span style=display:flex><span>		list.tail = node
+</span></span><span style=display:flex><span>	} <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>		p <span style=color:#000;font-weight:700>:=</span> list.head
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>:=</span> <span style=color:#099>0</span>; i &lt; index<span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>; i<span style=color:#000;font-weight:700>++</span> {
+</span></span><span style=display:flex><span>			p = p.next
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>		node.next = p.next
+</span></span><span style=display:flex><span>		p.next = node
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span><span style=color:#f92672>++</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	list.len<span style=color:#000;font-weight:700>++</span>
+</span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// DeleteAtIndex is used to delete the index-th node of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#75715e>// If index is invalid, do nothing
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#00a8c8>func</span> <span style=color:#111>(</span><span style=color:#75af00>list</span> <span style=color:#f92672>*</span><span style=color:#75af00>MyLinkedList</span><span style=color:#111>)</span> <span style=color:#75af00>DeleteAtIndex</span><span style=color:#111>(</span><span style=color:#75af00>index</span> <span style=color:#00a8c8>int</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#75af00>index</span> <span style=color:#111>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> <span style=color:#75af00>index</span> <span style=color:#f92672>&gt;=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>return</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// DeleteAtIndex is used to delete the index-th node of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// If index is invalid, do nothing
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>func</span> (list <span style=color:#000;font-weight:700>*</span>MyLinkedList) <span style=color:#900;font-weight:700>DeleteAtIndex</span>(index <span style=color:#458;font-weight:700>int</span>) {
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> index &lt; <span style=color:#099>0</span> <span style=color:#000;font-weight:700>||</span> index <span style=color:#000;font-weight:700>&gt;=</span> list.len {
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#75af00>index</span> <span style=color:#111>{</span> <span style=color:#75715e>// delete head
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span> <span style=color:#111>=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span><span style=color:#111>.</span><span style=color:#75af00>next</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>if</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>			<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#00a8c8>nil</span>
-</span></span><span style=display:flex><span>		<span style=color:#111>}</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>p</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>head</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>for</span> <span style=color:#75af00>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span> <span style=color:#75af00>i</span> <span style=color:#111>&lt;</span> <span style=color:#75af00>index</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#111>;</span> <span style=color:#75af00>i</span><span style=color:#f92672>++</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>			<span style=color:#75af00>p</span> <span style=color:#111>=</span> <span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span>
-</span></span><span style=display:flex><span>		<span style=color:#111>}</span>
-</span></span><span style=display:flex><span>		<span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span> <span style=color:#111>=</span> <span style=color:#75af00>p</span><span style=color:#111>.</span><span style=color:#75af00>next</span><span style=color:#111>.</span><span style=color:#75af00>next</span>
-</span></span><span style=display:flex><span>		<span style=color:#00a8c8>if</span> <span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span><span style=color:#f92672>-</span><span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#75af00>index</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>			<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>tail</span> <span style=color:#111>=</span> <span style=color:#75af00>p</span>
-</span></span><span style=display:flex><span>		<span style=color:#111>}</span>
-</span></span><span style=display:flex><span>	<span style=color:#111>}</span>
+</span></span><span style=display:flex><span>	<span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> index { <span style=color:#998;font-style:italic>// delete head
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>		list.head = list.head.next
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>if</span> <span style=color:#099>1</span> <span style=color:#000;font-weight:700>==</span> list.len {
+</span></span><span style=display:flex><span>			list.tail = <span style=color:#000;font-weight:700>nil</span>
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	} <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>		p <span style=color:#000;font-weight:700>:=</span> list.head
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>:=</span> <span style=color:#099>0</span>; i &lt; index<span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>; i<span style=color:#000;font-weight:700>++</span> {
+</span></span><span style=display:flex><span>			p = p.next
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>		p.next = p.next.next
+</span></span><span style=display:flex><span>		<span style=color:#000;font-weight:700>if</span> list.len<span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span> <span style=color:#000;font-weight:700>==</span> index {
+</span></span><span style=display:flex><span>			list.tail = p
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75af00>list</span><span style=color:#111>.</span><span style=color:#75af00>len</span><span style=color:#f92672>--</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
-</span></span></code></pre></div><h3 id=4-python实现代码>4 Python实现代码</h3><p><a href=https://github.com/leileiluoluo/leetcode/blob/master/707_Design_Linked_List/test.py>https://github.com/leileiluoluo</a></p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#00a8c8>class</span> <span style=color:#75af00>Node</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    Node is used to construct a node of linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>	list.len<span style=color:#000;font-weight:700>--</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=4-python实现代码>4 Python实现代码</h3><p><a href=https://github.com/leileiluoluo/leetcode/blob/master/707_Design_Linked_List/test.py>https://github.com/leileiluoluo</a></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Node</span>:
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>    Node is used to construct a node of linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>    &#34;&#34;&#34;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#111>__init__</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>val</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>,</span> <span style=color:#111>next</span><span style=color:#111>:</span> <span style=color:#d88200>&#39;__class__&#39;</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>None</span><span style=color:#111>):</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        construct a node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param val: value of current node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param next: point to next node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>val</span> <span style=color:#f92672>=</span> <span style=color:#111>val</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>next</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>, val: <span style=color:#0086b3>int</span>, <span style=color:#0086b3>next</span>: <span style=color:#d14>&#39;__class__&#39;</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>None</span>):
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        construct a node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param val: value of current node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param next: point to next node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>val <span style=color:#000;font-weight:700>=</span> val
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>next</span>
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#00a8c8>class</span> <span style=color:#75af00>MyLinkedList</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    MyLinkedList is used to construct a linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>MyLinkedList</span>:
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>    MyLinkedList is used to construct a linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>    &#34;&#34;&#34;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#111>__init__</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>head</span><span style=color:#111>:</span> <span style=color:#111>Node</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>None</span><span style=color:#111>,</span> <span style=color:#111>tail</span><span style=color:#111>:</span> <span style=color:#111>Node</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>None</span><span style=color:#111>,</span> <span style=color:#111>size</span><span style=color:#111>:</span> <span style=color:#111>int</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span><span style=color:#111>):</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        construct a empty linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param head: head of linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param tail: tail of linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param size: size of linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>=</span> <span style=color:#111>head</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>tail</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>=</span> <span style=color:#111>size</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>, head: Node <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>None</span>, tail: Node <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>None</span>, size: <span style=color:#0086b3>int</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>):
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        construct a empty linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param head: head of linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param tail: tail of linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param size: size of linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>=</span> head
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> tail
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>=</span> size
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#75af00>get</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>index</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>)</span> <span style=color:#f92672>-&gt;</span> <span style=color:#111>int</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        get the value of index-th node of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param index: index
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :return: value of the node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#111>index</span> <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>or</span> <span style=color:#111>index</span> <span style=color:#f92672>&gt;=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>get</span>(<span style=color:#999>self</span>, index: <span style=color:#0086b3>int</span>) <span style=color:#000;font-weight:700>-&gt;</span> <span style=color:#0086b3>int</span>:
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        get the value of index-th node of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param index: index
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :return: value of the node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> index <span style=color:#000;font-weight:700>&lt;</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>or</span> index <span style=color:#000;font-weight:700>&gt;=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size:
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>return</span> <span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#111>p</span> <span style=color:#f92672>=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>i</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>while</span> <span style=color:#111>i</span> <span style=color:#f92672>&lt;</span> <span style=color:#111>index</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>p</span> <span style=color:#f92672>=</span> <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>i</span> <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        p <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head
+</span></span><span style=display:flex><span>        i <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>while</span> i <span style=color:#000;font-weight:700>&lt;</span> index:
+</span></span><span style=display:flex><span>            p <span style=color:#000;font-weight:700>=</span> p<span style=color:#000;font-weight:700>.</span>next
+</span></span><span style=display:flex><span>            i <span style=color:#000;font-weight:700>+=</span> <span style=color:#099>1</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>return</span> <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>val</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> p<span style=color:#000;font-weight:700>.</span>val
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#75af00>add_at_head</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>val</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>)</span> <span style=color:#f92672>-&gt;</span> <span style=color:#00a8c8>None</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        add a node of val in head of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param val: val of the node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :return: None
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>node</span> <span style=color:#f92672>=</span> <span style=color:#111>Node</span><span style=color:#111>(</span><span style=color:#111>val</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>add_at_head</span>(<span style=color:#999>self</span>, val: <span style=color:#0086b3>int</span>) <span style=color:#000;font-weight:700>-&gt;</span> <span style=color:#000;font-weight:700>None</span>:
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        add a node of val in head of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param val: val of the node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :return: None
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        node <span style=color:#000;font-weight:700>=</span> Node(val)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>is</span> <span style=color:#00a8c8>None</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>else</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>node</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>is</span> <span style=color:#000;font-weight:700>None</span>:
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>else</span>:
+</span></span><span style=display:flex><span>            node<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>=</span> node
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>+=</span> <span style=color:#099>1</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#75af00>add_at_tail</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>val</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>)</span> <span style=color:#f92672>-&gt;</span> <span style=color:#00a8c8>None</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        add a node of val in the tail of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param val: val of the node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :return: None
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>node</span> <span style=color:#f92672>=</span> <span style=color:#111>Node</span><span style=color:#111>(</span><span style=color:#111>val</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>add_at_tail</span>(<span style=color:#999>self</span>, val: <span style=color:#0086b3>int</span>) <span style=color:#000;font-weight:700>-&gt;</span> <span style=color:#000;font-weight:700>None</span>:
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        add a node of val in the tail of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param val: val of the node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :return: None
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        node <span style=color:#000;font-weight:700>=</span> Node(val)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>is</span> <span style=color:#00a8c8>None</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>else</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>is</span> <span style=color:#000;font-weight:700>None</span>:
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>else</span>:
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> node
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>+=</span> <span style=color:#099>1</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#75af00>add_at_index</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>index</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>,</span> <span style=color:#111>val</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>)</span> <span style=color:#f92672>-&gt;</span> <span style=color:#00a8c8>None</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        add a node of val before the index-th node of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param index: index
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param val: val of the node
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :return: None
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#111>index</span> <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>or</span> <span style=color:#111>index</span> <span style=color:#f92672>&gt;</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>return</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>add_at_index</span>(<span style=color:#999>self</span>, index: <span style=color:#0086b3>int</span>, val: <span style=color:#0086b3>int</span>) <span style=color:#000;font-weight:700>-&gt;</span> <span style=color:#000;font-weight:700>None</span>:
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        add a node of val before the index-th node of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param index: index
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param val: val of the node
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :return: None
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> index <span style=color:#000;font-weight:700>&lt;</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>or</span> index <span style=color:#000;font-weight:700>&gt;</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size:
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>return</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#111>node</span> <span style=color:#f92672>=</span> <span style=color:#111>Node</span><span style=color:#111>(</span><span style=color:#111>val</span><span style=color:#111>)</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#111>index</span><span style=color:#111>:</span>  <span style=color:#75715e># add at head</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>node</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>elif</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>==</span> <span style=color:#111>index</span><span style=color:#111>:</span>  <span style=color:#75715e># add at tail</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>else</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>p</span> <span style=color:#f92672>=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>i</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>while</span> <span style=color:#111>i</span> <span style=color:#f92672>&lt;</span> <span style=color:#111>index</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>p</span> <span style=color:#f92672>=</span> <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>i</span> <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>node</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>node</span>
+</span></span><span style=display:flex><span>        node <span style=color:#000;font-weight:700>=</span> Node(val)
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> index:  <span style=color:#998;font-style:italic># add at head</span>
+</span></span><span style=display:flex><span>            node<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size:
+</span></span><span style=display:flex><span>                <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>elif</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>==</span> index:  <span style=color:#998;font-style:italic># add at tail</span>
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> node
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>else</span>:
+</span></span><span style=display:flex><span>            p <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head
+</span></span><span style=display:flex><span>            i <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>while</span> i <span style=color:#000;font-weight:700>&lt;</span> index <span style=color:#000;font-weight:700>-</span> <span style=color:#099>1</span>:
+</span></span><span style=display:flex><span>                p <span style=color:#000;font-weight:700>=</span> p<span style=color:#000;font-weight:700>.</span>next
+</span></span><span style=display:flex><span>                i <span style=color:#000;font-weight:700>+=</span> <span style=color:#099>1</span>
+</span></span><span style=display:flex><span>            node<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> p<span style=color:#000;font-weight:700>.</span>next
+</span></span><span style=display:flex><span>            p<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> node
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>+=</span> <span style=color:#099>1</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>def</span> <span style=color:#75af00>delete_at_index</span><span style=color:#111>(</span><span style=color:#111>self</span><span style=color:#111>,</span> <span style=color:#111>index</span><span style=color:#111>:</span> <span style=color:#111>int</span><span style=color:#111>)</span> <span style=color:#f92672>-&gt;</span> <span style=color:#00a8c8>None</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>        <span style=color:#d88200>&#34;&#34;&#34;
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        delete the index-th node of the linked list
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :param index: index
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        :return: None
-</span></span></span><span style=display:flex><span><span style=color:#d88200>        &#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#111>index</span> <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>or</span> <span style=color:#111>index</span> <span style=color:#f92672>&gt;=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>return</span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>delete_at_index</span>(<span style=color:#999>self</span>, index: <span style=color:#0086b3>int</span>) <span style=color:#000;font-weight:700>-&gt;</span> <span style=color:#000;font-weight:700>None</span>:
+</span></span><span style=display:flex><span>        <span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>        delete the index-th node of the linked list
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :param index: index
+</span></span></span><span style=display:flex><span><span style=color:#d14>        :return: None
+</span></span></span><span style=display:flex><span><span style=color:#d14>        &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> index <span style=color:#000;font-weight:700>&lt;</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>or</span> index <span style=color:#000;font-weight:700>&gt;=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size:
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>return</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>if</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>==</span> <span style=color:#111>index</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span> <span style=color:#f92672>=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span><span style=color:#f92672>.</span><span style=color:#111>next</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>if</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>None</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>else</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>p</span> <span style=color:#f92672>=</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>head</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>i</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>while</span> <span style=color:#111>i</span> <span style=color:#f92672>&lt;</span> <span style=color:#111>index</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>p</span> <span style=color:#f92672>=</span> <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>i</span> <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
-</span></span><span style=display:flex><span>            <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span> <span style=color:#f92672>=</span> <span style=color:#111>p</span><span style=color:#f92672>.</span><span style=color:#111>next</span><span style=color:#f92672>.</span><span style=color:#111>next</span>
-</span></span><span style=display:flex><span>            <span style=color:#00a8c8>if</span> <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#111>index</span><span style=color:#111>:</span>
-</span></span><span style=display:flex><span>                <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>tail</span> <span style=color:#f92672>=</span> <span style=color:#111>p</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>if</span> <span style=color:#099>0</span> <span style=color:#000;font-weight:700>==</span> index:
+</span></span><span style=display:flex><span>            <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head<span style=color:#000;font-weight:700>.</span>next
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>if</span> <span style=color:#099>1</span> <span style=color:#000;font-weight:700>==</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size:
+</span></span><span style=display:flex><span>                <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>None</span>
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>else</span>:
+</span></span><span style=display:flex><span>            p <span style=color:#000;font-weight:700>=</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>head
+</span></span><span style=display:flex><span>            i <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>while</span> i <span style=color:#000;font-weight:700>&lt;</span> index <span style=color:#000;font-weight:700>-</span> <span style=color:#099>1</span>:
+</span></span><span style=display:flex><span>                p <span style=color:#000;font-weight:700>=</span> p<span style=color:#000;font-weight:700>.</span>next
+</span></span><span style=display:flex><span>                i <span style=color:#000;font-weight:700>+=</span> <span style=color:#099>1</span>
+</span></span><span style=display:flex><span>            p<span style=color:#000;font-weight:700>.</span>next <span style=color:#000;font-weight:700>=</span> p<span style=color:#000;font-weight:700>.</span>next<span style=color:#000;font-weight:700>.</span>next
+</span></span><span style=display:flex><span>            <span style=color:#000;font-weight:700>if</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>-</span> <span style=color:#099>1</span> <span style=color:#000;font-weight:700>==</span> index:
+</span></span><span style=display:flex><span>                <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>tail <span style=color:#000;font-weight:700>=</span> p
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#111>self</span><span style=color:#f92672>.</span><span style=color:#111>size</span> <span style=color:#f92672>-=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>size <span style=color:#000;font-weight:700>-=</span> <span style=color:#099>1</span>
 </span></span></code></pre></div></div><div class=content-footer><div class=post-tags><a href=/tags/golang/>#Golang</a>
 <a href=/tags/python/>#Python</a>
 <a href=/tags/%E7%AE%97%E6%B3%95/>#算法</a></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/leetcode-construct-binary-tree-from-preorder-and-inorder-traversal.html>LeetCode 105 以先序遍历及中序遍历构造二叉树</a></li><li><a href=/leetcode-golang-implementations/>LeetCode 题目Golang实现汇总</a></li><li><a href=/posts/leetcode-binary-tree-inorder-traversal.html>LeetCode 94 二叉树中序遍历</a></li><li><a href=/posts/leetcode-reverse-linked-list-ii.html>LeetCode 92 反转链表 II</a></li><li><a href=/posts/leetcode-reverse-linked-list.html>LeetCode 206 反转链表</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>

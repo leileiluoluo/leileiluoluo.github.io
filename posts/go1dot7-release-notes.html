@@ -5,48 +5,48 @@
 <a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Go 1.7在1.6发布6个月后如约而至，绝大多数的变化在工具链、运行时及核心库的实现上。语言规格上有一项小变化。一如既往，该版本遵守Go 1兼容性准则。</p><p><strong>1 语言方面</strong></p><p>该版本有一项小的语言级变化，即阐明了结束语句的定义。与现有gc及gccgo工具链规则相符，“最后的非空语句”被认为是结束语句。之前的定义（最后一句即是结束语句）可能会有空语句的问题，是不明确的。</p><p><strong>2 工具方面</strong></p><ul><li><p>Go 命令
 go命令的基础操作未有变化。Go 1.6已声明过，在Go 1.7移除了<code>GO15VENDOREXPERIMENT</code>环境变量，vendoring支持目前是go命令及工具链的标准特性。</p></li><li><p>Go tool dist
 go tool list list会打印出所有支持的操作系统及体系结构对。</p></li><li><p>Go tool trace
-Go 1.5引入的<code>go tool trace</code>有几项修整。Go 1.7搜集trace信息较之前更高效。trace文件目前包含文件及行号信息。</p></li></ul><p>参看如下代码，在your code之前插入trace语句：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#75af00>main</span>
+Go 1.5引入的<code>go tool trace</code>有几项修整。Go 1.7搜集trace信息较之前更高效。trace文件目前包含文件及行号信息。</p></li></ul><p>参看如下代码，在your code之前插入trace语句：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>(</span>
-</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;os&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;runtime/trace&#34;</span>
-</span></span><span style=display:flex><span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;os&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;runtime/trace&#34;</span>
+</span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>main</span><span style=color:#111>()</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>    <span style=color:#75af00>f</span><span style=color:#111>,</span> <span style=color:#75af00>err</span> <span style=color:#f92672>:=</span> <span style=color:#75af00>os</span><span style=color:#111>.</span><span style=color:#75af00>Create</span><span style=color:#111>(</span><span style=color:#d88200>&#34;trace.out&#34;</span><span style=color:#111>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>if</span> <span style=color:#00a8c8>nil</span> <span style=color:#f92672>!=</span> <span style=color:#75af00>err</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>panic</span><span style=color:#111>(</span><span style=color:#75af00>err</span><span style=color:#111>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
-</span></span><span style=display:flex><span>    <span style=color:#75af00>trace</span><span style=color:#111>.</span><span style=color:#75af00>Start</span><span style=color:#111>(</span><span style=color:#75af00>f</span><span style=color:#111>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>defer</span> <span style=color:#75af00>trace</span><span style=color:#111>.</span><span style=color:#75af00>Stop</span><span style=color:#111>()</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>main</span>() {
+</span></span><span style=display:flex><span>    f, err <span style=color:#000;font-weight:700>:=</span> os.<span style=color:#900;font-weight:700>Create</span>(<span style=color:#d14>&#34;trace.out&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>if</span> <span style=color:#000;font-weight:700>nil</span> <span style=color:#000;font-weight:700>!=</span> err {
+</span></span><span style=display:flex><span>        <span style=color:#0086b3>panic</span>(err)
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    trace.<span style=color:#900;font-weight:700>Start</span>(f)
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>defer</span> trace.<span style=color:#900;font-weight:700>Stop</span>()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// your code
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#111>}</span>
-</span></span></code></pre></div><p>然后即可使用工具来对trace.out文件作分析。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ go tool trace trace.out
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// your code
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>}
+</span></span></code></pre></div><p>然后即可使用工具来对trace.out文件作分析。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ go tool trace trace.out
 </span></span></code></pre></div><p><strong>3 性能方面</strong></p><p>跟之前一样，该版本变化较广，难以对性能作准确陈述。因垃圾收集器加速及核心库的优化，使用该版本的绝大多数程序应比之前运行的快一点。在x86-64系统上，因使用新的编译器后端来生成代码，许多程序会运行的更快。</p><p>对于拥有大量闲置goroutine、栈尺寸波动较大及大量包级别变量的程序，Go 1.7垃圾收集器停顿时间相较于Go 1.6会显著低一些。</p><p><strong>4 核心库方面</strong></p><ul><li><p>Context
 Go 1.7将<code>golang.org/x/net/context</code>包移入了标准库。这样即可在其它诸如net、net/http及os/exec的标准包使用context来处理连接取消、超时及request级数据等问题。</p></li><li><p>HTTP跟踪
 Go 1.7引入<code>net/http/httptrace</code>包，可以使用其来跟踪HTTP请求事件。</p></li><li><p>测试
-testing包目前支持子测试及子基准测试。使用其可以编写表-驱动测试及层级测试，同样还可以复用setup及tear-down代码。</p></li></ul><p>参看如下代码：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#75af00>test</span>
+testing包目前支持子测试及子基准测试。使用其可以编写表-驱动测试及层级测试，同样还可以复用setup及tear-down代码。</p></li></ul><p>参看如下代码：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#000;font-weight:700>package</span> test
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>(</span>
-</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>    <span style=color:#d88200>&#34;testing&#34;</span>
-</span></span><span style=display:flex><span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;testing&#34;</span>
+</span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#00a8c8>func</span> <span style=color:#75af00>TestSubtests</span><span style=color:#111>(</span><span style=color:#75af00>t</span> <span style=color:#f92672>*</span><span style=color:#75af00>testing</span><span style=color:#111>.</span><span style=color:#75af00>T</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// setup
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Println</span><span style=color:#111>(</span><span style=color:#d88200>&#34;setup&#34;</span><span style=color:#111>)</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>func</span> <span style=color:#900;font-weight:700>TestSubtests</span>(t <span style=color:#000;font-weight:700>*</span>testing.T) {
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// setup
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#d14>&#34;setup&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// sub tests
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75af00>t</span><span style=color:#111>.</span><span style=color:#75af00>Run</span><span style=color:#111>(</span><span style=color:#d88200>&#34;A=1&#34;</span><span style=color:#111>,</span> <span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>t</span> <span style=color:#f92672>*</span><span style=color:#75af00>testing</span><span style=color:#111>.</span><span style=color:#75af00>T</span><span style=color:#111>)</span> <span style=color:#111>{</span> <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Println</span><span style=color:#111>(</span><span style=color:#d88200>&#34;A=1&#34;</span><span style=color:#111>)</span> <span style=color:#111>})</span>
-</span></span><span style=display:flex><span>    <span style=color:#75af00>t</span><span style=color:#111>.</span><span style=color:#75af00>Run</span><span style=color:#111>(</span><span style=color:#d88200>&#34;A=2&#34;</span><span style=color:#111>,</span> <span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>t</span> <span style=color:#f92672>*</span><span style=color:#75af00>testing</span><span style=color:#111>.</span><span style=color:#75af00>T</span><span style=color:#111>)</span> <span style=color:#111>{</span> <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Println</span><span style=color:#111>(</span><span style=color:#d88200>&#34;A=2&#34;</span><span style=color:#111>)</span> <span style=color:#111>})</span>
-</span></span><span style=display:flex><span>    <span style=color:#75af00>t</span><span style=color:#111>.</span><span style=color:#75af00>Run</span><span style=color:#111>(</span><span style=color:#d88200>&#34;B=1&#34;</span><span style=color:#111>,</span> <span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>t</span> <span style=color:#f92672>*</span><span style=color:#75af00>testing</span><span style=color:#111>.</span><span style=color:#75af00>T</span><span style=color:#111>)</span> <span style=color:#111>{</span> <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Println</span><span style=color:#111>(</span><span style=color:#d88200>&#34;B=1&#34;</span><span style=color:#111>)</span> <span style=color:#111>})</span>
-</span></span><span style=display:flex><span>    <span style=color:#75af00>t</span><span style=color:#111>.</span><span style=color:#75af00>Run</span><span style=color:#111>(</span><span style=color:#d88200>&#34;B=2&#34;</span><span style=color:#111>,</span> <span style=color:#00a8c8>func</span><span style=color:#111>(</span><span style=color:#75af00>t</span> <span style=color:#f92672>*</span><span style=color:#75af00>testing</span><span style=color:#111>.</span><span style=color:#75af00>T</span><span style=color:#111>)</span> <span style=color:#111>{</span> <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Println</span><span style=color:#111>(</span><span style=color:#d88200>&#34;B=2&#34;</span><span style=color:#111>)</span> <span style=color:#111>})</span>
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// sub tests
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    t.<span style=color:#900;font-weight:700>Run</span>(<span style=color:#d14>&#34;A=1&#34;</span>, <span style=color:#000;font-weight:700>func</span>(t <span style=color:#000;font-weight:700>*</span>testing.T) { fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#d14>&#34;A=1&#34;</span>) })
+</span></span><span style=display:flex><span>    t.<span style=color:#900;font-weight:700>Run</span>(<span style=color:#d14>&#34;A=2&#34;</span>, <span style=color:#000;font-weight:700>func</span>(t <span style=color:#000;font-weight:700>*</span>testing.T) { fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#d14>&#34;A=2&#34;</span>) })
+</span></span><span style=display:flex><span>    t.<span style=color:#900;font-weight:700>Run</span>(<span style=color:#d14>&#34;B=1&#34;</span>, <span style=color:#000;font-weight:700>func</span>(t <span style=color:#000;font-weight:700>*</span>testing.T) { fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#d14>&#34;B=1&#34;</span>) })
+</span></span><span style=display:flex><span>    t.<span style=color:#900;font-weight:700>Run</span>(<span style=color:#d14>&#34;B=2&#34;</span>, <span style=color:#000;font-weight:700>func</span>(t <span style=color:#000;font-weight:700>*</span>testing.T) { fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#d14>&#34;B=2&#34;</span>) })
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// tear down
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#75af00>fmt</span><span style=color:#111>.</span><span style=color:#75af00>Println</span><span style=color:#111>(</span><span style=color:#d88200>&#34;tear down&#34;</span><span style=color:#111>)</span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
-</span></span></code></pre></div><p>对<code>go test -run</code>传入不同参数，可以控制执行哪些子测试。</p><p>如采用如下命令可以指定运行TestSub*测试。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ go <span style=color:#111>test</span> -run Sub
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// tear down
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>    fmt.<span style=color:#900;font-weight:700>Println</span>(<span style=color:#d14>&#34;tear down&#34;</span>)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>对<code>go test -run</code>传入不同参数，可以控制执行哪些子测试。</p><p>如采用如下命令可以指定运行TestSub*测试。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ go <span style=color:#0086b3>test</span> -run Sub
 </span></span></code></pre></div><pre tabindex=0><code>setup
 A=1
 A=2

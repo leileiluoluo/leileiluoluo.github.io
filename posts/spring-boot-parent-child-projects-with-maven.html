@@ -2,219 +2,219 @@
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Spring Boot,父子项目,Maven,多模块"><meta name=description content="本文探索如何使用 Maven 来搭建 Spring Boot 父子项目，方便我们在搭建 Spring Boot 微服务时作参考。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.2.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>如何使用 Maven 搭建 Spring Boot 父子项目？</h1><div class="mb-3 post-meta">2023年03月12日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>本文探索如何使用 Maven 来搭建 Spring Boot 父子项目，方便我们在搭建 Spring Boot 微服务时作参考。</p><p>使用 Maven 搭建 Spring Boot 微服务项目时，最直接的做法是在每个项目的<code>pom.xml</code>中直接引用 Spring Boot Starter 父项目<code>org.springframework.boot:spring-boot-starter-parent</code>，并配置各项依赖。</p><p>但有多个微服务项目时，若要升级它们各自<code>pom.xml</code>中的依赖会产生大量的重复工作。因此，若将这些公共依赖抽取到一个父项目中，而这些子项目都引用这个父项目，那么依赖可在父项目中统一管理；这样，子项目若需升级，只需升级一下引用的父项目版本，升级过程将会变得非常简单。</p><p>本文接下来即会创建一个示例 Spring Boot 父项目，并尝试在子项目中引用并使用它。</p><p>写作本文时，用到的 Java、Maven 和 Spring Boot 的版本分别为：</p><ul><li>Java: 1.8</li><li>Maven: 3.9.0</li><li>Spring Boot: 2.7.9</li></ul><h2 id=1-创建父项目>1 创建父项目</h2><p>首先，开始搭建父项目<code>starter-parent</code>，父项目可包括多个子模块，本文的例子仅含<code>common-utils</code>一个子模块，该子模块用于编写项目用到的工具类。</p><p>下面使用<code>mvn archetype:generate</code>来生成项目的脚手架。</p><p>首先，使用如下命令生成<code>starter-parent</code>空项目，生成后删除不用的<code>src</code>文件夹，并修改<code>pom.xml</code>中的<code>&lt;packaging></code>为<code>pom</code>。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>mvn archetype:generate  <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -DgroupId<span style=color:#f92672>=</span>com.leileiluoluo <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -DartifactId<span style=color:#f92672>=</span>starter-parent <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -Dversion<span style=color:#f92672>=</span>1.0-SNAPSHOT <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -DinteractiveMode<span style=color:#f92672>=</span><span style=color:#111>false</span>
-</span></span></code></pre></div><p>然后，进入<code>starter-parent</code>文件夹下，生成子模块<code>common-utils</code>，命令如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#111>cd</span> starter-parent/
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>本文探索如何使用 Maven 来搭建 Spring Boot 父子项目，方便我们在搭建 Spring Boot 微服务时作参考。</p><p>使用 Maven 搭建 Spring Boot 微服务项目时，最直接的做法是在每个项目的<code>pom.xml</code>中直接引用 Spring Boot Starter 父项目<code>org.springframework.boot:spring-boot-starter-parent</code>，并配置各项依赖。</p><p>但有多个微服务项目时，若要升级它们各自<code>pom.xml</code>中的依赖会产生大量的重复工作。因此，若将这些公共依赖抽取到一个父项目中，而这些子项目都引用这个父项目，那么依赖可在父项目中统一管理；这样，子项目若需升级，只需升级一下引用的父项目版本，升级过程将会变得非常简单。</p><p>本文接下来即会创建一个示例 Spring Boot 父项目，并尝试在子项目中引用并使用它。</p><p>写作本文时，用到的 Java、Maven 和 Spring Boot 的版本分别为：</p><ul><li>Java: 1.8</li><li>Maven: 3.9.0</li><li>Spring Boot: 2.7.9</li></ul><h2 id=1-创建父项目>1 创建父项目</h2><p>首先，开始搭建父项目<code>starter-parent</code>，父项目可包括多个子模块，本文的例子仅含<code>common-utils</code>一个子模块，该子模块用于编写项目用到的工具类。</p><p>下面使用<code>mvn archetype:generate</code>来生成项目的脚手架。</p><p>首先，使用如下命令生成<code>starter-parent</code>空项目，生成后删除不用的<code>src</code>文件夹，并修改<code>pom.xml</code>中的<code>&lt;packaging></code>为<code>pom</code>。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>mvn archetype:generate  <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -DgroupId<span style=color:#000;font-weight:700>=</span>com.leileiluoluo <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -DartifactId<span style=color:#000;font-weight:700>=</span>starter-parent <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -Dversion<span style=color:#000;font-weight:700>=</span>1.0-SNAPSHOT <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -DinteractiveMode<span style=color:#000;font-weight:700>=</span><span style=color:#0086b3>false</span>
+</span></span></code></pre></div><p>然后，进入<code>starter-parent</code>文件夹下，生成子模块<code>common-utils</code>，命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#0086b3>cd</span> starter-parent/
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>mvn archetype:generate  <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -DgroupId<span style=color:#f92672>=</span>com.leileiluoluo <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -DartifactId<span style=color:#f92672>=</span>common-utils <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -Dversion<span style=color:#f92672>=</span>1.0-SNAPSHOT <span style=color:#8045ff>\
-</span></span></span><span style=display:flex><span><span style=color:#8045ff></span>    -DinteractiveMode<span style=color:#f92672>=</span><span style=color:#111>false</span>
-</span></span></code></pre></div><p>这样，项目脚手架就出来了，目录结构如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>starter-parent
+</span></span><span style=display:flex><span>mvn archetype:generate  <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -DgroupId<span style=color:#000;font-weight:700>=</span>com.leileiluoluo <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -DartifactId<span style=color:#000;font-weight:700>=</span>common-utils <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -Dversion<span style=color:#000;font-weight:700>=</span>1.0-SNAPSHOT <span style=color:#d14>\
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>    -DinteractiveMode<span style=color:#000;font-weight:700>=</span><span style=color:#0086b3>false</span>
+</span></span></code></pre></div><p>这样，项目脚手架就出来了，目录结构如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>starter-parent
 </span></span><span style=display:flex><span> |-- common-utils
 </span></span><span style=display:flex><span> |   |-- src/main/java
 </span></span><span style=display:flex><span> |   `-- pom.xml
 </span></span><span style=display:flex><span> `-- pom.xml
-</span></span></code></pre></div><p>修改下两个<code>pom.xml</code>文件，使配置更简单紧凑；并在<code>common-utils</code>下加一个工具类<code>DataUtil.java</code>。</p><p>修改后，项目目录结构如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>starter-parent
+</span></span></code></pre></div><p>修改下两个<code>pom.xml</code>文件，使配置更简单紧凑；并在<code>common-utils</code>下加一个工具类<code>DataUtil.java</code>。</p><p>修改后，项目目录结构如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>starter-parent
 </span></span><span style=display:flex><span> |-- common-utils
 </span></span><span style=display:flex><span> |   |-- src/main/java
 </span></span><span style=display:flex><span> |   |   `-- com/leileiluoluo/common/util/DataUtil.java
 </span></span><span style=display:flex><span> |   `-- pom.xml
 </span></span><span style=display:flex><span> `-- pom.xml
-</span></span></code></pre></div><p>下面看一下该项目下几个文件的源码。</p><h3 id=11-pomxml>1.1 pom.xml</h3><p>根 POM，注意<code>&lt;parent></code>引用了<code>spring-boot-starter-parent</code>；<code>&lt;packaging></code>类型为<code>pom</code>；<code>&lt;dependencyManagement></code>定义了所有的公共依赖；<code>&lt;pluginManagement></code>定义了所有的公共插件。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; standalone=&#34;no&#34;?&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#75af00>xmlns=</span><span style=color:#d88200>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:#75af00>xmlns:xsi=</span><span style=color:#d88200>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
-</span></span><span style=display:flex><span>         <span style=color:#75af00>xsi:schemaLocation=</span><span style=color:#d88200>&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;parent&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-parent<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>2.7.9<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;relativePath/&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/parent&gt;</span>
+</span></span></code></pre></div><p>下面看一下该项目下几个文件的源码。</p><h3 id=11-pomxml>1.1 pom.xml</h3><p>根 POM，注意<code>&lt;parent></code>引用了<code>spring-boot-starter-parent</code>；<code>&lt;packaging></code>类型为<code>pom</code>；<code>&lt;dependencyManagement></code>定义了所有的公共依赖；<code>&lt;pluginManagement></code>定义了所有的公共插件。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#999;font-weight:700;font-style:italic>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; standalone=&#34;no&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;project</span> <span style=color:teal>xmlns=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:teal>xmlns:xsi=</span><span style=color:#d14>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:teal>xsi:schemaLocation=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&#34;</span><span style=color:navy>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;modelVersion&gt;</span>4.0.0<span style=color:navy>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;parent&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-parent<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;version&gt;</span>2.7.9<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;relativePath/&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/parent&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>starter-parent<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;packaging&gt;</span>pom<span style=color:#f92672>&lt;/packaging&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;artifactId&gt;</span>starter-parent<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;packaging&gt;</span>pom<span style=color:navy>&lt;/packaging&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:navy>&lt;/version&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;properties&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;java.version&gt;</span>1.8<span style=color:#f92672>&lt;/java.version&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;spring.boot.version&gt;</span>2.7.9<span style=color:#f92672>&lt;/spring.boot.version&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/properties&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;properties&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;java.version&gt;</span>1.8<span style=color:navy>&lt;/java.version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;spring.boot.version&gt;</span>2.7.9<span style=color:navy>&lt;/spring.boot.version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/properties&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modules&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;module&gt;</span>common-utils<span style=color:#f92672>&lt;/module&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/modules&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;modules&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;module&gt;</span>common-utils<span style=color:navy>&lt;/module&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/modules&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencyManagement&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependencies&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>&lt;!-- modules --&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>common-utils<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;version&gt;</span>${version}<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependencyManagement&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>&lt;!-- modules --&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;artifactId&gt;</span>common-utils<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;version&gt;</span>${version}<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>&lt;!-- spring boot starters --&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;version&gt;</span>${spring.boot.version}<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>&lt;!-- spring boot starters --&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;version&gt;</span>${spring.boot.version}<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>            <span style=color:#75715e>&lt;!-- test --&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;version&gt;</span>${spring.boot.version}<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>org.junit.jupiter<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>junit-jupiter-api<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;version&gt;</span>5.9.2<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependencies&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencyManagement&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:#998;font-style:italic>&lt;!-- test --&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;version&gt;</span>${spring.boot.version}<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;scope&gt;</span>test<span style=color:navy>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;groupId&gt;</span>org.junit.jupiter<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;artifactId&gt;</span>junit-jupiter-api<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;version&gt;</span>5.9.2<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;scope&gt;</span>test<span style=color:navy>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependencyManagement&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;build&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;pluginManagement&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;plugins&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;plugin&gt;</span>
-</span></span><span style=display:flex><span>                    <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                    <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-maven-plugin<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;/plugin&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/plugins&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/pluginManagement&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/build&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
-</span></span></code></pre></div><h3 id=12-common-utilspomxml>1.2 common-utils/pom.xml</h3><p><code>common-utils</code>子模块 POM，注意<code>&lt;groupId></code>与<code>&lt;parent></code>中的一致，所以可以省略；<code>&lt;dependency></code>中的<code>&lt;version></code>已在父 POM 中声明，可以省略。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34;?&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#75af00>xsi:schemaLocation=</span><span style=color:#d88200>&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span>
-</span></span><span style=display:flex><span>         <span style=color:#75af00>xmlns=</span><span style=color:#d88200>&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
-</span></span><span style=display:flex><span>         <span style=color:#75af00>xmlns:xsi=</span><span style=color:#d88200>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span><span style=color:#f92672>&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;build&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;pluginManagement&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;plugins&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;plugin&gt;</span>
+</span></span><span style=display:flex><span>                    <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                    <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-maven-plugin<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;/plugin&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/plugins&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/pluginManagement&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/build&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/project&gt;</span>
+</span></span></code></pre></div><h3 id=12-common-utilspomxml>1.2 common-utils/pom.xml</h3><p><code>common-utils</code>子模块 POM，注意<code>&lt;groupId></code>与<code>&lt;parent></code>中的一致，所以可以省略；<code>&lt;dependency></code>中的<code>&lt;version></code>已在父 POM 中声明，可以省略。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#999;font-weight:700;font-style:italic>&lt;?xml version=&#34;1.0&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;project</span> <span style=color:teal>xsi:schemaLocation=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:teal>xmlns=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:teal>xmlns:xsi=</span><span style=color:#d14>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span><span style=color:navy>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;modelVersion&gt;</span>4.0.0<span style=color:navy>&lt;/modelVersion&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;parent&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>starter-parent<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/parent&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;parent&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>starter-parent<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/parent&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>common-utils<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;artifactId&gt;</span>common-utils<span style=color:navy>&lt;/artifactId&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencies&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.junit.jupiter<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>junit-jupiter-api<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencies&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
-</span></span></code></pre></div><h3 id=13-common-utils-下的-datautiljava>1.3 common-utils 下的 DataUtil.java</h3><p><code>DataUtil.java</code>为<code>common-utils</code>子模块下的 Java 类，供后面的项目使用。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#111>com.leileiluoluo.common.util</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>java.time.ZonedDateTime</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>java.time.format.DateTimeFormatter</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>DateUtil</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#111>String</span> <span style=color:#75af00>getCurrentTimeStr</span><span style=color:#111>()</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>DateTimeFormatter</span> <span style=color:#111>formatter</span> <span style=color:#f92672>=</span> <span style=color:#111>DateTimeFormatter</span><span style=color:#111>.</span><span style=color:#75af00>ofPattern</span><span style=color:#111>(</span><span style=color:#d88200>&#34;yyyy-MM-dd HH:mm:ss&#34;</span><span style=color:#111>);</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>return</span> <span style=color:#111>ZonedDateTime</span><span style=color:#111>.</span><span style=color:#75af00>now</span><span style=color:#111>().</span><span style=color:#75af00>format</span><span style=color:#111>(</span><span style=color:#111>formatter</span><span style=color:#111>);</span>
-</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
-</span></span></code></pre></div><p>接下来尝试创建一个项目来引用这个父项目。尝试之前，使用 Maven 将该项目打包并安装到本地。</p><p>命令如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>mvn clean install
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.junit.jupiter<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>junit-jupiter-api<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;scope&gt;</span>test<span style=color:navy>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/project&gt;</span>
+</span></span></code></pre></div><h3 id=13-common-utils-下的-datautiljava>1.3 common-utils 下的 DataUtil.java</h3><p><code>DataUtil.java</code>为<code>common-utils</code>子模块下的 Java 类，供后面的项目使用。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.leileiluoluo.common.util</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.time.ZonedDateTime</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>java.time.format.DateTimeFormatter</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>DateUtil</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>static</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span><span style=color:#900;font-weight:700>getCurrentTimeStr</span>()<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>DateTimeFormatter<span style=color:#bbb> </span>formatter<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>DateTimeFormatter.<span style=color:teal>ofPattern</span>(<span style=color:#d14>&#34;yyyy-MM-dd HH:mm:ss&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span>ZonedDateTime.<span style=color:teal>now</span>().<span style=color:teal>format</span>(formatter);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>接下来尝试创建一个项目来引用这个父项目。尝试之前，使用 Maven 将该项目打包并安装到本地。</p><p>命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>mvn clean install
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>...
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> Reactor Summary <span style=color:#00a8c8>for</span> starter-parent 1.0-SNAPSHOT:
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> starter-parent ..................................... SUCCESS <span style=color:#f92672>[</span>  0.170 s<span style=color:#f92672>]</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> common-utils ....................................... SUCCESS <span style=color:#f92672>[</span>  1.330 s<span style=color:#f92672>]</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> ------------------------------------------------------------------------
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> BUILD SUCCESS
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> ------------------------------------------------------------------------
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> Total time:  1.658 s
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> Finished at: 2023-03-14T10:34:43+08:00
-</span></span><span style=display:flex><span><span style=color:#f92672>[</span>INFO<span style=color:#f92672>]</span> ------------------------------------------------------------------------
-</span></span></code></pre></div><h2 id=2-使用父项目>2 使用父项目</h2><p>下面创建子项目<code>app-child</code>来使用前面的父项目<code>starter-parent</code>。</p><p>创建后的子项目目录结构如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>app-child
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> Reactor Summary <span style=color:#000;font-weight:700>for</span> starter-parent 1.0-SNAPSHOT:
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> starter-parent ..................................... SUCCESS <span style=color:#000;font-weight:700>[</span>  0.170 s<span style=color:#000;font-weight:700>]</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> common-utils ....................................... SUCCESS <span style=color:#000;font-weight:700>[</span>  1.330 s<span style=color:#000;font-weight:700>]</span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> ------------------------------------------------------------------------
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> BUILD SUCCESS
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> ------------------------------------------------------------------------
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> Total time:  1.658 s
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> Finished at: 2023-03-14T10:34:43+08:00
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>[</span>INFO<span style=color:#000;font-weight:700>]</span> ------------------------------------------------------------------------
+</span></span></code></pre></div><h2 id=2-使用父项目>2 使用父项目</h2><p>下面创建子项目<code>app-child</code>来使用前面的父项目<code>starter-parent</code>。</p><p>创建后的子项目目录结构如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>app-child
 </span></span><span style=display:flex><span> |-- src/main/java
 </span></span><span style=display:flex><span> |   `-- com/leileiluoluo/app/DemoApplication.java
 </span></span><span style=display:flex><span> `-- pom.xml
-</span></span></code></pre></div><p>下面接着看一下该项目下的几个文件，然后尝试启动项目并做测试。</p><h3 id=21-pomxml>2.1 pom.xml</h3><p>该项目 POM，注意<code>&lt;parent></code>引用了前面搭建好的<code>starter-parent</code>；<code>&lt;packaging></code>采用默认类型<code>jar</code>；<code>&lt;dependencies></code>下引用的公共依赖均无需指定<code>&lt;version></code>；<code>plugins</code>下引用的公共插件也无需指定<code>&lt;version></code>。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#75715e>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; standalone=&#34;no&#34;?&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;project</span> <span style=color:#75af00>xmlns=</span><span style=color:#d88200>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:#75af00>xmlns:xsi=</span><span style=color:#d88200>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
-</span></span><span style=display:flex><span>         <span style=color:#75af00>xsi:schemaLocation=</span><span style=color:#d88200>&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&#34;</span><span style=color:#f92672>&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;modelVersion&gt;</span>4.0.0<span style=color:#f92672>&lt;/modelVersion&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;parent&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>starter-parent<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:#f92672>&lt;/version&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/parent&gt;</span>
+</span></span></code></pre></div><p>下面接着看一下该项目下的几个文件，然后尝试启动项目并做测试。</p><h3 id=21-pomxml>2.1 pom.xml</h3><p>该项目 POM，注意<code>&lt;parent></code>引用了前面搭建好的<code>starter-parent</code>；<code>&lt;packaging></code>采用默认类型<code>jar</code>；<code>&lt;dependencies></code>下引用的公共依赖均无需指定<code>&lt;version></code>；<code>plugins</code>下引用的公共插件也无需指定<code>&lt;version></code>。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#999;font-weight:700;font-style:italic>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34; standalone=&#34;no&#34;?&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;project</span> <span style=color:teal>xmlns=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0&#34;</span> <span style=color:teal>xmlns:xsi=</span><span style=color:#d14>&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style=display:flex><span>         <span style=color:teal>xsi:schemaLocation=</span><span style=color:#d14>&#34;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&#34;</span><span style=color:navy>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;modelVersion&gt;</span>4.0.0<span style=color:navy>&lt;/modelVersion&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;parent&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>starter-parent<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;version&gt;</span>1.0-SNAPSHOT<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/parent&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;artifactId&gt;</span>app-child<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;artifactId&gt;</span>app-child<span style=color:navy>&lt;/artifactId&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;properties&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;java.version&gt;</span>1.8<span style=color:#f92672>&lt;/java.version&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/properties&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;properties&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;java.version&gt;</span>1.8<span style=color:navy>&lt;/java.version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/properties&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependencies&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>common-utils<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>com.leileiluoluo<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>common-utils<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;dependency&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;scope&gt;</span>test<span style=color:#f92672>&lt;/scope&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/dependency&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependencies&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-test<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;scope&gt;</span>test<span style=color:navy>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependencies&gt;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;build&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;plugins&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;plugin&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;groupId&gt;</span>org.springframework.boot<span style=color:#f92672>&lt;/groupId&gt;</span>
-</span></span><span style=display:flex><span>                <span style=color:#f92672>&lt;artifactId&gt;</span>spring-boot-maven-plugin<span style=color:#f92672>&lt;/artifactId&gt;</span>
-</span></span><span style=display:flex><span>            <span style=color:#f92672>&lt;/plugin&gt;</span>
-</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;/plugins&gt;</span>
-</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/build&gt;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/project&gt;</span>
-</span></span></code></pre></div><h3 id=22-demoapplicationjava>2.2 DemoApplication.java</h3><p>仅写了一个 API <code>hello</code>，在其方法内调用了父项目模块<code>common-utils</code>中的<code>DateUtil.getCurrentTimeStr()</code>方法。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#111>com.leileiluoluo.app</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>com.leileiluoluo.common.util.DateUtil</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>org.springframework.boot.SpringApplication</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>org.springframework.boot.autoconfigure.SpringBootApplication</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>org.springframework.web.bind.annotation.GetMapping</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>org.springframework.web.bind.annotation.RequestParam</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> <span style=color:#111>org.springframework.web.bind.annotation.RestController</span><span style=color:#111>;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75af00>@SpringBootApplication</span>
-</span></span><span style=display:flex><span><span style=color:#75af00>@RestController</span>
-</span></span><span style=display:flex><span><span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>DemoApplication</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#75af00>main</span><span style=color:#111>(</span><span style=color:#111>String</span><span style=color:#f92672>[]</span> <span style=color:#111>args</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>        <span style=color:#111>SpringApplication</span><span style=color:#111>.</span><span style=color:#75af00>run</span><span style=color:#111>(</span><span style=color:#111>DemoApplication</span><span style=color:#111>.</span><span style=color:#75af00>class</span><span style=color:#111>,</span> <span style=color:#111>args</span><span style=color:#111>);</span>
-</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75af00>@GetMapping</span><span style=color:#111>(</span><span style=color:#d88200>&#34;/hello&#34;</span><span style=color:#111>)</span>
-</span></span><span style=display:flex><span>    <span style=color:#00a8c8>public</span> <span style=color:#111>String</span> <span style=color:#75af00>hello</span><span style=color:#111>(</span><span style=color:#75af00>@RequestParam</span><span style=color:#111>(</span><span style=color:#111>value</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;name&#34;</span><span style=color:#111>,</span> <span style=color:#111>defaultValue</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;World&#34;</span><span style=color:#111>)</span> <span style=color:#111>String</span> <span style=color:#111>name</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-</span></span><span style=display:flex><span>        <span style=color:#00a8c8>return</span> <span style=color:#111>String</span><span style=color:#111>.</span><span style=color:#75af00>format</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Hello %s! %s&#34;</span><span style=color:#111>,</span> <span style=color:#111>name</span><span style=color:#111>,</span> <span style=color:#111>DateUtil</span><span style=color:#111>.</span><span style=color:#75af00>getCurrentTimeStr</span><span style=color:#111>());</span>
-</span></span><span style=display:flex><span>    <span style=color:#111>}</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#111>}</span>
-</span></span></code></pre></div><h3 id=23-启动与测试>2.3 启动与测试</h3><p>下面使用 Maven 将该项目打包，然后运行打包好的<code>jar</code>包，命令如下：</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#111>cd</span> app-child/
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;build&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;plugins&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;plugin&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>                <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-maven-plugin<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>            <span style=color:navy>&lt;/plugin&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;/plugins&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/build&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/project&gt;</span>
+</span></span></code></pre></div><h3 id=22-demoapplicationjava>2.2 DemoApplication.java</h3><p>仅写了一个 API <code>hello</code>，在其方法内调用了父项目模块<code>common-utils</code>中的<code>DateUtil.getCurrentTimeStr()</code>方法。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.leileiluoluo.app</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>com.leileiluoluo.common.util.DateUtil</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.boot.SpringApplication</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.boot.autoconfigure.SpringBootApplication</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.web.bind.annotation.GetMapping</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.web.bind.annotation.RequestParam</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.web.bind.annotation.RestController</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@SpringBootApplication</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@RestController</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>DemoApplication</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>static</span><span style=color:#bbb> </span><span style=color:#458;font-weight:700>void</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>main</span>(String<span style=color:#000;font-weight:700>[]</span><span style=color:#bbb> </span>args)<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>SpringApplication.<span style=color:teal>run</span>(DemoApplication.<span style=color:teal>class</span>,<span style=color:#bbb> </span>args);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@GetMapping</span>(<span style=color:#d14>&#34;/hello&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span><span style=color:#900;font-weight:700>hello</span>(<span style=color:#3c5d5d;font-weight:700>@RequestParam</span>(value<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#d14>&#34;name&#34;</span>,<span style=color:#bbb> </span>defaultValue<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#d14>&#34;World&#34;</span>)<span style=color:#bbb> </span>String<span style=color:#bbb> </span>name)<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span>String.<span style=color:teal>format</span>(<span style=color:#d14>&#34;Hello %s! %s&#34;</span>,<span style=color:#bbb> </span>name,<span style=color:#bbb> </span>DateUtil.<span style=color:teal>getCurrentTimeStr</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><h3 id=23-启动与测试>2.3 启动与测试</h3><p>下面使用 Maven 将该项目打包，然后运行打包好的<code>jar</code>包，命令如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#0086b3>cd</span> app-child/
 </span></span><span style=display:flex><span>mvn clean package
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>java -jar target/app-child-1.0-SNAPSHOT.jar
-</span></span></code></pre></div><p>启动完成后，使用<code>curl</code>请求一下，会得到如下内容。</p><div class=highlight><pre tabindex=0 style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl <span style=color:#d88200>&#39;http://localhost:8080/hello?name=Larry&#39;</span>
+</span></span></code></pre></div><p>启动完成后，使用<code>curl</code>请求一下，会得到如下内容。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>curl <span style=color:#d14>&#39;http://localhost:8080/hello?name=Larry&#39;</span>
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>Hello Larry! 2023-03-13 16:31:23
 </span></span></code></pre></div><p>综上，本文探索了如何使用 Maven 来搭建 Spring Boot 父子项目，方便我们在搭建 Spring Boot 微服务时作参考。本文中涉及的父项目<code>starter-parent</code>与子项目<code>app-child</code>的完整代码已托管至 <a href=https://github.com/leileiluoluo/java-exercises/tree/main/spring-boot-parent-child-maven-project>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] <a href=https://maven.apache.org/guides/introduction/introduction-to-the-pom.html>Introduction to the POM | Maven - maven.apache.org</a></p><p>[2] <a href=https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html>Introduction to the Dependency Mechanism | Maven - maven.apache.org</a></p><p>[3] <a href=https://maven.apache.org/guides/mini/guide-multiple-modules.html>Guide to Working with Multiple Modules | Maven - maven.apache.org</a></p><p>[4] <a href=https://spring.io/projects/spring-boot>Spring Boot | Spring - spring.io</a></p><p>[5] <a href=https://books.sonatype.com/mvnex-book/reference/multimodule.html>Maven by Example: A Multi-Module Project | TheNEXUS - books.sonatype.com</a></p><p>[6] <a href=https://www.baeldung.com/maven-multi-module>Multi-Module Project with Maven | Baeldung - www.baeldung.com</a></p><p>[7] <a href=https://howtodoinjava.com/spring-boot2/sb-multi-module-maven-project/>Spring Boot Multi-Module Maven Project | HowToDoInJava - howtodoinjava.com</a></p></blockquote></div><div class=content-footer><div class=post-tags><a href=/tags/maven/>#Maven</a>
