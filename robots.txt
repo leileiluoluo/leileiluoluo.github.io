@@ -1,3 +1,0 @@
-User-agent: *
-
-Sitemap: https://leileiluoluo.com/sitemap.xml
