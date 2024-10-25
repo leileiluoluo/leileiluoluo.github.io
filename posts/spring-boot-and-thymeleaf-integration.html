@@ -2,10 +2,210 @@
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="Spring Boot,Thymeleaf,集成,Web,应用,搭建"><meta name=description content="Thymeleaf 是一个流行的 Java 模板引擎，具有处理 HTML、XML、JavaScript、CSS 和纯文本的能力。本文将在 Spring Boot 中集成 Thymeleaf 来搭建一个简单的 Web 应用程序，以对 Thymeleaf 相关的知识进行梳理和运用。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.6.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
 <button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
 <i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/about>关于</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>Spring Boot 集成 Thymeleaf 搭建 Web 应用</h1><div class="mb-3 post-meta">2024年10月24日
-<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Thymeleaf 是一个流行的 Java 模板引擎，具有处理 HTML、XML、JavaScript、CSS 和纯文本的能力。Thymeleaf 可以和 Spring Boot 进行无缝集成，且可以非常容易地对 Java Model 类及其字段进行访问，从而对模板内容进行动态渲染。并且，Thymeleaf 还提供了一组简单有力的表达式来支持循环、条件判断，甚至 Spring Bean 访问等能力。此外，Thymeleaf 还对自定义扩展以及 Form 表单提供了很好的支持。</p><p>本文将在 Spring Boot 中集成 Thymeleaf 来搭建一个简单的 Web 应用程序，以对 Thymeleaf 相关的知识进行梳理和运用。</p><p>本文所使用的 JDK、Maven、Spring Boot 与 Thymeleaf 的版本如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>JDK：BellSoft Liberica 17.0.7
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>Thymeleaf 是一个流行的 Java 模板引擎，具有处理 HTML、XML、JavaScript、CSS 和纯文本的能力。Thymeleaf 可以和 Spring Boot 进行无缝集成，且可以非常容易地对 Java Model 类及其字段进行访问，从而对模板内容进行动态渲染。并且，Thymeleaf 还提供了一组简单有力的表达式来支持循环、条件判断、静态工具类及 Spring Bean 访问等能力。此外，Thymeleaf 还对自定义扩展以及表单提供了很好的支持。</p><p>本文将在 Spring Boot 中集成 Thymeleaf 来搭建一个简单的 Web 应用程序，以对 Thymeleaf 相关的知识进行梳理和运用。本文搭建的 Web 应用程序为一个简单的博客收集网站，拥有首页、博客列表、博客详情、博客提交 5 个页面。最后的效果如下：</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2024/10/spring-boot-and-thymeleaf-demo-app.gif alt=博客收集应用程序></p><div style=text-align:center>（上面动图依次为进入首页、查看博客列表、查看博客详情、提交博客，然后跳转到列表页）</div><p>本文所使用的 JDK、Maven、Spring Boot 与 Thymeleaf 的版本如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>JDK：BellSoft Liberica 17.0.7
 </span></span><span style=display:flex><span>Maven：3.9.2
 </span></span><span style=display:flex><span>Spring Boot：3.3.4
 </span></span><span style=display:flex><span>Thymeleaf：3.1.2.RELEASE
-</span></span></code></pre></div><blockquote><p>参考资料</p><p>[1] Tutorial: Using Thymeleaf - <a href=https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html>https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html</a></p></blockquote></div><div class=content-footer><div class=weixinhao><img src=/static/images/self/weixinhao-white.jpg></div><div class=post-tags><a href=/tags/java/>#Java</a>
+</span></span></code></pre></div><p>接下来即分析一下该应用程序的项目结构和关键代码。</p><h2 id=1-项目结构>1 项目结构</h2><p>该 Web 项目使用 Maven 管理，其项目结构如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>spring-boot-thymeleaf-demo
+</span></span><span style=display:flex><span>├─ src/main
+</span></span><span style=display:flex><span>│  ├─ java
+</span></span><span style=display:flex><span>│  │  └─ com.example.demo
+</span></span><span style=display:flex><span>│  │     ├─ controller
+</span></span><span style=display:flex><span>│  │     │  ├─ BlogController.java
+</span></span><span style=display:flex><span>│  │     │  └─ HomeController.java
+</span></span><span style=display:flex><span>│  │     ├─ service
+</span></span><span style=display:flex><span>│  │     │  └─ BlogService.java
+</span></span><span style=display:flex><span>│  │     │  └─ impl
+</span></span><span style=display:flex><span>│  │     │     └─ BlogServiceImpl.java
+</span></span><span style=display:flex><span>│  │     ├─ model
+</span></span><span style=display:flex><span>│  │     │  └─ Blog.java
+</span></span><span style=display:flex><span>│  │     ├─ util
+</span></span><span style=display:flex><span>│  │     │  ├─ DateUtil.java
+</span></span><span style=display:flex><span>│  │     │  └─ IdGenerator.java
+</span></span><span style=display:flex><span>│  └─ resources
+</span></span><span style=display:flex><span>│     ├─ static
+</span></span><span style=display:flex><span>│     │  └─ css
+</span></span><span style=display:flex><span>│     │     └─ styles.css
+</span></span><span style=display:flex><span>│     └─ templates
+</span></span><span style=display:flex><span>│        ├─ blogs
+</span></span><span style=display:flex><span>│        │  ├─ add.html
+</span></span><span style=display:flex><span>│        │  ├─ blog.html
+</span></span><span style=display:flex><span>│        │  └─ blogs.html
+</span></span><span style=display:flex><span>│        ├─ error
+</span></span><span style=display:flex><span>│        │  └─ 404.html
+</span></span><span style=display:flex><span>│        ├─ home
+</span></span><span style=display:flex><span>│        │  └─ index.html
+</span></span><span style=display:flex><span>│        └─ layout.html
+</span></span><span style=display:flex><span>└─ pom.xml
+</span></span></code></pre></div><p>可以看到，根目录下的 <code>pom.xml</code> 为 Maven 项目描述文件；Java 代码位于 <code>src/main/java</code> 文件夹下的 <code>com.example.demo</code> 包下；<code>src/main/resources</code> 文件夹下的 <code>templates</code> 子文件夹用于放置 Thymeleaf 模板文件，<code>static</code> 子文件夹用于放置静态资源（本文仅在这里放置了一个 CSS 文件）。</p><p>这里仅列出 <code>pom.xml</code> 文件里用到的依赖，并对其进行说明。其它一些关键的模板代码和 Java 代码将在下个部分进行说明。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:navy>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-web<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>org.springframework.boot<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>spring-boot-starter-thymeleaf<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>nz.net.ultraq.thymeleaf<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>thymeleaf-layout-dialect<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;version&gt;</span>3.3.0<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;groupId&gt;</span>org.projectlombok<span style=color:navy>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;artifactId&gt;</span>lombok<span style=color:navy>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;version&gt;</span>1.18.34<span style=color:navy>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:navy>&lt;scope&gt;</span>provided<span style=color:navy>&lt;/scope&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/dependencies&gt;</span>
+</span></span></code></pre></div><p>可以看到，如上依赖中，除了 <code>spring-boot-starter-web</code> 为编写 Spring Boot Web 应用程序必备的依赖之外，在 Spring Boot 中集成 Thymeleaf 主要需要引入一个 <code>spring-boot-starter-thymeleaf</code> 依赖；而 <code>thymeleaf-layout-dialect</code> 依赖是为了方便重用模板代码，作布局管理的；<code>lombok</code> 依赖则是为了在编写 Java Model 类时可以省去 <code>Setters</code> 和 <code>Getters</code> 的编写。</p><h2 id=2-关键代码分析>2 关键代码分析</h2><h3 id=21-模板布局管理>2.1 模板布局管理</h3><p>考虑到全站页面有一些页头、页脚是公有的，若每个页面单独去写的话，会产生较多的代码冗余。所以我们使用 <code>thymeleaf-layout-dialect</code> 做一个统一的布局出来，供其它页面去引用是很有必要的。</p><p>统一布局 <code>src/main/resources/templates/layout.html</code> 的代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>&lt;!DOCTYPE html&gt;
+</span></span><span style=display:flex><span>&lt;html xmlns:th=&#34;http://www.thymeleaf.org&#34; xmlns:layout=&#34;http://www.ultraq.net.nz/thymeleaf/layout&#34;&gt;
+</span></span><span style=display:flex><span>&lt;head&gt;
+</span></span><span style=display:flex><span>    &lt;title&gt;博客聚合&lt;/title&gt;
+</span></span><span style=display:flex><span>    &lt;link rel=&#34;stylesheet&#34; th:href=&#34;@{/css/styles.css}&#34;&gt;
+</span></span><span style=display:flex><span>&lt;/head&gt;
+</span></span><span style=display:flex><span>&lt;body&gt;
+</span></span><span style=display:flex><span>&lt;header layout:fragment=&#34;header&#34;&gt;
+</span></span><span style=display:flex><span>    &lt;nav&gt;
+</span></span><span style=display:flex><span>        &lt;a href=&#34;/&#34;&gt;首页&lt;/a&gt;
+</span></span><span style=display:flex><span>        &lt;a href=&#34;/blogs/add-form&#34;&gt;提交博客&lt;/a&gt;
+</span></span><span style=display:flex><span>        &lt;a href=&#34;/blogs&#34;&gt;博客列表&lt;/a&gt;
+</span></span><span style=display:flex><span>    &lt;/nav&gt;
+</span></span><span style=display:flex><span>&lt;/header&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;main class=&#34;container&#34; layout:fragment=&#34;content&#34;&gt;&lt;/main&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&lt;footer layout:fragment=&#34;footer&#34;&gt;
+</span></span><span style=display:flex><span>    &lt;p th:text=&#34;@{&#39;© {year} 博客聚合&#39;(year=${T(com.example.demo.util.DateUtil).getCurrentYear()})}&#34;&gt;&lt;/p&gt;
+</span></span><span style=display:flex><span>&lt;/footer&gt;
+</span></span><span style=display:flex><span>&lt;/body&gt;
+</span></span><span style=display:flex><span>&lt;/html&gt;
+</span></span></code></pre></div><p>可以看到，该公共布局模板在 <code>&lt;head></code> 标签内引用了公共样式文件 <code>styles.css</code>；在 <code>&lt;body></code> 内指定了公共 <code>&lt;header</code> 和公共 <code>&lt;footer></code>，各个页面只需替换 <code>&lt;main></code> 部分即可。</p><p>需要注意，这里引用本地样式文件时使用了 <code>th:href="@{/css/styles.css}"</code>，这就是 Thymeleaf 引用资源文件的语法；此外还需注意，在 <code>&lt;footer></code> 部分，使用 <code>${T(com.example.demo.util.DateUtil).getCurrentYear()}</code> 表达式调用了 Java 静态工具类 <code>DateUtil</code> 的 <code>getCurrentYear()</code> 方法。</p><h3 id=22-模板动态渲染与表单提交>2.2 模板动态渲染与表单提交</h3><p>上面介绍了公共布局模板，下面主要看一下博客列表页和提交博客页，从而关注模板的动态渲染和表单提交。</p><p>博客列表页 <code>src/main/resources/templates/blogs/blogs.html</code> 的代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>&lt;!DOCTYPE html&gt;
+</span></span><span style=display:flex><span>&lt;html xmlns:th=&#34;http://www.thymeleaf.org&#34; xmlns:layout=&#34;http://www.ultraq.net.nz/thymeleaf/layout&#34;
+</span></span><span style=display:flex><span>      layout:decorate=&#34;~{layout::layout}&#34;&gt;
+</span></span><span style=display:flex><span>&lt;head&gt;
+</span></span><span style=display:flex><span>    &lt;title&gt;博客列表&lt;/title&gt;
+</span></span><span style=display:flex><span>&lt;/head&gt;
+</span></span><span style=display:flex><span>&lt;body&gt;
+</span></span><span style=display:flex><span>&lt;main layout:fragment=&#34;content&#34;&gt;
+</span></span><span style=display:flex><span>    &lt;div class=&#34;blog-list&#34;&gt;
+</span></span><span style=display:flex><span>        &lt;ul&gt;
+</span></span><span style=display:flex><span>            &lt;li th:each=&#34;blog : ${blogs}&#34; th:if=&#34;${!blog.deleted}&#34;&gt;
+</span></span><span style=display:flex><span>                &lt;a th:href=&#34;@{/blogs/{id}(id=${blog.id})}&#34; th:text=&#34;${blog.name}&#34;&gt;&lt;/a&gt;
+</span></span><span style=display:flex><span>            &lt;/li&gt;
+</span></span><span style=display:flex><span>        &lt;/ul&gt;
+</span></span><span style=display:flex><span>    &lt;/div&gt;
+</span></span><span style=display:flex><span>&lt;/main&gt;
+</span></span><span style=display:flex><span>&lt;/body&gt;
+</span></span><span style=display:flex><span>&lt;/html&gt;
+</span></span></code></pre></div><p>可以看到，博客列表页使用 <code>layout:decorate="~{layout::layout}"</code> 表达式引入了前面定义的公共布局；然后在 <code>&lt;head></code> 标签修改了本页的标题；然后对 <code>&lt;main></code> 部分进行了修改，使用 <code>th:each="blog : ${blogs}"</code> 表达式遍历了 <code>blogs</code>，并对每个 <code>blog.deleted</code> 为 <code>false</code> 的 <code>blog</code> 显示其名称且将其链接到博客详情页面 <code>/blogs/{id}</code>。</p><p>对应博客列表与博客详情页面的 <code>Controller</code> 部分的代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.controller</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#998;font-style:italic>// ...</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Controller</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@RequestMapping</span>(<span style=color:#d14>&#34;/blogs&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>BlogController</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Autowired</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>BlogService<span style=color:#bbb> </span>blogService;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@GetMapping</span>(<span style=color:#d14>&#34;&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span><span style=color:#900;font-weight:700>listAllBlogs</span>(Model<span style=color:#bbb> </span>model)<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>List<span style=color:#000;font-weight:700>&lt;</span>Blog<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>allBlogs<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>blogService.<span style=color:teal>listAllBlogs</span>();<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>model.<span style=color:teal>addAttribute</span>(<span style=color:#d14>&#34;blogs&#34;</span>,<span style=color:#bbb> </span>allBlogs);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;blogs/blogs&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@GetMapping</span>(<span style=color:#d14>&#34;/{id}&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span><span style=color:#900;font-weight:700>getBlogById</span>(<span style=color:#3c5d5d;font-weight:700>@PathVariable</span>(<span style=color:#d14>&#34;id&#34;</span>)<span style=color:#bbb> </span>Integer<span style=color:#bbb> </span>id,<span style=color:#bbb> </span>Model<span style=color:#bbb> </span>model)<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>Optional<span style=color:#000;font-weight:700>&lt;</span>Blog<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>optional<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span>blogService.<span style=color:teal>getBlogById</span>(id);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>if</span><span style=color:#bbb> </span>(optional.<span style=color:teal>isEmpty</span>())<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>            </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;error/404&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>model.<span style=color:teal>addAttribute</span>(<span style=color:#d14>&#34;blog&#34;</span>,<span style=color:#bbb> </span>optional.<span style=color:teal>get</span>());<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;blogs/blog&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>可以看到，要想将数据输出给模板，需要在 <code>Controller</code> 的方法携带一个 <code>Model model</code> 参数，并将对应的对象设置到其属性里（<code>model.addAttribute("blogs", allBlogs)</code>），这样即可在模板中使用属性名进行访问了（<code>${blogs}</code>）。数据设置完成后，只需 <code>return</code> 到 <code>templates</code> 下的页面即可，如 <code>return "blogs/blogs"</code> 表示寻找并渲染 <code>templates/blogs/blogs.html</code> 模板。</p><p>Thymeleaf 除了可以渲染用于显示的页面之外，还支持表单渲染、校验和提交。</p><p>下面看一下博客提交页面 <code>src/main/resources/templates/blogs/add.html</code> 的代码：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>&lt;!DOCTYPE html&gt;
+</span></span><span style=display:flex><span>&lt;html xmlns:th=&#34;http://www.thymeleaf.org&#34; xmlns:layout=&#34;http://www.ultraq.net.nz/thymeleaf/layout&#34;
+</span></span><span style=display:flex><span>      layout:decorate=&#34;~{layout::layout}&#34;&gt;
+</span></span><span style=display:flex><span>&lt;head&gt;
+</span></span><span style=display:flex><span>    &lt;title&gt;提交博客&lt;/title&gt;
+</span></span><span style=display:flex><span>&lt;/head&gt;
+</span></span><span style=display:flex><span>&lt;body&gt;
+</span></span><span style=display:flex><span>&lt;main layout:fragment=&#34;content&#34;&gt;
+</span></span><span style=display:flex><span>    &lt;div class=&#34;form&#34;&gt;
+</span></span><span style=display:flex><span>        &lt;form th:action=&#34;@{/blogs}&#34; th:object=&#34;${blog}&#34; method=&#34;post&#34;&gt;
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;label&gt;博客名称：&lt;/label&gt;
+</span></span><span style=display:flex><span>                &lt;span class=&#34;error&#34; th:if=&#34;${#fields.hasErrors(&#39;name&#39;)}&#34; th:errors=&#34;*{name}&#34; /&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;input name=&#34;name&#34; th:field=&#34;*{name}&#34;/&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;label&gt;博客描述：&lt;/label&gt;
+</span></span><span style=display:flex><span>                &lt;span class=&#34;error&#34; th:if=&#34;${#fields.hasErrors(&#39;description&#39;)}&#34; th:errors=&#34;*{description}&#34; /&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;textarea name=&#34;description&#34; th:field=&#34;*{description}&#34;/&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;label&gt;技术博客：&lt;/label&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;select id=&#34;options&#34; name=&#34;technical&#34;&gt;
+</span></span><span style=display:flex><span>                    &lt;option value=&#34;false&#34;&gt;否&lt;/option&gt;
+</span></span><span style=display:flex><span>                    &lt;option value=&#34;true&#34;&gt;是&lt;/option&gt;
+</span></span><span style=display:flex><span>                &lt;/select&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            &lt;div&gt;
+</span></span><span style=display:flex><span>                &lt;button&gt;提交&lt;/button&gt;
+</span></span><span style=display:flex><span>            &lt;/div&gt;
+</span></span><span style=display:flex><span>        &lt;/form&gt;
+</span></span><span style=display:flex><span>    &lt;/div&gt;
+</span></span><span style=display:flex><span>&lt;/main&gt;
+</span></span><span style=display:flex><span>&lt;/body&gt;
+</span></span><span style=display:flex><span>&lt;/html&gt;
+</span></span></code></pre></div><p>可以看到，该页面有一个 <code>&lt;form></code>，其中有一个 <code>&lt;input></code>、一个 <code>&lt;textarea</code> 和一个 <code>&lt;select></code> 需要输入，最后是一个 <code>&lt;button></code>；该表单会将字段设置到 <code>blog</code> Model（<code>th:object="${blog}"</code>），并在点击提交按钮后使用 <code>POST</code> 方法将数据发送至路径 <code>/blogs</code>。</p><p>该表单页面对应 <code>Controller</code> 中的代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.example.demo.controller</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#998;font-style:italic>// ...</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Controller</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@RequestMapping</span>(<span style=color:#d14>&#34;/blogs&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>BlogController</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Autowired</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>private</span><span style=color:#bbb> </span>BlogService<span style=color:#bbb> </span>blogService;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@GetMapping</span>(<span style=color:#d14>&#34;/add-form&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span><span style=color:#900;font-weight:700>addBlogForm</span>(Blog<span style=color:#bbb> </span>blog)<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;blogs/add&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@PostMapping</span>(<span style=color:#d14>&#34;&#34;</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span>String<span style=color:#bbb> </span><span style=color:#900;font-weight:700>addBlog</span>(Blog<span style=color:#bbb> </span>blog,<span style=color:#bbb> </span>Errors<span style=color:#bbb> </span>errors)<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#998;font-style:italic>// validation</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>if</span><span style=color:#bbb> </span>(StringUtils.<span style=color:teal>isBlank</span>(blog.<span style=color:teal>getName</span>()))<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>            </span>errors.<span style=color:teal>rejectValue</span>(<span style=color:#d14>&#34;name&#34;</span>,<span style=color:#bbb> </span><span style=color:#d14>&#34;fields.invalid&#34;</span>,<span style=color:#bbb> </span><span style=color:#d14>&#34;名称不能为空&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>            </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;blogs/add&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>if</span><span style=color:#bbb> </span>(StringUtils.<span style=color:teal>isBlank</span>(blog.<span style=color:teal>getDescription</span>()))<span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>            </span>errors.<span style=color:teal>rejectValue</span>(<span style=color:#d14>&#34;description&#34;</span>,<span style=color:#bbb> </span><span style=color:#d14>&#34;fields.invalid&#34;</span>,<span style=color:#bbb> </span><span style=color:#d14>&#34;描述不能为空&#34;</span>);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>            </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;blogs/add&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#998;font-style:italic>// add blog</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span>blogService.<span style=color:teal>addBlog</span>(blog);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>        </span><span style=color:#000;font-weight:700>return</span><span style=color:#bbb> </span><span style=color:#d14>&#34;redirect:/blogs&#34;</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span></code></pre></div><p>可以看到，<code>addBlogForm()</code> 方法用于显示表单页面；<code>addBlog()</code> 方法用于接收从表单提交过来的数据，且其可以使用一个 <code>Errors errors</code> 参数来将字段校验错误信息返回给表单，然后用于显示。由此可以看到，Thymeleaf 对于参数校验错误信息的处理非常便捷。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2024/10/spring-boot-and-thymeleaf-form.png alt=提交博客表单></p><p>这就是使用 Thymeleaf 处理普通页面和表单页面的方法。由此衍生出多个页面，做一个功能丰富的应用程序是不无可能的。</p><h2 id=3-小结>3 小结</h2><p>综上，本文以使用 Spring Boot 和 Thymeleaf 来搭建一个博客收集 Web 应用程序为目标，演示了 Thymeleaf 与 Spring Boot 的集成，以及 Thymeleaf 的基础功能。总的来说，在 Spring Boot 中集成 Thymeleaf 来编写一个前后端一体的 Web 应用程序是非常便捷的，是一个值得考虑的解决方案。</p><p>本文完整示例工程已提交至 <a href=https://github.com/leileiluoluo/java-exercises/tree/main/spring-boot-thymeleaf-demo>GitHub</a>，欢迎关注或 Fork。</p><blockquote><p>参考资料</p><p>[1] Tutorial: Using Thymeleaf - <a href=https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html>https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html</a></p></blockquote></div><div class=content-footer><div class=weixinhao><img src=/static/images/self/weixinhao-white.jpg></div><div class=post-tags><a href=/tags/java/>#Java</a>
 <a href=/tags/spring/>#Spring</a></div><div class=license><i class=ti-info-alt></i><div class=info>版权声明：该博客文章由作者通过「<a href=https://creativecommons.org/licenses/by/4.0/deed.zh>知识共享署名 4.0 许可证</a>」进行授权，转载须注明文章原始链接。</div></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/spring-cloud-config-server-setup.html>如何搭建 Spring Cloud 统一配置服务？</a></li><li><a href=/posts/cucumber-java-spring-boot-integration.html>Cucumber Java 如何与 Spring Boot 进行集成？</a></li><li><a href=/posts/spring-data-mongodb.html>如何使用 Spring Data MongoDB 访问 MongoDB 数据库？</a></li><li><a href=/posts/spring-boot-mybatis-integration.html>Spring Boot 如何集成 MyBatis 进行数据库访问？</a></li><li><a href=/posts/spring-data-jpa.html>如何使用 Spring Data JPA 进行数据库访问？</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>
 <span>正在加载评论......</span></div><script>function handleMessage(e){if(e.origin!=="https://giscus.app")return;if(typeof e.data!="object"||!e.data.giscus)return;const t=document.getElementById("comment-loading");t.style.display="none"}window.addEventListener("message",handleMessage)</script><script src=https://giscus.app/client.js data-repo=leileiluoluo/leileiluoluo.github.io data-repo-id=R_kgDOJkLT8w data-category=General data-category-id=DIC_kwDOJkLT884CdtEh data-mapping=pathname data-strict=0 data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=preferred_color_scheme data-lang=zh-CN data-loading=lazy crossorigin=anonymous async></script></div></div></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/sponsor>随喜打赏</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/about>关于本博</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/leileiluoluo><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div style=text-align:center;font-size:18px;margin-bottom:22px><a style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-image:linear-gradient(to right,#14100f,#d55b5b,#4d14e6)" href=https://www.boyouquan.com/planet-shuttle>「博友圈 · 星球穿梭」</a></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2024</span></div></div></footer><script>var indexURL="https://leileiluoluo.github.io/index.json"</script><script src=https://leileiluoluo.github.io/js/jquery.min.js></script><script src=https://leileiluoluo.github.io/js/bootstrap.min.js></script><script src=https://leileiluoluo.github.io/js/fuse.min.js></script><script src=https://leileiluoluo.github.io/js/mark.js></script><script src=https://leileiluoluo.github.io/js/search.js></script><script src=https://leileiluoluo.github.io/js/script.min.js></script></body></html>
