@@ -1,0 +1,298 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>提示工程需要遵循的五个原则（附实践案例） - 磊磊落落</title>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="AI,提示词,原则,提示工程,Prompt Engineering,实践,案例,MyBatis,JPA"><meta name=description content="开始本文前，让我们首先明确提示词与提示工程的概念。提示词是我们与大语言模型沟通时输入的指令，而提示工程则是发现能生成符合预期、稳定、可靠、和可复现结果的提示词的过程。为什么需要提示工程呢？就是因为生成式人工智能的输出具有不确定性，用专业术语来说，就是存在随机生成「次品」的可能。为解决这个问题，必须有一套工程化的方法对提示词进行适当的优化。一些工程师在实践中也确实探索出一组好用的原则，被称为「提示工程的五大原则」，从而让 AI 模型生成稳定、可靠、可复现的结果变为可能。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.6.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
+<button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/about>关于</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>提示工程需要遵循的五个原则（附实践案例）</h1><div class="mb-3 post-meta">2025年12月01日
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>开始本文前，让我们首先明确提示词与提示工程的概念。提示词是我们与大语言模型沟通时输入的指令，而提示工程则是发现能生成符合预期、稳定、可靠、和可复现结果的提示词的过程。</p><p>为什么需要提示工程呢？就是因为当前生成式人工智能的「智慧」还不足，输出具有不确定性，用专业术语来说，就是存在随机生成「次品」的可能。为解决这个问题，必须有一套工程化的方法对提示词进行适当的优化。</p><p>一些工程师在实践中也确实探索出一组好用的原则，被称为「提示工程的五大原则」，遵循这些规则编写提示词就能以更高的概率让 AI 模型生成稳定、可靠、可复现的结果。</p><h2 id=1-提示工程需要遵循的五大原则>1 提示工程需要遵循的五大原则</h2><h3 id=11-明确方向>1.1 明确方向</h3><p>详细描述期望的结果，最好给出一个现实世界的参考样例或模板。比如：编一段「徐志胜」风格的脱口秀稿子。</p><h3 id=12-规范格式>1.2 规范格式</h3><p>设定需遵循的规则，并明确指定输出结果的结构或格式。比如：要求大模型返回的结果为 JSON 格式，避免接收无规则的结果，且便于程序化集成。</p><h3 id=13-提供范例>1.3 提供范例</h3><p>提供一组多样化的预期输出的范例供模型参考。比如：生成一组样例学生 JSON 数据，如 <code>[{"name": "Larry"}, {"name": "Lucy"}]</code>。</p><h3 id=14-评估质量>1.4 评估质量</h3><p>对输出结果进行评级，通过测试来找出提升模型准确性的关键因素。比如：针对 AI 模型输出的结果，给出每个结果的分值，然后反馈给模型，这样就能提升输出结果的准确性。</p><h3 id=15-拆分任务>1.5 拆分任务</h3><p>不要将一个复杂任务不做拆分就直接扔给 AI 模型，而应将其拆分为多个步骤，这样模型做起来才更得心应手。</p><h2 id=2-实践案例将-spring-boot-项目的数据库访问层由-mybatis-转换为-jpa>2 实践案例：将 Spring Boot 项目的数据库访问层由 MyBatis 转换为 JPA</h2><h3 id=21-raw-propmt>2.1 Raw Propmt</h3><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>当前项目是一个使用 Maven 管理的 Spring Boot 项目，源码位于 src/main/java 下，配置文件位于 src/main/resources 下。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>当前数据库访问层使用的是 MyBatis。Mapper 接口定义于包 com.boyouquan.dao 下，Mapper 配置文件 XxxDaoMapper.xml 位于 resources 的 mapper 目录下。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>现在我们想将数据库访问层由 MyBatis 更改为 JPA。请自动抓取 MyBatis Mapper 接口中的方法名称与 Mapper 配置文件里的 SQL 语句，然后在 com.boyouquan.repository 下编写与 Mapper 接口对应的 Repository 接口、定义与 Mapper 接口中方法同名的方法并使用 @Query(value = &#34;&#34;, nativeQuery = true) 注解填入 Mapper 配置文件里对应的 SQL。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>完成后，请在项目根目录生成一个 report.md 报告文件，以表格的方式展示原始 Mapper 接口与新生成的 Repository 的对应关系。
+</span></span></code></pre></div><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/mybatis-to-jpa-with-raw-prompt.png alt="MyBatis 到 JPA 的转换结果（Raw Prompt）"></p><h3 id=22-improved-propmt>2.2 Improved Propmt</h3><p><code>mybatis-to-jpa.prompt.md</code></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-markdown data-lang=markdown><span style=display:flex><span><span style=color:#999># 将 MyBatis 替换为 JPA
+</span></span></span><span style=display:flex><span><span style=color:#999></span>
+</span></span><span style=display:flex><span><span style=color:#aaa>## 1 背景知识
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>当前项目是一个使用 Maven 管理的 Spring Boot 项目，源码位于 <span style=color:#d14>`src/main/java`</span> 下，配置文件位于 <span style=color:#d14>`src/main/resources`</span> 下。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>当前数据库访问层使用的是 MyBatis。Mapper 接口定义于包 <span style=color:#d14>`com.boyouquan.dao`</span> 下，Mapper 配置文件 <span style=color:#d14>`XxxDaoMapper.xml`</span> 位于 resources 的 mapper 目录下。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#aaa>## 2 任务简介
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>现在我们想将数据库访问层由 MyBatis 更改为 JPA。请自动抓取 MyBatis Mapper 接口中的方法名称与 Mapper 配置文件里的 SQL 语句，然后在 <span style=color:#d14>`com.boyouquan.repository`</span> 下编写与 Mapper 接口对应的 Repository 接口、定义与 Mapper 接口中方法同名的方法并使用 <span style=color:#d14>`@Query(value = &#34;&#34;, nativeQuery = true)`</span> 注解填入 Mapper 配置文件里对应的 SQL。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#aaa>## 3 实现步骤
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span><span style=color:#aaa>### 3.1 编写与 Mapper 接口对应的 Repository 接口
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>首先，需要找到 <span style=color:#d14>`com.boyouquan.dao`</span> 包下所有的 Mapper 接口，然后在 <span style=color:#d14>`com.boyouquan.repository`</span> 包下新建对应的 Repository 接口。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>如下为一个示例。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>`com.boyouquan.dao`</span> 包下原始的 <span style=color:#d14>`BlogDaoMapper`</span> 接口定义如下：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.dao</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogDaoMapper</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>那么在 <span style=color:#d14>`com.boyouquan.repository`</span> 包下新建一个与 <span style=color:#d14>`BlogDaoMapper`</span> 接口对应的 Repository 接口 <span style=color:#d14>`BlogRepository`</span>，并让该 Repository 继承 <span style=color:#d14>`CrudRepository`</span>：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.repository.CrudRepository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.stereotype.Repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Repository</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogRepository</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>extends</span><span style=color:#bbb> </span>CrudRepository<span style=color:#000;font-weight:700>&lt;</span>Blog,<span style=color:#bbb> </span>Long<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#aaa>### 3.2 在 Repository 接口定义与 Mapper 接口中方法同名的方法
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>接下来，扫描原始 Mapper 接口中所有定义好的方法，然后在对应的 Repository 接口新建与之同名的方法。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>如下为一个示例。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>原始 <span style=color:#d14>`BlogDaoMapper`</span> 包含一组方法：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.dao</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogDaoMapper</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>Blog<span style=color:#bbb> </span><span style=color:#900;font-weight:700>getByAddress</span>(String<span style=color:#bbb> </span>address);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>List<span style=color:#000;font-weight:700>&lt;</span>PopularBlog<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>listPopularBlogs</span>(<span style=color:#458;font-weight:700>int</span><span style=color:#bbb> </span>limit);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>...<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>那么在新建的 <span style=color:#d14>`BlogRepository`</span> 接口里定义一组与 <span style=color:#d14>`BlogDaoMapper`</span> 接口里方法同名的方法：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.repository.CrudRepository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.stereotype.Repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Repository</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogRepository</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>extends</span><span style=color:#bbb> </span>CrudRepository<span style=color:#000;font-weight:700>&lt;</span>Blog,<span style=color:#bbb> </span>Long<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>Blog<span style=color:#bbb> </span><span style=color:#900;font-weight:700>getByAddress</span>(String<span style=color:#bbb> </span>address);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>List<span style=color:#000;font-weight:700>&lt;</span>PopularBlog<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>listPopularBlogs</span>(<span style=color:#458;font-weight:700>int</span><span style=color:#bbb> </span>limit);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>...<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#aaa>### 3.3 针对 Mapper 接口中的方法，从 XxxMapper.xml 抓取与之对应的 SQL
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>对于一个给定的 Mapper 接口，需要到 <span style=color:#d14>`resources/mapper`</span> 文件夹下找到与之对应的配置文件；然后针对 Mapper 接口中的方法，从 <span style=color:#d14>`XxxMapper.xml`</span> 配置文件抓取出所对应的 SQL。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>如，`BlogDaoMapper` 接口的 <span style=color:#d14>`getByAddress`</span> 方法在 Mapper 配置文件 <span style=color:#d14>`resources/mapper/BlogDaoMapper.xml`</span> 中的配置如下：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```xml
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:navy>&lt;select</span> <span style=color:teal>id=</span><span style=color:#d14>&#34;getByAddress&#34;</span> <span style=color:teal>resultType=</span><span style=color:#d14>&#34;com.boyouquan.model.Blog&#34;</span><span style=color:navy>&gt;</span>
+</span></span><span style=display:flex><span>    SELECT
+</span></span><span style=display:flex><span>    <span style=color:navy>&lt;include</span> <span style=color:teal>refid=</span><span style=color:#d14>&#34;select_columns&#34;</span><span style=color:navy>/&gt;</span>
+</span></span><span style=display:flex><span>    FROM blog
+</span></span><span style=display:flex><span>    WHERE address=#{address}
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/select&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>抓取 SQL 时，看到有 <span style=color:#d14>`include`</span> 标签，要在文件中找到标签定义的地方：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```xml
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:navy>&lt;sql</span> <span style=color:teal>id=</span><span style=color:#d14>&#34;select_columns&#34;</span><span style=color:navy>&gt;</span>
+</span></span><span style=display:flex><span>    domain_name as domainName,
+</span></span><span style=display:flex><span>    admin_email as adminEmail,
+</span></span><span style=display:flex><span>    name,
+</span></span><span style=display:flex><span>    address,
+</span></span><span style=display:flex><span>    rss_address as rssAddress,
+</span></span><span style=display:flex><span>    description,
+</span></span><span style=display:flex><span>    self_submitted as selfSubmitted,
+</span></span><span style=display:flex><span>    collected_at as collectedAt,
+</span></span><span style=display:flex><span>    updated_at as updatedAt,
+</span></span><span style=display:flex><span>    valid,
+</span></span><span style=display:flex><span>    gravatar_valid as gravatarValid,
+</span></span><span style=display:flex><span>    draft,
+</span></span><span style=display:flex><span>    deleted
+</span></span><span style=display:flex><span><span style=color:navy>&lt;/sql&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>然后抓取出 <span style=color:#d14>`getByAddress`</span> 方法所使用的完整 SQL：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```sql
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>SELECT</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>domain_name<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>domainName,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>admin_email<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>adminEmail,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>name,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>address,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>rss_address<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>rssAddress,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>description,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>self_submitted<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>selfSubmitted,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>collected_at<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>collectedAt,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>updated_at<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>updatedAt,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#000;font-weight:700>valid</span>,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>gravatar_valid<span style=color:#bbb> </span><span style=color:#000;font-weight:700>as</span><span style=color:#bbb> </span>gravatarValid,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>draft,<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>deleted<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>FROM</span><span style=color:#bbb> </span>blog<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>WHERE</span><span style=color:#bbb> </span>address<span style=color:#000;font-weight:700>=#</span><span style=color:#a61717;background-color:#e3d2d2>{</span>address<span style=color:#a61717;background-color:#e3d2d2>}</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>没有 <span style=color:#d14>`include`</span> 标签的 SQL 则直接抓取即可。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#aaa>### 3.4 在 Repository 接口为方法添加 @Query 注解并填入对应的 SQL
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>接下来是本次实现的重点：使用 <span style=color:#d14>`@Query`</span> 注解将上一步找到的 SQL 填入与 Mapper 接口对应的 Repository 接口方法上。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>填入 SQL 时，需要遵循两个原则：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>-</span> a）如果对应的方法能使用 JPA 的命名方法实现就不要使用自定义查询方式实现。所以方法名可以根据需要做相应的更改，只要在最后的报告中做出说明即可；
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>如，在 BlogRepository 中实现 <span style=color:#d14>`getByAddress`</span> 方法时，没必要使用自定义查询，写成：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.repository.CrudRepository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.stereotype.Repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Repository</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogRepository</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>extends</span><span style=color:#bbb> </span>CrudRepository<span style=color:#000;font-weight:700>&lt;</span>Blog,<span style=color:#bbb> </span>Long<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Query</span>(value<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#d14>&#34;SELECT * FROM blog WHERE address=#{address}&#34;</span>,<span style=color:#bbb> </span>nativeQuery<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>true</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>Blog<span style=color:#bbb> </span><span style=color:#900;font-weight:700>findByAddress</span>(String<span style=color:#bbb> </span>address);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>而应使用 JPA 的命名方法，写成：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.repository.CrudRepository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.stereotype.Repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Repository</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogRepository</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>extends</span><span style=color:#bbb> </span>CrudRepository<span style=color:#000;font-weight:700>&lt;</span>Blog,<span style=color:#bbb> </span>Long<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>Blog<span style=color:#bbb> </span><span style=color:#900;font-weight:700>findByAddress</span>(String<span style=color:#bbb> </span>address);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>对于这一方法名的变更，只需要在最后的报告中做出说明即可。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>-</span> b）使用 <span style=color:#d14>`@Query`</span> 注解指定自定义查询时，如果对应的 SQL 语句太长，则 <span style=color:#d14>`value`</span> 字段需要用 Java 13 引入的三个引号引用文本块的方式实现，而不要将一个长 SQL 放在一个单行上，影响阅读。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>如，`BlogDaoMapper` 接口的 <span style=color:#d14>`listPopularBlogs`</span> 方法在 Mapper 配置文件 <span style=color:#d14>`BlogDaoMapper.xml`</span> 中的 SQL 很长。在 BlogRepository 中实现 <span style=color:#d14>`listPopularBlogs`</span> 方法时，须写成：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```java
+</span></span></span><span style=display:flex><span><span style=color:#d14></span><span style=color:#000;font-weight:700>package</span><span style=color:#bbb> </span><span style=color:#555>com.boyouquan.repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.data.repository.CrudRepository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>import</span><span style=color:#bbb> </span><span style=color:#555>org.springframework.stereotype.Repository</span>;<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#3c5d5d;font-weight:700>@Repository</span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#000;font-weight:700>public</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>interface</span> <span style=color:#458;font-weight:700>BlogRepository</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>extends</span><span style=color:#bbb> </span>CrudRepository<span style=color:#000;font-weight:700>&lt;</span>Blog,<span style=color:#bbb> </span>Long<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span>{<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span><span style=color:#3c5d5d;font-weight:700>@Query</span>(value<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#d14>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#d14>            WITH moment_activities AS (
+</span></span></span><span style=display:flex><span><span style=color:#d14>              SELECT
+</span></span></span><span style=display:flex><span><span style=color:#d14>                m.blog_domain_name,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                MAX(m.created_at) as latest_active_time,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                &#39;moment&#39; as type
+</span></span></span><span style=display:flex><span><span style=color:#d14>              FROM
+</span></span></span><span style=display:flex><span><span style=color:#d14>                moment m
+</span></span></span><span style=display:flex><span><span style=color:#d14>                INNER JOIN blog b ON m.blog_domain_name = b.domain_name
+</span></span></span><span style=display:flex><span><span style=color:#d14>              WHERE
+</span></span></span><span style=display:flex><span><span style=color:#d14>                m.deleted = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.draft = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.deleted = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.valid = true
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.gravatar_valid = true
+</span></span></span><span style=display:flex><span><span style=color:#d14>              GROUP BY
+</span></span></span><span style=display:flex><span><span style=color:#d14>                m.blog_domain_name
+</span></span></span><span style=display:flex><span><span style=color:#d14>            ),
+</span></span></span><span style=display:flex><span><span style=color:#d14>            post_activities AS (
+</span></span></span><span style=display:flex><span><span style=color:#d14>              SELECT
+</span></span></span><span style=display:flex><span><span style=color:#d14>                p.blog_domain_name,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                MAX(p.published_at) as latest_active_time,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                &#39;post&#39; as type
+</span></span></span><span style=display:flex><span><span style=color:#d14>              FROM
+</span></span></span><span style=display:flex><span><span style=color:#d14>                post p
+</span></span></span><span style=display:flex><span><span style=color:#d14>                INNER JOIN blog b ON p.blog_domain_name = b.domain_name
+</span></span></span><span style=display:flex><span><span style=color:#d14>              WHERE
+</span></span></span><span style=display:flex><span><span style=color:#d14>                p.deleted = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND p.draft = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.draft = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.deleted = false
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.valid = true
+</span></span></span><span style=display:flex><span><span style=color:#d14>                AND b.gravatar_valid = true
+</span></span></span><span style=display:flex><span><span style=color:#d14>              GROUP BY
+</span></span></span><span style=display:flex><span><span style=color:#d14>                p.blog_domain_name
+</span></span></span><span style=display:flex><span><span style=color:#d14>            ),
+</span></span></span><span style=display:flex><span><span style=color:#d14>            combined_activities AS (
+</span></span></span><span style=display:flex><span><span style=color:#d14>              SELECT
+</span></span></span><span style=display:flex><span><span style=color:#d14>                blog_domain_name,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                latest_active_time,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                type
+</span></span></span><span style=display:flex><span><span style=color:#d14>              FROM
+</span></span></span><span style=display:flex><span><span style=color:#d14>                moment_activities
+</span></span></span><span style=display:flex><span><span style=color:#d14>              UNION ALL
+</span></span></span><span style=display:flex><span><span style=color:#d14>              SELECT
+</span></span></span><span style=display:flex><span><span style=color:#d14>                blog_domain_name,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                latest_active_time,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                type
+</span></span></span><span style=display:flex><span><span style=color:#d14>              FROM
+</span></span></span><span style=display:flex><span><span style=color:#d14>                post_activities
+</span></span></span><span style=display:flex><span><span style=color:#d14>            ),
+</span></span></span><span style=display:flex><span><span style=color:#d14>            ranked_activities AS (
+</span></span></span><span style=display:flex><span><span style=color:#d14>              SELECT
+</span></span></span><span style=display:flex><span><span style=color:#d14>                blog_domain_name as blogDomainName,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                latest_active_time as latestActiveTime,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                type,
+</span></span></span><span style=display:flex><span><span style=color:#d14>                ROW_NUMBER() OVER (
+</span></span></span><span style=display:flex><span><span style=color:#d14>                  PARTITION BY blog_domain_name
+</span></span></span><span style=display:flex><span><span style=color:#d14>                  ORDER BY
+</span></span></span><span style=display:flex><span><span style=color:#d14>                    latest_active_time DESC
+</span></span></span><span style=display:flex><span><span style=color:#d14>                ) as rn
+</span></span></span><span style=display:flex><span><span style=color:#d14>              FROM
+</span></span></span><span style=display:flex><span><span style=color:#d14>                combined_activities
+</span></span></span><span style=display:flex><span><span style=color:#d14>            )
+</span></span></span><span style=display:flex><span><span style=color:#d14>            SELECT
+</span></span></span><span style=display:flex><span><span style=color:#d14>              blogDomainName,
+</span></span></span><span style=display:flex><span><span style=color:#d14>              latestActiveTime,
+</span></span></span><span style=display:flex><span><span style=color:#d14>              type
+</span></span></span><span style=display:flex><span><span style=color:#d14>            FROM
+</span></span></span><span style=display:flex><span><span style=color:#d14>              ranked_activities
+</span></span></span><span style=display:flex><span><span style=color:#d14>            WHERE
+</span></span></span><span style=display:flex><span><span style=color:#d14>              rn = 1
+</span></span></span><span style=display:flex><span><span style=color:#d14>            ORDER BY
+</span></span></span><span style=display:flex><span><span style=color:#d14>              latestActiveTime DESC
+</span></span></span><span style=display:flex><span><span style=color:#d14>            LIMIT
+</span></span></span><span style=display:flex><span><span style=color:#d14>              :limit
+</span></span></span><span style=display:flex><span><span style=color:#d14>            &#34;&#34;&#34;</span>,<span style=color:#bbb> </span>nativeQuery<span style=color:#bbb> </span><span style=color:#000;font-weight:700>=</span><span style=color:#bbb> </span><span style=color:#000;font-weight:700>true</span>)<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb>    </span>List<span style=color:#000;font-weight:700>&lt;</span>PopularBlog<span style=color:#000;font-weight:700>&gt;</span><span style=color:#bbb> </span><span style=color:#900;font-weight:700>listPopularBlogs</span>(<span style=color:#458;font-weight:700>int</span><span style=color:#bbb> </span>limit);<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span>}<span style=color:#bbb>
+</span></span></span><span style=display:flex><span><span style=color:#bbb></span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#aaa>## 4 报告生成
+</span></span></span><span style=display:flex><span><span style=color:#aaa></span>
+</span></span><span style=display:flex><span>所有步骤完成后，请在项目根目录生成一个 <span style=color:#d14>`report.md`</span> 报告文件，以表格的方式展示原始 Mapper 接口、原始 Mapper 接口中的方法、新生成的 Repository 、新生成的 Repository 中的方法的对应关系。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>示例：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>| Mapper 接口   | 原方法       | Repository 接口 | 新方法        |
+</span></span><span style=display:flex><span>| ------------- | ------------ | --------------- | ------------- |
+</span></span><span style=display:flex><span>| BlogDaoMapper | getByAddress | BlogRepository  | findByAddress |
+</span></span></code></pre></div><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/mybatis-to-jpa-with-improved-prompt.png alt="MyBatis 到 JPA 的转换结果（Improved Prompt）"></p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/mybatis-to-jpa-report.png alt="MyBatis 到 JPA 的转换报告"></p><blockquote><p>参考资料</p><p>[1] Book: Prompt Engineering for Generative AI by James Phoenix and Mike Taylor (O&rsquo;Reilly) - <a href=https://www.oreilly.com/library/view/prompt-engineering-for/9781098153427/>https://www.oreilly.com/library/view/prompt-engineering-for/9781098153427/</a></p><p>[2] Saxifrage Blog: Prompt Engineering, from Words to Art and Copy - <a href=https://www.saxifrage.xyz/post/prompt-engineering>https://www.saxifrage.xyz/post/prompt-engineering</a></p><p>[3] OpenAI: Prompt engineering - <a href=https://platform.openai.com/docs/guides/prompt-engineering>https://platform.openai.com/docs/guides/prompt-engineering</a></p></blockquote></div><div class=content-footer><div class=weixinhao><img src=/static/images/self/weixinhao-white.jpg></div><div class=post-tags><a href=/tags/ai/>#AI</a>
+<a href=/tags/java/>#Java</a></div><div class=license><i class=ti-info-alt></i><div class=info>版权声明：该博客文章由作者通过「<a href=https://creativecommons.org/licenses/by/4.0/deed.zh>知识共享署名 4.0 许可证</a>」进行授权，转载须注明文章原始链接。</div></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/how-to-use-spec-kit.html>如何使用 Spec Kit 工具进行规范驱动开发？</a></li><li><a href=/posts/the-universal-programming-language-of-the-ai-era.html>Markdown 将成为 AI 时代的通用编程语言？</a></li><li><a href=/posts/writing-a-mysql-mcp-server.html>使用 FastMCP 编写一个 MySQL MCP Server</a></li><li><a href=/posts/getting-started-with-cursor.html>Cursor 初体验：将 React 项目从 JavaScript 升级到 TypeScript</a></li><li><a href=/posts/how-to-use-playwright-mcp.html>以自然语言的方式使用 Playwright MCP 进行浏览器自动化操作</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>
+<span>正在加载评论......</span></div><script>function handleMessage(e){if(e.origin!=="https://giscus.app")return;if(typeof e.data!="object"||!e.data.giscus)return;const t=document.getElementById("comment-loading");t.style.display="none"}window.addEventListener("message",handleMessage)</script><script src=https://giscus.app/client.js data-repo=leileiluoluo/leileiluoluo.github.io data-repo-id=R_kgDOJkLT8w data-category=General data-category-id=DIC_kwDOJkLT884CdtEh data-mapping=pathname data-strict=0 data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=preferred_color_scheme data-lang=zh-CN data-loading=lazy crossorigin=anonymous async></script></div></div></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/sponsor>随喜打赏</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/about>关于本博</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/leileiluoluo><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div style=text-align:center;margin-bottom:22px><a href=https://www.boyouquan.com/planet-shuttle target=_blank><img width=90px height=28px src=https://boyouquan.com/assets/images/sites/logo/planet-shuttle.svg></a></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2025 | <a href=https://www.boyouquan.com/certificates/leileiluoluo.com title=正在博友圈履约中 target=_blank><img style=height:20px src="https://www.boyouquan.com/images/logo/performance.svg?domainName=leileiluoluo.com" alt=正在博友圈履约中></a></span></div></div></footer><script>var indexURL="https://leileiluoluo.github.io/index.json"</script><script src=https://leileiluoluo.github.io/js/jquery.min.js></script><script src=https://leileiluoluo.github.io/js/bootstrap.min.js></script><script src=https://leileiluoluo.github.io/js/fuse.min.js></script><script src=https://leileiluoluo.github.io/js/mark.js></script><script src=https://leileiluoluo.github.io/js/search.js></script><script src=https://leileiluoluo.github.io/js/script.min.js></script></body></html>
