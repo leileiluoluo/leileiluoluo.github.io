@@ -1,0 +1,282 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><title>编写一个 VS Code 扩展：将 Copilot 支持的大模型通过 REST API 方式暴露出来 - 磊磊落落</title>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta name=keywords content="TypeScript,AI,VS Code,扩展,Copilot,模型,REST API"><meta name=description content="在 AI 辅助编程的时代，Copilot 已经成为众多开发者的得力助手。我们只要拥有一个 GitHub 账号，只要开通了 Copilot，即可在 VS Code 等编辑器中使用它。而且 Copilot 可选的大模型日益增多，从最初的 Codex 模型到如今支持更强大的 GPT-5 系列，模型能力不断增强。然而，Copilot 的能力被完全释放了吗？答案是否定的。它依然被限制在 IDE 插件、特定工作流的框架内。如果我们可以将 Copilot 背后的大模型能力「解放」出来，通过简单、通用的 REST API 提供给更多开发者、工具和应用调用，将会带来哪些可能性？今天，我们就将共同探索这个实践：如何通过编写一个 VS Code 扩展，将 Copilot 支持的大模型转化为可灵活调用的 API 服务。"><meta name=author content="磊磊落落"><meta name=generator content="Hugo 0.123.7"><link rel=stylesheet href=https://leileiluoluo.github.io/css/bootstrap.min.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/themify-icons.css><link rel=stylesheet href=https://leileiluoluo.github.io/css/larry-custom-v1.6.css><link rel=stylesheet href=https://leileiluoluo.github.io/scss/style.min.css media=screen><link rel="shortcut icon" href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><link rel=icon href=https://leileiluoluo.github.io/images/favicon.png type=image/x-icon><script>var _hmt=_hmt||[];(function(){var e,t=document.createElement("script");t.src="https://hm.baidu.com/hm.js?526723b767317055572c85bdb445353c",e=document.getElementsByTagName("script")[0],e.parentNode.insertBefore(t,e)})()</script></head><body><header class="fixed-top navigation"><div class=container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><a class=navbar-brand href=https://leileiluoluo.github.io/>磊磊落落</a>
+<button class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h3"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav ml-auto"><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/></a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/>计算机</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E9%9A%8F%E7%AC%94/>随笔</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%AF%BB%E4%B9%A6/>读书</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E8%A7%82%E5%BD%B1/>观影</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/categories/%E7%BB%83%E5%AD%97/>练字</a></li><li class=nav-item><a class=nav-link href=https://leileiluoluo.github.io/about>关于</a></li></ul><div class=search><button id=searchOpen class=search-btn><i class=ti-search></i></button><div class=search-wrapper><form action=https://leileiluoluo.github.io//search class=h-100><input class="search-box px-4" id=search-query name=s type=search placeholder=键入关键字后回车...></form><button id=searchClose class=search-close><i class="ti-close text-dark"></i></button></div></div></div></nav></div></header><div class="py-5 d-none d-lg-block"></div><section class=section><div class=container><div class=row><div class="col-lg-8 mx-auto block shadow mb-5"><h1>编写一个 VS Code 扩展：将 Copilot 支持的大模型通过 REST API 方式暴露出来</h1><div class="mb-3 post-meta">2025年12月11日
+<a href=/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba>计算机</a></div><div class="content mb-5"><p>在 AI 辅助编程的时代，Copilot 已经成为众多开发者的得力助手。我们只要拥有一个 GitHub 账号，只要开通了 Copilot，即可在 VS Code 等编辑器中使用它。而且 Copilot 可选的大模型日益增多，从最初的 Codex 模型到如今支持更强大的 GPT-5 系列，模型能力不断增强。</p><p>然而，Copilot 的能力被完全释放了吗？答案是否定的。它依然被限制在 IDE 插件、特定工作流的框架内。如果我们可以将 Copilot 背后的大模型能力「解放」出来，通过简单、通用的 REST API 提供给更多开发者、工具和应用调用，将会带来哪些可能性？</p><p>今天，我们就将共同探索这个实践：如何通过编写一个 VS Code 扩展，将 Copilot 支持的大模型转化为可灵活调用的 API 服务。</p><h2 id=1-为什么需要一个-vs-code-扩展>1 为什么需要一个 VS Code 扩展</h2><p>下面以在 VS Code 中借助 Copilot 批量生成报告为例来说明为什么需要编写一个 VS Code 扩展。</p><p>假设，我正在为一个博客聚合网站做年度报告。拥有的初始数据是一个 JSON 数组 <code>blog-posts.json</code>，该数组记录了聚合网站中所有博客在 2025 全年发布的文章。</p><p>格式如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>[
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:navy>&#34;blog&#34;</span>: <span style=color:#d14>&#34;leileiluoluo.com&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:navy>&#34;articles&#34;</span>: [
+</span></span><span style=display:flex><span>      <span style=color:#d14>&#34;提示工程需要遵循的五个原则（附实践案例）&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#d14>&#34;關於 2026 年即將生效的「吸毒記錄可封存」法案&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#d14>&#34;如何使用 Spec Kit 工具进行规范驱动开发？&#34;</span>
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>]
+</span></span></code></pre></div><p>如果我想借助 Copilot，让其基于上述数据批量生成所有博客的年度报告 <code>blog-summary.json</code>（格式如下），该如何做呢？</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=display:flex><span>[
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:navy>&#34;blog&#34;</span>: <span style=color:#d14>&#34;leileiluoluo.com&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:navy>&#34;summary&#34;</span>: <span style=color:#d14>&#34;您的博客文章涵盖了技术开发、社会热点和个人生活等多个领域。在技术方面，您深入探讨了提示工程、规范驱动开发、Spring Boot 框架的应用、数据库迁移与优化等主题，展示了对前沿技术的关注与实践经验的分享；同时，您还介绍了 Markdown 编程语言的潜力、MapStruct 对象映射工具的优势，以及 MCP 在浏览器自动化中的应用等内容，体现了对技术趋势的敏锐洞察。在社会热点方面，您关注了吸毒记录封存法案、历史事件以及社会案件，表达了独到的见解。在个人生活方面，您记录了多次旅行与家庭活动，展现了对自然风光的热爱与家庭生活的温馨。这些文章内容丰富，兼具专业性与生活化，体现了广泛的兴趣与深刻的思考。&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>]
+</span></span></code></pre></div><p>要实现这个任务，我们可以先从一个博客开始，编写提示词看看效果，没问题再让 Copilot 运用到所有博客。</p><p>针对单个博客生成年度总结的提示词如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>下面是一个博客在 2025 年发布的所有文章，请以「您的博客文章涵盖了...」开始写一段 200 字以内的总结：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  &#34;blog&#34;: &#34;leileiluoluo.com&#34;,
+</span></span><span style=display:flex><span>  &#34;articles&#34;: [
+</span></span><span style=display:flex><span>    &#34;提示工程需要遵循的五个原则（附实践案例）&#34;,
+</span></span><span style=display:flex><span>    &#34;關於 2026 年即將生效的「吸毒記錄可封存」法案&#34;,
+</span></span><span style=display:flex><span>    &#34;如何使用 Spec Kit 工具进行规范驱动开发？&#34;,
+</span></span><span style=display:flex><span>    ...
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>可以看到 Copilot 完美的完成了任务。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-example-single-blog-summary-generation.png alt="使用 Copilot 生成单个博客的年度总结"></p><p>接下来尝试编写提示词，让 Copilot 运用到所有博客。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>annual-report 文件夹下的 blog-posts.json 文件包含了多个博客在 2025 年的所有文章标题。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>您需要针对每个博客在这一年发布的所有文章标题，以「您的博客文章涵盖了...」开始写一段 200 字以内的总结。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>最后以 `blog-summary.json` 为文件名，输出一个包含所有博客总结的 JSON 数组，格式如下：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    &#34;blog&#34;: &#34;leileiluoluo.com&#34;,
+</span></span><span style=display:flex><span>    &#34;summary&#34;: &#34;您的博客文章涵盖了技术开发、社会热点和个人生活等多个领域。在技术方面，您深入探讨了提示工程、规范驱动开发、Spring Boot 框架的应用、数据库迁移与优化等主题，展示了对前沿技术的关注与实践经验的分享；同时，您还介绍了 Markdown 编程语言的潜力、MapStruct 对象映射工具的优势，以及 MCP 在浏览器自动化中的应用等内容，体现了对技术趋势的敏锐洞察。在社会热点方面，您关注了吸毒记录封存法案、历史事件以及社会案件，表达了独到的见解。在个人生活方面，您记录了多次旅行与家庭活动，展现了对自然风光的热爱与家庭生活的温馨。这些文章内容丰富，兼具专业性与生活化，体现了广泛的兴趣与深刻的思考。&#34;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  // ...
+</span></span><span style=display:flex><span>]
+</span></span></code></pre></div><p>上述提示词发出后，Copilot 开始编写 Python 脚本，试图用程序的方式去实现这个批量任务。</p><p>但是结果很不理想，其生成的总结非常的单薄。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-example-multiple-blog-sumary-generation.png alt="使用 Copilot 批量生成博客的年度总结"></p><p>究其原因，是因为 Copilot 根本没有调用大模型去生成总结，而是在程序中写了一组关键词，只要文章标题匹配了某些关键词就固定输出一个分类，生成的总结死板，没有活力。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-example-multiple-blog-sumary-generation-python-code.png alt="使用 Copilot 批量生成博客的年度总结之使用的脚本"></p><p>看到这里，您不禁要问：Copilot 不知道我们想要的总结是用大模型生成吗？还是有哪些难言之隐？</p><p>下面我们尝试使用提示词强制让其使用大模型来生成总结。</p><p>提示词发出后，Copilot 修改原先的 Python 脚本，改为调用 OpenAI 来生成总结。但是要使用这个程序我们需要有 OpenAI 账号，即必须提供一个 <code>OPENAI_API_KEY</code> 给 Copilot。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-example-multiple-blog-sumary-generation-python-code-openai.png alt="使用 Copilot 批量生成博客的年度总结之使用的 OpenAI"></p><p>看到这里您可能跟我一样有一些迷惑，你 Copilot Chat 中支持的那么多模型直接拿来用不就行了吗？还让我专门开通一个大模型账号？或者，你用笨一点的办法，像获取单个博客的总结一样，自己自动组装提示词发给 Chat，然后取回结果；然后再发出，再取回。帮我完成任务，不行吗？</p><p>其实，这个问题恰好触碰到了 Copilot 的难言之隐。因为 Copilot 的确没有将可使用的模型用 REST API 的方式暴露出来，所以它编写的脚本想使用模型时，必须让我们提供一个额外模型的 <code>API_KEY</code>。</p><p>这就是我为什么要写本文的缘由。我们需要编写一个 VS Code 扩展，来将 Copilot 中模型的能力通过 REST API 释放出来，供程序去使用。</p><h2 id=2-编写这个-vs-code-扩展>2 编写这个 VS Code 扩展</h2><p>下面着手编写这个「将 Copilot 大模型暴露为 REST API」的 VS Code 扩展。</p><p>开始前，需要保证本地已安装 <code>Node.js</code>。</p><h3 id=21-准备工作>2.1 准备工作</h3><p>下面安装 <code>yo</code> 命令，该命令用于生成 VC Code 扩展工程的脚手架。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>npm install --global yo generator-code
+</span></span></code></pre></div><p>安装完成后，将 npm 的全局 <code>bin</code> 目录添加到系统环境变量，方便直接使用安装的命令。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span><span style=color:#0086b3>echo</span> <span style=color:#d14>&#39;export PATH=&#34;$(npm config get prefix)/bin:$PATH&#34;&#39;</span> &gt;&gt; ~/.bashrc
+</span></span><span style=display:flex><span><span style=color:#0086b3>source</span> ~/.bashrc
+</span></span></code></pre></div><p>下面使用 <code>yo code</code> 命令生成 VS Code 扩展工程 <code>copilot-models-rest-api</code> 的脚手架：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>yo code
+</span></span></code></pre></div><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-code-gen.png alt="生成 VS Code 扩展工程脚手架"></p><p>可以看到，生成的工程为一个标准的 TypeScript 工程，其调用入口为 <code>src/extension.ts</code>。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-code-structure.png alt="生成的 VS Code 扩展工程脚手架"></p><h3 id=22-编写核心逻辑>2.2 编写核心逻辑</h3><p>接下来在脚手架工程 <code>copilot-models-rest-api</code> 的 <code>src</code> 目录下编写核心逻辑。</p><h4 id=alanguagemodelservicets>a）LanguageModelService.ts</h4><p>首先，新建一个 <code>LanguageModelService.ts</code> 文件，用于通过 VS Code 内置的 API 获取到 Copilot 的可用大语言模型，然后封装出三个方法供别的 <code>ts</code> 文件调用：</p><ul><li><p><code>getAvailableModels()</code></p><p>获取 Copilot 支持的所有大模型名称；</p></li><li><p><code>getModelById()</code></p><p>根据大模型名称获取特定大模型对象；</p></li><li><p><code>createChatCompletion()</code></p><p>指定想用的大模型，然后传入一段文本，并请求大模型返回结果。</p></li></ul><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#000;font-weight:700>*</span> <span style=color:#000;font-weight:700>as</span> vscode <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;vscode&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> { ChatRequest, ChatResponse } <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;./types&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> { LanguageModelChat } <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;vscode&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>export</span> <span style=color:#000;font-weight:700>class</span> LanguageModelService {
+</span></span><span style=display:flex><span>  <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>public</span> <span style=color:#000;font-weight:700>async</span> getAvailableModels()<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>string</span><span style=color:#a61717;background-color:#e3d2d2>[]</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> models <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>await</span> vscode.lm.selectChatModels({
+</span></span><span style=display:flex><span>        vendor<span style=color:#000;font-weight:700>:</span> <span style=color:#d14>&#34;copilot&#34;</span>,
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>if</span> (models.length <span style=color:#000;font-weight:700>===</span> <span style=color:#099>0</span>) {
+</span></span><span style=display:flex><span>        console.error(<span style=color:#d14>&#34;No Copilot models available&#34;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>return</span> [];
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>return</span> models.map((model) <span style=color:#000;font-weight:700>=&gt;</span> model.id);
+</span></span><span style=display:flex><span>    } <span style=color:#000;font-weight:700>catch</span> (error: <span style=color:#458;font-weight:700>any</span>) {
+</span></span><span style=display:flex><span>      console.error(<span style=color:#d14>&#34;Error fetching models:&#34;</span>, error);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>return</span> [];
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>public</span> <span style=color:#000;font-weight:700>async</span> getModelById(
+</span></span><span style=display:flex><span>    modelId?: <span style=color:#458;font-weight:700>string</span>
+</span></span><span style=display:flex><span>  )<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>LanguageModelChat</span> <span style=color:#a61717;background-color:#e3d2d2>|</span> <span style=color:teal>null</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> models <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>await</span> vscode.lm.selectChatModels({
+</span></span><span style=display:flex><span>        vendor<span style=color:#000;font-weight:700>:</span> <span style=color:#d14>&#34;copilot&#34;</span>,
+</span></span><span style=display:flex><span>      });
+</span></span><span style=display:flex><span>      <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> model <span style=color:#000;font-weight:700>=</span> models.find((m) <span style=color:#000;font-weight:700>=&gt;</span> m.id <span style=color:#000;font-weight:700>===</span> modelId);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>return</span> model <span style=color:#000;font-weight:700>||</span> <span style=color:#000;font-weight:700>null</span>;
+</span></span><span style=display:flex><span>    } <span style=color:#000;font-weight:700>catch</span> (error: <span style=color:#458;font-weight:700>any</span>) {
+</span></span><span style=display:flex><span>      console.error(<span style=color:#d14>&#34;Error fetching model by ID:&#34;</span>, error);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>return</span> <span style=color:#000;font-weight:700>null</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>public</span> <span style=color:#000;font-weight:700>async</span> createChatCompletion(req: <span style=color:#458;font-weight:700>ChatRequest</span>)<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>ChatResponse</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>const</span> model <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>await</span> <span style=color:#000;font-weight:700>this</span>.getModelById(req.model);
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> messagePayload <span style=color:#000;font-weight:700>=</span> req.messages.map((msg) <span style=color:#000;font-weight:700>=&gt;</span>
+</span></span><span style=display:flex><span>        vscode.LanguageModelChatMessage.User(msg)
+</span></span><span style=display:flex><span>      );
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> resp <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>await</span> model.sendRequest(
+</span></span><span style=display:flex><span>        messagePayload,
+</span></span><span style=display:flex><span>        {},
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>new</span> vscode.CancellationTokenSource().token
+</span></span><span style=display:flex><span>      );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>let</span> fullText: <span style=color:#458;font-weight:700>string</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;&#34;</span>;
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>for</span> <span style=color:#000;font-weight:700>await</span> (<span style=color:#000;font-weight:700>const</span> chunk <span style=color:#000;font-weight:700>of</span> resp.text) {
+</span></span><span style=display:flex><span>        fullText <span style=color:#000;font-weight:700>+=</span> chunk;
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>return</span> { reply: <span style=color:#458;font-weight:700>fullText</span>, model: <span style=color:#458;font-weight:700>model.id</span> };
+</span></span><span style=display:flex><span>    } <span style=color:#000;font-weight:700>catch</span> (error: <span style=color:#458;font-weight:700>any</span>) {
+</span></span><span style=display:flex><span>      console.error(<span style=color:#d14>&#34;Error creating chat completion:&#34;</span>, error);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>return</span> { error<span style=color:#000;font-weight:700>:</span> <span style=color:#d14>&#34;Error creating chat completion: &#34;</span> <span style=color:#000;font-weight:700>+</span> error.message };
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=bapiserverts>b）ApiServer.ts</h4><p>接下来，使用 <code>ApiServer.ts</code> 包装上述 <code>LanguageModelService</code>，以 RESTful API 方式暴露用户与大模型交互的能力。</p><p><code>ApiServer.ts</code> 的代码如下：</p><p>可以看到，<code>ApiServer.ts</code> 主要负责接收请求并返回响应。其提供了一个 <code>POST /v1/chat/completions</code> API 来接收用户输入信息，并调用 <code>LanguageModelService</code> 的 <code>createChatCompletion()</code> 的方法来给出回答。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#000;font-weight:700>*</span> <span style=color:#000;font-weight:700>as</span> http <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;http&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#000;font-weight:700>*</span> <span style=color:#000;font-weight:700>as</span> url <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;url&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> { LanguageModelService } <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;./languageModelService&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> { ChatRequest } <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;./types&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>export</span> <span style=color:#000;font-weight:700>class</span> ApiServer {
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>private</span> server: <span style=color:#458;font-weight:700>http.Server</span> <span style=color:#000;font-weight:700>|</span> <span style=color:#000;font-weight:700>null</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>null</span>;
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>private</span> port: <span style=color:#458;font-weight:700>number</span>;
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>private</span> languageModelService: <span style=color:#458;font-weight:700>LanguageModelService</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>constructor</span>(port: <span style=color:#458;font-weight:700>number</span>) {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>this</span>.port <span style=color:#000;font-weight:700>=</span> port;
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>this</span>.languageModelService <span style=color:#000;font-weight:700>=</span> LanguageModelService.getInstance();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>async</span> handleRequest(
+</span></span><span style=display:flex><span>    req: <span style=color:#458;font-weight:700>http.IncomingMessage</span>,
+</span></span><span style=display:flex><span>    res: <span style=color:#458;font-weight:700>http.ServerResponse</span>
+</span></span><span style=display:flex><span>  )<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>void</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>const</span> parsedUrl <span style=color:#000;font-weight:700>=</span> url.parse(req.url <span style=color:#000;font-weight:700>||</span> <span style=color:#d14>&#34;&#34;</span>, <span style=color:#000;font-weight:700>true</span>);
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>const</span> path <span style=color:#000;font-weight:700>=</span> parsedUrl.pathname <span style=color:#000;font-weight:700>||</span> <span style=color:#d14>&#34;&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>if</span> (req.method <span style=color:#000;font-weight:700>===</span> <span style=color:#d14>&#34;POST&#34;</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>await</span> <span style=color:#000;font-weight:700>this</span>.handlePostRequest(path, req, res);
+</span></span><span style=display:flex><span>      } <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>this</span>.sendResponse(res, <span style=color:#099>405</span>, { error<span style=color:#000;font-weight:700>:</span> <span style=color:#d14>&#34;Method Not Allowed&#34;</span> });
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    } <span style=color:#000;font-weight:700>catch</span> (error: <span style=color:#458;font-weight:700>any</span>) {
+</span></span><span style=display:flex><span>      console.error(<span style=color:#d14>&#34;request failed&#34;</span>, error);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>this</span>.sendResponse(res, <span style=color:#099>500</span>, { error<span style=color:#000;font-weight:700>:</span> <span style=color:#d14>&#34;Internal Server Error&#34;</span> });
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>async</span> handlePostRequest(
+</span></span><span style=display:flex><span>    path: <span style=color:#458;font-weight:700>string</span>,
+</span></span><span style=display:flex><span>    req: <span style=color:#458;font-weight:700>http.IncomingMessage</span>,
+</span></span><span style=display:flex><span>    res: <span style=color:#458;font-weight:700>http.ServerResponse</span>
+</span></span><span style=display:flex><span>  )<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>void</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>if</span> (path <span style=color:#000;font-weight:700>===</span> <span style=color:#d14>&#34;/v1/chat/completions&#34;</span>) {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> body <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>await</span> <span style=color:#000;font-weight:700>this</span>.readRequestBody(req);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> chatRequest: <span style=color:#458;font-weight:700>ChatRequest</span> <span style=color:#000;font-weight:700>=</span> JSON.parse(body);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> chatResponse <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>await</span> <span style=color:#000;font-weight:700>this</span>.languageModelService.createChatCompletion(
+</span></span><span style=display:flex><span>        chatRequest
+</span></span><span style=display:flex><span>      );
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>this</span>.sendResponse(res, <span style=color:#099>200</span>, chatResponse);
+</span></span><span style=display:flex><span>    } <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>this</span>.sendResponse(res, <span style=color:#099>404</span>, { error<span style=color:#000;font-weight:700>:</span> <span style=color:#d14>&#34;Not Found&#34;</span> });
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>public</span> <span style=color:#000;font-weight:700>async</span> start()<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>void</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>this</span>.server <span style=color:#000;font-weight:700>=</span> http.createServer((req, res) <span style=color:#000;font-weight:700>=&gt;</span> {
+</span></span><span style=display:flex><span>      console.log(<span style=color:#d14>`Received request: </span><span style=color:#d14>${</span>req.method<span style=color:#d14>}</span><span style=color:#d14> </span><span style=color:#d14>${</span>req.url<span style=color:#d14>}</span><span style=color:#d14>`</span>);
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>this</span>.handleRequest(req, res);
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>public</span> <span style=color:#000;font-weight:700>async</span> stop()<span style=color:#000;font-weight:700>:</span> Promise&lt;<span style=color:navy>void</span>&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h4 id=cextensionts>c）extension.ts</h4><p>最后，修改 VS Code 扩展的入口文件 <code>extension.ts</code>，将 <code>ApiServer</code> 的启动和停止命令注册到 VS Code。</p><p><code>extension.ts</code> 的代码如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> <span style=color:#000;font-weight:700>*</span> <span style=color:#000;font-weight:700>as</span> vscode <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;vscode&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>import</span> { ApiServer } <span style=color:#000;font-weight:700>from</span> <span style=color:#d14>&#34;./apiServer&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>let</span> apiServer: <span style=color:#458;font-weight:700>ApiServer</span> <span style=color:#000;font-weight:700>|</span> <span style=color:#000;font-weight:700>null</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>null</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#000;font-weight:700>export</span> <span style=color:#000;font-weight:700>function</span> activate(context: <span style=color:#458;font-weight:700>vscode.ExtensionContext</span>) {
+</span></span><span style=display:flex><span>  <span style=color:#998;font-style:italic>// start API server command
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>  vscode.commands.registerCommand(
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;copilot-models-rest-api.startServer&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>async</span> () <span style=color:#000;font-weight:700>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>const</span> port <span style=color:#000;font-weight:700>=</span> <span style=color:#099>3001</span>; <span style=color:#998;font-style:italic>// You can change the port number if needed
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>      apiServer <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>new</span> ApiServer(port);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>await</span> apiServer.start();
+</span></span><span style=display:flex><span>        vscode.<span style=color:#0086b3>window</span>.showInformationMessage(
+</span></span><span style=display:flex><span>          <span style=color:#d14>`API Server started on port </span><span style=color:#d14>${</span>port<span style=color:#d14>}</span><span style=color:#d14>`</span>
+</span></span><span style=display:flex><span>        );
+</span></span><span style=display:flex><span>      } <span style=color:#000;font-weight:700>catch</span> (error) {
+</span></span><span style=display:flex><span>        vscode.<span style=color:#0086b3>window</span>.showErrorMessage(<span style=color:#d14>&#34;Failed to start API Server&#34;</span>);
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  );
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#998;font-style:italic>// stop API server command
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>  vscode.commands.registerCommand(
+</span></span><span style=display:flex><span>    <span style=color:#d14>&#34;copilot-models-rest-api.stopServer&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#000;font-weight:700>async</span> () <span style=color:#000;font-weight:700>=&gt;</span> {
+</span></span><span style=display:flex><span>      <span style=color:#000;font-weight:700>if</span> (apiServer) {
+</span></span><span style=display:flex><span>        <span style=color:#000;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>          <span style=color:#000;font-weight:700>await</span> apiServer.stop();
+</span></span><span style=display:flex><span>          vscode.<span style=color:#0086b3>window</span>.showInformationMessage(<span style=color:#d14>&#34;API Server stopped&#34;</span>);
+</span></span><span style=display:flex><span>        } <span style=color:#000;font-weight:700>catch</span> (error) {
+</span></span><span style=display:flex><span>          vscode.<span style=color:#0086b3>window</span>.showErrorMessage(<span style=color:#d14>&#34;Failed to stop API Server&#34;</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>      } <span style=color:#000;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>        vscode.<span style=color:#0086b3>window</span>.showWarningMessage(<span style=color:#d14>&#34;API Server is not running&#34;</span>);
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  );
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#998;font-style:italic>// This method is called when your extension is deactivated
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span><span style=color:#000;font-weight:700>export</span> <span style=color:#000;font-weight:700>function</span> deactivate() {
+</span></span><span style=display:flex><span>  <span style=color:#000;font-weight:700>if</span> (apiServer) {
+</span></span><span style=display:flex><span>    apiServer.stop().<span style=color:#000;font-weight:700>catch</span>((error: <span style=color:#458;font-weight:700>Error</span>) <span style=color:#000;font-weight:700>=&gt;</span> {
+</span></span><span style=display:flex><span>      console.error(<span style=color:#d14>&#34;Error stopping API Server:&#34;</span>, error);
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>至此，我们想要的扩展的源码部分就基本实现完成了。</p><h3 id=23-生成-vsix-文件>2.3 生成 vsix 文件</h3><p>最后，使用如下 npm 命令安装依赖和打包。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>npm install
+</span></span><span style=display:flex><span>npm run package
+</span></span></code></pre></div><p>使用如下 npm 命令安装 <code>vsce</code> 命令，并使用 <code>vsce</code> 命令来将工程打包为一个 <code>.vsix</code> 文件。</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>npm install -g @vscode/vsce
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>vsce package
+</span></span></code></pre></div><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-vsix-file.png alt="生成 vsix 文件"></p><p>这样，有需要的朋友就可以在 VS Code 安装这个扩展，然后使用我们包装好的 API 了。</p><h2 id=3-使用这个-vs-code-扩展>3 使用这个 VS Code 扩展</h2><p>下面，我们在 VS Code 安装上面生成的 <code>vsix</code> 扩展，然后尝试重新编写提示词，看看其能否实现文章开头的「批量生成博客年度总结」的需求。</p><h3 id=31-安装扩展>3.1 安装扩展</h3><p>首先，点击 VS Code 左侧的 Extensions Tab，然后点击 Install from VSIX，选择上述 <code>.vsix</code> 文件所在位置，即可安装成功。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-installation.png alt="选择 vsix 文件，安装扩展"></p><p>扩展安装成功后，在 VS Code 键入「Ctrl + Shift + P」后，点击「Start Copilot Models REST API Server」命令，即可启动 API Server。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-run.png alt=运行扩展></p><p>Server 启动成功后，尝试用 Postman 调用一下和模型对话的 API，咨询模型的结果被成功返回。</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-postman.png alt=运行扩展></p><h3 id=32-使用扩展>3.2 使用扩展</h3><p>最后，尝试将文章开头「批量生成博客年度总结」的提示词修改如下：</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-markdown data-lang=markdown><span style=display:flex><span>annual-report 文件夹下的 blog-posts.json 文件包含了多个博客在 2025 年的所有文章标题。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>您需要针对每个博客在这一年发布的所有文章标题，调用如下模型对话 API 来生成一段 200 字以内的总结。
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>API 地址：http://localhost:3001/v1/chat/completions
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>调用示例如下：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```text
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>POST http://localhost:3001/v1/chat/completions
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Request Body:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    &#34;model&#34;: &#34;gpt-4.1&#34;,
+</span></span><span style=display:flex><span>    &#34;messages&#34;: [
+</span></span><span style=display:flex><span>        &#34;如下是一个博客于 2025 年发布的所有文章标题，请基于此生成一个 200 字的总结。总结以「您的博客文章涵盖了...」开始，格式为纯文本格式，若有英文或数字字符，前后请使用空格隔开。&#34;,
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        &#34;提示工程需要遵循的五个原则（附实践案例）&#34;,
+</span></span><span style=display:flex><span>        &#34;關於 2026 年即將生效的「吸毒記錄可封存」法案&#34;,
+</span></span><span style=display:flex><span>        &#34;如何使用 Spec Kit 工具进行规范驱动开发？&#34;,
+</span></span><span style=display:flex><span>        &#34;Markdown 将成为 AI 时代的通用编程语言？&#34;
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Response Body:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    &#34;reply&#34;: &#34;您的博客文章涵盖了 2025 年技术趋势、开发实践、法律政策、旅行见闻及社会观察等多个领域。技术类内容包括 MCP、 Spring Boot 、 Spring Data 、 MapStruct 、 P6Spy 、 Playwright MCP 、 FastMCP 、 Spec Kit 、 Alibaba DataX 等工具和框架的实用教程，涉及数据库操作、对象映射、事件解耦、服务工厂设计、数据迁移及浏览器自动化等主题，并探讨了 Markdown 在 AI 时代的地位。政策与社会类文章关注「吸毒记录可封存」法案、历史事件及社会热点。生活类内容则记录了 2025 年的假期总结及多地旅行体验，展现了丰富多元的个人视角。&#34;,
+</span></span><span style=display:flex><span>    &#34;model&#34;: &#34;gpt-4.1&#34;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#d14>```</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>最后以 <span style=color:#d14>`blog-summary.json`</span> 为文件名，输出一个包含所有博客总结的 JSON 数组，格式如下：
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#d14>```json
+</span></span></span><span style=display:flex><span><span style=color:#d14></span>[
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:navy>&#34;blog&#34;</span>: <span style=color:#d14>&#34;leileiluoluo.com&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:navy>&#34;summary&#34;</span>: <span style=color:#d14>&#34;您的博客文章涵盖了技术开发、社会热点和个人生活等多个领域。在技术方面，您深入探讨了提示工程、规范驱动开发、Spring Boot 框架的应用、数据库迁移与优化等主题，展示了对前沿技术的关注与实践经验的分享；同时，您还介绍了 Markdown 编程语言的潜力、MapStruct 对象映射工具的优势，以及 MCP 在浏览器自动化中的应用等内容，体现了对技术趋势的敏锐洞察。在社会热点方面，您关注了吸毒记录封存法案、历史事件以及社会案件，表达了独到的见解。在个人生活方面，您记录了多次旅行与家庭活动，展现了对自然风光的热爱与家庭生活的温馨。这些文章内容丰富，兼具专业性与生活化，体现了广泛的兴趣与深刻的思考。&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#998;font-style:italic>// ...
+</span></span></span><span style=display:flex><span><span style=color:#998;font-style:italic></span>]
+</span></span><span style=display:flex><span><span style=color:#d14>```</span>
+</span></span></code></pre></div><p>最后，Copilot 生成的代码使用了我们提供的 API，并最终生成了符合预期的内容：</p><p><img loading=lazy src=https://leileiluoluo.github.io/static/images/uploads/2025/12/copilot-models-rest-api-extension-multiple-blog-processing-reult.png alt=生成了符合预期的结果></p><h2 id=4-小结>4 小结</h2><p>综上，本文以实际使用 Copilot「批量生成博客年度总结」时，Copilot 因没有直接可用的模型 API 调用而未能按预期完成任务为由，提出了编写 VS Code 扩展暴露 Copilot 自身可用模型的想法。</p><p>经过实践，发现通过编写 VS Code 插件，可以成功获取到 Copilot 的可用模型，并成功与模型实现对话，从而将 Copilot 可用模型暴露为 REST API 变为了现实。</p><p>本文完整 VS Code 扩展工程已提交至 <a href=https://github.com/leileiluoluo/daily-exercises/tree/main/copilot-models-rest-api>GitHub</a>，欢迎关注、Fork，或获取扩展文件来使用。</p><blockquote><p>参考资料</p><p>[1] Visual Studio Code Extension API: Your First Extension - <a href=https://code.visualstudio.com/api/get-started/your-first-extension>https://code.visualstudio.com/api/get-started/your-first-extension</a></p><p>[2] Visual Studio Code Extension API: Language Model API - <a href=https://code.visualstudio.com/api/extension-guides/ai/language-model>https://code.visualstudio.com/api/extension-guides/ai/language-model</a></p></blockquote></div><div class=content-footer><div class=weixinhao><img src=/static/images/self/weixinhao-white.jpg></div><div class=post-tags><a href=/tags/typescript/>#TypeScript</a>
+<a href=/tags/ai/>#AI</a></div><div class=license><i class=ti-info-alt></i><div class=info>版权声明：该博客文章由作者通过「<a href=https://creativecommons.org/licenses/by/4.0/deed.zh>知识共享署名 4.0 许可证</a>」进行授权，转载须注明文章原始链接。</div></div></div></div><div class="col-lg-8 mx-auto block shadow"><h3>相关文章</h3><ul><li><a href=/posts/getting-started-with-cursor.html>Cursor 初体验：将 React 项目从 JavaScript 升级到 TypeScript</a></li><li><a href=/posts/the-five-principles-of-prompting.html>编写提示词需要遵循的五个原则（附实践案例）</a></li><li><a href=/posts/how-to-use-spec-kit.html>如何使用 Spec Kit 工具进行规范驱动开发？</a></li><li><a href=/posts/the-universal-programming-language-of-the-ai-era.html>Markdown 将成为 AI 时代的通用编程语言？</a></li><li><a href=/posts/writing-a-mysql-mcp-server.html>使用 FastMCP 编写一个 MySQL MCP Server</a></li></ul></div><div class="col-lg-8 mx-auto block shadow"><div><h3>评论</h3><div id=comment-loading style=text-align:center;font-size:14px><img style=width:52px src=/static/images/site/mona-loading-default.gif>
+<span>正在加载评论......</span></div><script>function handleMessage(e){if(e.origin!=="https://giscus.app")return;if(typeof e.data!="object"||!e.data.giscus)return;const t=document.getElementById("comment-loading");t.style.display="none"}window.addEventListener("message",handleMessage)</script><script src=https://giscus.app/client.js data-repo=leileiluoluo/leileiluoluo.github.io data-repo-id=R_kgDOJkLT8w data-category=General data-category-id=DIC_kwDOJkLT884CdtEh data-mapping=pathname data-strict=0 data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=preferred_color_scheme data-lang=zh-CN data-loading=lazy crossorigin=anonymous async></script></div></div></div></div></section><footer class="py-4 bg-lights border-top"><div class=container><div class="row justify-content-between text-center align-items-center"><div class="col-lg-4 text-center text-lg-left mb-4 mb-lg-0"></div><div class="col-lg-4 text-center mb-4 mb-lg-0"><ul class="list-inline mb-0"><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/sponsor>随喜打赏</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/about>关于本博</a></li><li class=list-inline-item><a class="text-dark d-block p-2" href=https://leileiluoluo.github.io/links>友情链接</a></li></ul></div><div class="col-lg-4 text-lg-right text-center mb-4 mb-lg-0"><ul class="list-inline social-icon mb-0"><li class=list-inline-item><a title=文章归档 href=/archives/><i class=ti-archive></i></a></li><li class=list-inline-item><a title=文章标签 href=/tags/><i class=ti-tag></i></a></li><li class=list-inline-item><a title="我的 GitHub" href=https://github.com/leileiluoluo><i class=ti-github></i></a></li><li class=list-inline-item><a title="网站 RSS" href=/index.xml><i class=ti-rss></i></a></li></ul></div></div><div style=text-align:center;margin-bottom:22px><a href=https://www.boyouquan.com/planet-shuttle target=_blank><img width=90px height=28px src=https://boyouquan.com/assets/images/sites/logo/planet-shuttle.svg></a></div><div class="text-center mt-4"><span>Made with <a href=https://gohugo.io/>Hugo</a> | Theme by <a href=https://github.com/themefisher/northendlab-hugo>NorthendLab</a> | <a href=https://beian.miit.gov.cn>辽ICP备2022012085号-5</a> | Copyright © 2017-2025 | <a href=https://www.boyouquan.com/certificates/leileiluoluo.com title=正在博友圈履约中 target=_blank><img style=height:20px src="https://www.boyouquan.com/images/logo/performance.svg?domainName=leileiluoluo.com" alt=正在博友圈履约中></a></span></div></div></footer><script>var indexURL="https://leileiluoluo.github.io/index.json"</script><script src=https://leileiluoluo.github.io/js/jquery.min.js></script><script src=https://leileiluoluo.github.io/js/bootstrap.min.js></script><script src=https://leileiluoluo.github.io/js/fuse.min.js></script><script src=https://leileiluoluo.github.io/js/mark.js></script><script src=https://leileiluoluo.github.io/js/search.js></script><script src=https://leileiluoluo.github.io/js/script.min.js></script></body></html>
