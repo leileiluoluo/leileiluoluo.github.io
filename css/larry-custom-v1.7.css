@@ -90,7 +90,7 @@ ul {
 
 a.navbar-brand {
   font-size: 26px;
-  background-image: linear-gradient(to right, #3b023a, #754ed1, #d03135);
+  background-image: linear-gradient(to right, #3b023a, #754ed1, #001f7d);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
